@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local model/download caches must stay out of the repository.
+.cache/
+models/
+**/huggingface/
+**/hf-cache/
+**/transformers-cache/
+

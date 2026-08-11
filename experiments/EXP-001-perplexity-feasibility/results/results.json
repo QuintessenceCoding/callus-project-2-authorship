@@ -1,0 +1,467 @@
+{
+  "experiment_id": "EXP-001",
+  "name": "Local Perplexity Feasibility",
+  "created_at_utc": "2026-08-11T20:39:02.573912+00:00",
+  "model": {
+    "identifier": "distilgpt2",
+    "source": "Hugging Face Transformers",
+    "execution_device": "cpu"
+  },
+  "environment": {
+    "python": "3.12.9",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "processor": "AMD64 Family 23 Model 96 Stepping 1, AuthenticAMD",
+    "torch": "2.13.0+cpu",
+    "transformers": "5.15.0",
+    "device": "cpu"
+  },
+  "method": {
+    "token_alignment": {
+      "input_ids": "[t1, t2, t3, t4]",
+      "shift_logits": "predictions for [t2, t3, t4]",
+      "shift_labels": "[t2, t3, t4]",
+      "excluded": "t1 has no preceding-token prediction inside the supplied sequence"
+    },
+    "calculation": "mean token negative log likelihood from shifted logits, then exp(mean NLL)",
+    "reproducibility_tolerance": 1e-09
+  },
+  "measurements": [
+    {
+      "test_id": "A-very-short",
+      "category": "valid",
+      "text": "The library closed early.",
+      "runs": [
+        {
+          "char_count": 25,
+          "word_count": 4,
+          "token_count": 5,
+          "usable_prediction_token_count": 4,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 2589.029541015625,
+          "mean_nll": 7.859038352966309,
+          "inference_time_seconds": 0.15755170001648366,
+          "tokens_per_second": 25.388491521078507
+        },
+        {
+          "char_count": 25,
+          "word_count": 4,
+          "token_count": 5,
+          "usable_prediction_token_count": 4,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 2589.029541015625,
+          "mean_nll": 7.859038352966309,
+          "inference_time_seconds": 0.07722859998466447,
+          "tokens_per_second": 51.79428347521893
+        },
+        {
+          "char_count": 25,
+          "word_count": 4,
+          "token_count": 5,
+          "usable_prediction_token_count": 4,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 2589.029541015625,
+          "mean_nll": 7.859038352966309,
+          "inference_time_seconds": 0.06770359998336062,
+          "tokens_per_second": 59.08105331153841
+        }
+      ],
+      "selected_run": {
+        "char_count": 25,
+        "word_count": 4,
+        "token_count": 5,
+        "usable_prediction_token_count": 4,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 2589.029541015625,
+        "mean_nll": 7.859038352966309,
+        "inference_time_seconds": 0.15755170001648366,
+        "tokens_per_second": 25.388491521078507
+      },
+      "reproducibility": {
+        "repeat_count": 3,
+        "perplexities": [
+          2589.029541015625,
+          2589.029541015625,
+          2589.029541015625
+        ],
+        "max_absolute_difference": 0.0,
+        "tolerance": 1e-09,
+        "effectively_identical": true
+      }
+    },
+    {
+      "test_id": "B-medium",
+      "category": "valid",
+      "text": "Although the lab was quiet, I kept revising my notes because the problem finally felt solvable.",
+      "runs": [
+        {
+          "char_count": 95,
+          "word_count": 16,
+          "token_count": 20,
+          "usable_prediction_token_count": 19,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 139.89060974121094,
+          "mean_nll": 4.940860748291016,
+          "inference_time_seconds": 0.0898111000424251,
+          "tokens_per_second": 211.5551417477879
+        }
+      ],
+      "selected_run": {
+        "char_count": 95,
+        "word_count": 16,
+        "token_count": 20,
+        "usable_prediction_token_count": 19,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 139.89060974121094,
+        "mean_nll": 4.940860748291016,
+        "inference_time_seconds": 0.0898111000424251,
+        "tokens_per_second": 211.5551417477879
+      },
+      "reproducibility": {
+        "repeat_count": 1,
+        "perplexities": [
+          139.89060974121094
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "test_id": "C-long",
+      "category": "valid",
+      "text": "During the summer before my final year of school, I volunteered at a community clinic, learned how easily small administrative mistakes could delay care, and began building a simple checklist that helped patients prepare the documents they needed before arriving.",
+      "runs": [
+        {
+          "char_count": 263,
+          "word_count": 40,
+          "token_count": 44,
+          "usable_prediction_token_count": 43,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 86.94114685058594,
+          "mean_nll": 4.465231418609619,
+          "inference_time_seconds": 0.1051356999669224,
+          "tokens_per_second": 408.995232005195
+        }
+      ],
+      "selected_run": {
+        "char_count": 263,
+        "word_count": 40,
+        "token_count": 44,
+        "usable_prediction_token_count": 43,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 86.94114685058594,
+        "mean_nll": 4.465231418609619,
+        "inference_time_seconds": 0.1051356999669224,
+        "tokens_per_second": 408.995232005195
+      },
+      "reproducibility": {
+        "repeat_count": 1,
+        "perplexities": [
+          86.94114685058594
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "test_id": "D-paragraph",
+      "category": "valid",
+      "text": "My first robotics project failed in the most ordinary way: a loose wire and a rushed assumption. Instead of replacing the parts, our team traced the circuit together and wrote down every test we had skipped. That habit of slowing down became more valuable than the robot itself.",
+      "runs": [
+        {
+          "char_count": 278,
+          "word_count": 48,
+          "token_count": 53,
+          "usable_prediction_token_count": 52,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 136.83770751953125,
+          "mean_nll": 4.918795585632324,
+          "inference_time_seconds": 0.12232949997996911,
+          "tokens_per_second": 425.0814399512363
+        }
+      ],
+      "selected_run": {
+        "char_count": 278,
+        "word_count": 48,
+        "token_count": 53,
+        "usable_prediction_token_count": 52,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 136.83770751953125,
+        "mean_nll": 4.918795585632324,
+        "inference_time_seconds": 0.12232949997996911,
+        "tokens_per_second": 425.0814399512363
+      },
+      "reproducibility": {
+        "repeat_count": 1,
+        "perplexities": [
+          136.83770751953125
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "test_id": "E-admissions-style",
+      "category": "valid",
+      "text": "I used to think leadership meant having the clearest answer in the room. While organizing weekend tutoring sessions for younger students, I learned that the quieter work mattered more: listening when someone was embarrassed to ask for help, changing the lesson when an example did not land, and admitting when I needed to prepare better. By the end of the year, the program had become less about my plan and more about the trust our group built together.",
+      "runs": [
+        {
+          "char_count": 454,
+          "word_count": 78,
+          "token_count": 88,
+          "usable_prediction_token_count": 87,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 65.2799072265625,
+          "mean_nll": 4.178684234619141,
+          "inference_time_seconds": 0.14179210003931075,
+          "tokens_per_second": 613.5743809131816
+        }
+      ],
+      "selected_run": {
+        "char_count": 454,
+        "word_count": 78,
+        "token_count": 88,
+        "usable_prediction_token_count": 87,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 65.2799072265625,
+        "mean_nll": 4.178684234619141,
+        "inference_time_seconds": 0.14179210003931075,
+        "tokens_per_second": 613.5743809131816
+      },
+      "reproducibility": {
+        "repeat_count": 1,
+        "perplexities": [
+          65.2799072265625
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "test_id": "EDGE-empty",
+      "category": "edge",
+      "text": "",
+      "runs": [
+        {
+          "char_count": 0,
+          "word_count": 0,
+          "token_count": 0,
+          "usable_prediction_token_count": 0,
+          "finite": false,
+          "warnings": [],
+          "errors": [],
+          "status": "insufficient_input",
+          "reason": "At least two tokens are required because token 1 has no preceding-token prediction in the supplied sequence.",
+          "perplexity": null,
+          "mean_nll": null,
+          "inference_time_seconds": 0.00023199996212497354,
+          "tokens_per_second": null
+        }
+      ],
+      "selected_run": {
+        "char_count": 0,
+        "word_count": 0,
+        "token_count": 0,
+        "usable_prediction_token_count": 0,
+        "finite": false,
+        "warnings": [],
+        "errors": [],
+        "status": "insufficient_input",
+        "reason": "At least two tokens are required because token 1 has no preceding-token prediction in the supplied sequence.",
+        "perplexity": null,
+        "mean_nll": null,
+        "inference_time_seconds": 0.00023199996212497354,
+        "tokens_per_second": null
+      },
+      "reproducibility": {
+        "repeat_count": 1,
+        "perplexities": [],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "test_id": "EDGE-whitespace",
+      "category": "edge",
+      "text": "   \t  \n  ",
+      "runs": [
+        {
+          "char_count": 9,
+          "word_count": 0,
+          "token_count": 9,
+          "usable_prediction_token_count": 8,
+          "finite": false,
+          "warnings": [],
+          "errors": [],
+          "status": "insufficient_input",
+          "reason": "Whitespace-only text has tokens but no lexical content suitable for an evidence-first measurement.",
+          "perplexity": null,
+          "mean_nll": null,
+          "inference_time_seconds": 0.0001908999984152615,
+          "tokens_per_second": null
+        }
+      ],
+      "selected_run": {
+        "char_count": 9,
+        "word_count": 0,
+        "token_count": 9,
+        "usable_prediction_token_count": 8,
+        "finite": false,
+        "warnings": [],
+        "errors": [],
+        "status": "insufficient_input",
+        "reason": "Whitespace-only text has tokens but no lexical content suitable for an evidence-first measurement.",
+        "perplexity": null,
+        "mean_nll": null,
+        "inference_time_seconds": 0.0001908999984152615,
+        "tokens_per_second": null
+      },
+      "reproducibility": {
+        "repeat_count": 1,
+        "perplexities": [],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "test_id": "EDGE-extremely-short",
+      "category": "edge",
+      "text": "Hi",
+      "runs": [
+        {
+          "char_count": 2,
+          "word_count": 1,
+          "token_count": 1,
+          "usable_prediction_token_count": 0,
+          "finite": false,
+          "warnings": [],
+          "errors": [],
+          "status": "insufficient_input",
+          "reason": "At least two tokens are required because token 1 has no preceding-token prediction in the supplied sequence.",
+          "perplexity": null,
+          "mean_nll": null,
+          "inference_time_seconds": 0.00010340003063902259,
+          "tokens_per_second": null
+        }
+      ],
+      "selected_run": {
+        "char_count": 2,
+        "word_count": 1,
+        "token_count": 1,
+        "usable_prediction_token_count": 0,
+        "finite": false,
+        "warnings": [],
+        "errors": [],
+        "status": "insufficient_input",
+        "reason": "At least two tokens are required because token 1 has no preceding-token prediction in the supplied sequence.",
+        "perplexity": null,
+        "mean_nll": null,
+        "inference_time_seconds": 0.00010340003063902259,
+        "tokens_per_second": null
+      },
+      "reproducibility": {
+        "repeat_count": 1,
+        "perplexities": [],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "test_id": "EDGE-one-usable-prediction",
+      "category": "edge",
+      "text": "Hello world",
+      "runs": [
+        {
+          "char_count": 11,
+          "word_count": 2,
+          "token_count": 2,
+          "usable_prediction_token_count": 1,
+          "finite": true,
+          "warnings": [
+            "Only one token prediction is available; perplexity is finite but not stable evidence."
+          ],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 76679.7265625,
+          "mean_nll": 11.247392654418945,
+          "inference_time_seconds": 0.026382200012449175,
+          "tokens_per_second": 37.90434457809137
+        }
+      ],
+      "selected_run": {
+        "char_count": 11,
+        "word_count": 2,
+        "token_count": 2,
+        "usable_prediction_token_count": 1,
+        "finite": true,
+        "warnings": [
+          "Only one token prediction is available; perplexity is finite but not stable evidence."
+        ],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 76679.7265625,
+        "mean_nll": 11.247392654418945,
+        "inference_time_seconds": 0.026382200012449175,
+        "tokens_per_second": 37.90434457809137
+      },
+      "reproducibility": {
+        "repeat_count": 1,
+        "perplexities": [
+          76679.7265625
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    }
+  ],
+  "performance": {
+    "model_load_time_seconds": 1.1527934999903664,
+    "first_successful_inference_time_seconds": 0.15755170001648366,
+    "median_successful_inference_time_seconds": 0.11373259997344576,
+    "median_tokens_per_second": 310.2751868764915,
+    "total_experiment_runtime_seconds": 1.9619183999602683
+  }
+}
