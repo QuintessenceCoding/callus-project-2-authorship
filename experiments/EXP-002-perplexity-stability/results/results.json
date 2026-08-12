@@ -1,0 +1,2488 @@
+{
+  "experiment_id": "EXP-002",
+  "name": "Perplexity Stability by Text Length",
+  "created_at_utc": "2026-08-11T21:00:47.691295+00:00",
+  "model": {
+    "identifier": "distilgpt2",
+    "source": "Hugging Face Transformers",
+    "execution_device": "cpu"
+  },
+  "environment": {
+    "python": "3.12.9",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "processor": "AMD64 Family 23 Model 96 Stepping 1, AuthenticAMD",
+    "torch": "2.13.0+cpu",
+    "transformers": "5.15.0",
+    "device": "cpu"
+  },
+  "method": {
+    "target_token_counts": [
+      10,
+      20,
+      30,
+      50,
+      75,
+      100,
+      150,
+      200
+    ],
+    "prefix_rule": "Each condition is the first N tokenizer tokens of the same underlying passage.",
+    "short_repeat_count": 3,
+    "short_repeat_targets": [
+      10,
+      20,
+      30
+    ],
+    "token_alignment": {
+      "input_ids": "[t1, t2, t3, t4]",
+      "shift_logits": "predictions for [t2, t3, t4]",
+      "shift_labels": "[t2, t3, t4]",
+      "excluded": "t1 has no preceding-token prediction inside the supplied sequence"
+    },
+    "calculation": "mean token negative log likelihood from shifted logits, then exp(mean NLL)",
+    "reproducibility_tolerance": 1e-09
+  },
+  "passages": [
+    {
+      "passage_id": "P1",
+      "title": "community garden reflection",
+      "char_count": 1312,
+      "word_count": 220,
+      "token_count": 253
+    },
+    {
+      "passage_id": "P2",
+      "title": "robotics notebook reflection",
+      "char_count": 1301,
+      "word_count": 214,
+      "token_count": 248
+    },
+    {
+      "passage_id": "P3",
+      "title": "family translation reflection",
+      "char_count": 1260,
+      "word_count": 211,
+      "token_count": 240
+    },
+    {
+      "passage_id": "P4",
+      "title": "school newspaper reflection",
+      "char_count": 1379,
+      "word_count": 223,
+      "token_count": 244
+    }
+  ],
+  "measurements": [
+    {
+      "passage_id": "P1",
+      "passage_title": "community garden reflection",
+      "target_token_count": 10,
+      "actual_token_count": 10,
+      "scored_token_count": 9,
+      "prefix_text": "The first Saturday at the community garden began with a",
+      "repeat_count": 3,
+      "runs": [
+        {
+          "char_count": 55,
+          "word_count": 10,
+          "token_count": 10,
+          "scored_token_count": 9,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 204.8688507080078,
+          "mean_nll": 5.3223700523376465,
+          "inference_time_seconds": 0.1311190000269562,
+          "tokens_per_second": 68.63993775234503
+        },
+        {
+          "char_count": 55,
+          "word_count": 10,
+          "token_count": 10,
+          "scored_token_count": 9,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 204.8688507080078,
+          "mean_nll": 5.3223700523376465,
+          "inference_time_seconds": 0.05522969999583438,
+          "tokens_per_second": 162.9558009672117
+        },
+        {
+          "char_count": 55,
+          "word_count": 10,
+          "token_count": 10,
+          "scored_token_count": 9,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 204.8688507080078,
+          "mean_nll": 5.3223700523376465,
+          "inference_time_seconds": 0.05921689997194335,
+          "tokens_per_second": 151.9836398775375
+        }
+      ],
+      "selected_run": {
+        "char_count": 55,
+        "word_count": 10,
+        "token_count": 10,
+        "scored_token_count": 9,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 204.8688507080078,
+        "mean_nll": 5.3223700523376465,
+        "inference_time_seconds": 0.1311190000269562,
+        "tokens_per_second": 68.63993775234503
+      },
+      "reproducibility": {
+        "perplexities": [
+          204.8688507080078,
+          204.8688507080078,
+          204.8688507080078
+        ],
+        "max_absolute_difference": 0.0,
+        "tolerance": 1e-09,
+        "effectively_identical": true
+      }
+    },
+    {
+      "passage_id": "P1",
+      "passage_title": "community garden reflection",
+      "target_token_count": 20,
+      "actual_token_count": 20,
+      "scored_token_count": 19,
+      "prefix_text": "The first Saturday at the community garden began with a problem I thought I could solve quickly. A row",
+      "repeat_count": 3,
+      "runs": [
+        {
+          "char_count": 102,
+          "word_count": 19,
+          "token_count": 20,
+          "scored_token_count": 19,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 97.03260040283203,
+          "mean_nll": 4.575047016143799,
+          "inference_time_seconds": 0.0973492999910377,
+          "tokens_per_second": 195.1734630012666
+        },
+        {
+          "char_count": 102,
+          "word_count": 19,
+          "token_count": 20,
+          "scored_token_count": 19,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 97.03260040283203,
+          "mean_nll": 4.575047016143799,
+          "inference_time_seconds": 0.09568469994701445,
+          "tokens_per_second": 198.56884131445548
+        },
+        {
+          "char_count": 102,
+          "word_count": 19,
+          "token_count": 20,
+          "scored_token_count": 19,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 97.03260040283203,
+          "mean_nll": 4.575047016143799,
+          "inference_time_seconds": 0.16421190003165975,
+          "tokens_per_second": 115.70416027301819
+        }
+      ],
+      "selected_run": {
+        "char_count": 102,
+        "word_count": 19,
+        "token_count": 20,
+        "scored_token_count": 19,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 97.03260040283203,
+        "mean_nll": 4.575047016143799,
+        "inference_time_seconds": 0.0973492999910377,
+        "tokens_per_second": 195.1734630012666
+      },
+      "reproducibility": {
+        "perplexities": [
+          97.03260040283203,
+          97.03260040283203,
+          97.03260040283203
+        ],
+        "max_absolute_difference": 0.0,
+        "tolerance": 1e-09,
+        "effectively_identical": true
+      }
+    },
+    {
+      "passage_id": "P1",
+      "passage_title": "community garden reflection",
+      "target_token_count": 30,
+      "actual_token_count": 30,
+      "scored_token_count": 29,
+      "prefix_text": "The first Saturday at the community garden began with a problem I thought I could solve quickly. A row of seedlings had wilted after a week of",
+      "repeat_count": 3,
+      "runs": [
+        {
+          "char_count": 142,
+          "word_count": 27,
+          "token_count": 30,
+          "scored_token_count": 29,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 57.08998107910156,
+          "mean_nll": 4.044628620147705,
+          "inference_time_seconds": 0.1845501999487169,
+          "tokens_per_second": 157.13881647410062
+        },
+        {
+          "char_count": 142,
+          "word_count": 27,
+          "token_count": 30,
+          "scored_token_count": 29,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 57.08998107910156,
+          "mean_nll": 4.044628620147705,
+          "inference_time_seconds": 0.09448829997563735,
+          "tokens_per_second": 306.91630611914167
+        },
+        {
+          "char_count": 142,
+          "word_count": 27,
+          "token_count": 30,
+          "scored_token_count": 29,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 57.08998107910156,
+          "mean_nll": 4.044628620147705,
+          "inference_time_seconds": 0.09526560001540929,
+          "tokens_per_second": 304.41208574038507
+        }
+      ],
+      "selected_run": {
+        "char_count": 142,
+        "word_count": 27,
+        "token_count": 30,
+        "scored_token_count": 29,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 57.08998107910156,
+        "mean_nll": 4.044628620147705,
+        "inference_time_seconds": 0.1845501999487169,
+        "tokens_per_second": 157.13881647410062
+      },
+      "reproducibility": {
+        "perplexities": [
+          57.08998107910156,
+          57.08998107910156,
+          57.08998107910156
+        ],
+        "max_absolute_difference": 0.0,
+        "tolerance": 1e-09,
+        "effectively_identical": true
+      }
+    },
+    {
+      "passage_id": "P1",
+      "passage_title": "community garden reflection",
+      "target_token_count": 50,
+      "actual_token_count": 50,
+      "scored_token_count": 49,
+      "prefix_text": "The first Saturday at the community garden began with a problem I thought I could solve quickly. A row of seedlings had wilted after a week of heavy rain, and several volunteers were already arguing about whether to replace them or wait. I wanted to",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 249,
+          "word_count": 45,
+          "token_count": 50,
+          "scored_token_count": 49,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 47.3020133972168,
+          "mean_nll": 3.856552839279175,
+          "inference_time_seconds": 0.1016117999679409,
+          "tokens_per_second": 482.2274579867671
+        }
+      ],
+      "selected_run": {
+        "char_count": 249,
+        "word_count": 45,
+        "token_count": 50,
+        "scored_token_count": 49,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 47.3020133972168,
+        "mean_nll": 3.856552839279175,
+        "inference_time_seconds": 0.1016117999679409,
+        "tokens_per_second": 482.2274579867671
+      },
+      "reproducibility": {
+        "perplexities": [
+          47.3020133972168
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P1",
+      "passage_title": "community garden reflection",
+      "target_token_count": 75,
+      "actual_token_count": 75,
+      "scored_token_count": 74,
+      "prefix_text": "The first Saturday at the community garden began with a problem I thought I could solve quickly. A row of seedlings had wilted after a week of heavy rain, and several volunteers were already arguing about whether to replace them or wait. I wanted to be useful, so I started measuring the soil and writing down which beds drained slowly. By the afternoon, the answer was less",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 374,
+          "word_count": 67,
+          "token_count": 75,
+          "scored_token_count": 74,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 55.64859390258789,
+          "mean_nll": 4.019056797027588,
+          "inference_time_seconds": 0.11875060002785176,
+          "tokens_per_second": 623.1547460193384
+        }
+      ],
+      "selected_run": {
+        "char_count": 374,
+        "word_count": 67,
+        "token_count": 75,
+        "scored_token_count": 74,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 55.64859390258789,
+        "mean_nll": 4.019056797027588,
+        "inference_time_seconds": 0.11875060002785176,
+        "tokens_per_second": 623.1547460193384
+      },
+      "reproducibility": {
+        "perplexities": [
+          55.64859390258789
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P1",
+      "passage_title": "community garden reflection",
+      "target_token_count": 100,
+      "actual_token_count": 100,
+      "scored_token_count": 99,
+      "prefix_text": "The first Saturday at the community garden began with a problem I thought I could solve quickly. A row of seedlings had wilted after a week of heavy rain, and several volunteers were already arguing about whether to replace them or wait. I wanted to be useful, so I started measuring the soil and writing down which beds drained slowly. By the afternoon, the answer was less dramatic than anyone expected: the lowest corner needed a shallow channel, and the new volunteers needed clearer instructions about watering after storms.",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 529,
+          "word_count": 89,
+          "token_count": 100,
+          "scored_token_count": 99,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 72.5919418334961,
+          "mean_nll": 4.284853935241699,
+          "inference_time_seconds": 0.13253080000868067,
+          "tokens_per_second": 746.9961698979828
+        }
+      ],
+      "selected_run": {
+        "char_count": 529,
+        "word_count": 89,
+        "token_count": 100,
+        "scored_token_count": 99,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 72.5919418334961,
+        "mean_nll": 4.284853935241699,
+        "inference_time_seconds": 0.13253080000868067,
+        "tokens_per_second": 746.9961698979828
+      },
+      "reproducibility": {
+        "perplexities": [
+          72.5919418334961
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P1",
+      "passage_title": "community garden reflection",
+      "target_token_count": 150,
+      "actual_token_count": 150,
+      "scored_token_count": 149,
+      "prefix_text": "The first Saturday at the community garden began with a problem I thought I could solve quickly. A row of seedlings had wilted after a week of heavy rain, and several volunteers were already arguing about whether to replace them or wait. I wanted to be useful, so I started measuring the soil and writing down which beds drained slowly. By the afternoon, the answer was less dramatic than anyone expected: the lowest corner needed a shallow channel, and the new volunteers needed clearer instructions about watering after storms. The experience stayed with me because it changed how I understood service. Helping was not only the visible work of planting or carrying tools. It was also the quiet work of noticing patterns, asking people what they had already tried, and making a plan that",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 788,
+          "word_count": 134,
+          "token_count": 150,
+          "scored_token_count": 149,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 65.6310043334961,
+          "mean_nll": 4.184048175811768,
+          "inference_time_seconds": 0.17413429997395724,
+          "tokens_per_second": 855.6614062955075
+        }
+      ],
+      "selected_run": {
+        "char_count": 788,
+        "word_count": 134,
+        "token_count": 150,
+        "scored_token_count": 149,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 65.6310043334961,
+        "mean_nll": 4.184048175811768,
+        "inference_time_seconds": 0.17413429997395724,
+        "tokens_per_second": 855.6614062955075
+      },
+      "reproducibility": {
+        "perplexities": [
+          65.6310043334961
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P1",
+      "passage_title": "community garden reflection",
+      "target_token_count": 200,
+      "actual_token_count": 200,
+      "scored_token_count": 199,
+      "prefix_text": "The first Saturday at the community garden began with a problem I thought I could solve quickly. A row of seedlings had wilted after a week of heavy rain, and several volunteers were already arguing about whether to replace them or wait. I wanted to be useful, so I started measuring the soil and writing down which beds drained slowly. By the afternoon, the answer was less dramatic than anyone expected: the lowest corner needed a shallow channel, and the new volunteers needed clearer instructions about watering after storms. The experience stayed with me because it changed how I understood service. Helping was not only the visible work of planting or carrying tools. It was also the quiet work of noticing patterns, asking people what they had already tried, and making a plan that someone else could continue when I was not there. Over the next month, I helped label each bed, rewrite the volunteer notes, and build a simple schedule that paired experienced gardeners with first-time helpers. The garden looked healthier by midsummer,",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 1042,
+          "word_count": 174,
+          "token_count": 200,
+          "scored_token_count": 199,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 62.536346435546875,
+          "mean_nll": 4.135747909545898,
+          "inference_time_seconds": 0.29792539996560663,
+          "tokens_per_second": 667.9524472333447
+        }
+      ],
+      "selected_run": {
+        "char_count": 1042,
+        "word_count": 174,
+        "token_count": 200,
+        "scored_token_count": 199,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 62.536346435546875,
+        "mean_nll": 4.135747909545898,
+        "inference_time_seconds": 0.29792539996560663,
+        "tokens_per_second": 667.9524472333447
+      },
+      "reproducibility": {
+        "perplexities": [
+          62.536346435546875
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P2",
+      "passage_title": "robotics notebook reflection",
+      "target_token_count": 10,
+      "actual_token_count": 10,
+      "scored_token_count": 9,
+      "prefix_text": "Our robotics team kept a notebook that no one wanted",
+      "repeat_count": 3,
+      "runs": [
+        {
+          "char_count": 52,
+          "word_count": 10,
+          "token_count": 10,
+          "scored_token_count": 9,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 376.84490966796875,
+          "mean_nll": 5.931833744049072,
+          "inference_time_seconds": 0.05783000000519678,
+          "tokens_per_second": 155.62856647399676
+        },
+        {
+          "char_count": 52,
+          "word_count": 10,
+          "token_count": 10,
+          "scored_token_count": 9,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 376.84490966796875,
+          "mean_nll": 5.931833744049072,
+          "inference_time_seconds": 0.055838099971879274,
+          "tokens_per_second": 161.1802694671292
+        },
+        {
+          "char_count": 52,
+          "word_count": 10,
+          "token_count": 10,
+          "scored_token_count": 9,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 376.84490966796875,
+          "mean_nll": 5.931833744049072,
+          "inference_time_seconds": 0.056244099978357553,
+          "tokens_per_second": 160.01678404424916
+        }
+      ],
+      "selected_run": {
+        "char_count": 52,
+        "word_count": 10,
+        "token_count": 10,
+        "scored_token_count": 9,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 376.84490966796875,
+        "mean_nll": 5.931833744049072,
+        "inference_time_seconds": 0.05783000000519678,
+        "tokens_per_second": 155.62856647399676
+      },
+      "reproducibility": {
+        "perplexities": [
+          376.84490966796875,
+          376.84490966796875,
+          376.84490966796875
+        ],
+        "max_absolute_difference": 0.0,
+        "tolerance": 1e-09,
+        "effectively_identical": true
+      }
+    },
+    {
+      "passage_id": "P2",
+      "passage_title": "robotics notebook reflection",
+      "target_token_count": 20,
+      "actual_token_count": 20,
+      "scored_token_count": 19,
+      "prefix_text": "Our robotics team kept a notebook that no one wanted to maintain. At the beginning of the season,",
+      "repeat_count": 3,
+      "runs": [
+        {
+          "char_count": 97,
+          "word_count": 18,
+          "token_count": 20,
+          "scored_token_count": 19,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 62.586612701416016,
+          "mean_nll": 4.136551380157471,
+          "inference_time_seconds": 0.09013030002824962,
+          "tokens_per_second": 210.8059109316713
+        },
+        {
+          "char_count": 97,
+          "word_count": 18,
+          "token_count": 20,
+          "scored_token_count": 19,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 62.586612701416016,
+          "mean_nll": 4.136551380157471,
+          "inference_time_seconds": 0.08963149995543063,
+          "tokens_per_second": 211.97904765007584
+        },
+        {
+          "char_count": 97,
+          "word_count": 18,
+          "token_count": 20,
+          "scored_token_count": 19,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 62.586612701416016,
+          "mean_nll": 4.136551380157471,
+          "inference_time_seconds": 0.08511769998585805,
+          "tokens_per_second": 223.22031731539704
+        }
+      ],
+      "selected_run": {
+        "char_count": 97,
+        "word_count": 18,
+        "token_count": 20,
+        "scored_token_count": 19,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 62.586612701416016,
+        "mean_nll": 4.136551380157471,
+        "inference_time_seconds": 0.09013030002824962,
+        "tokens_per_second": 210.8059109316713
+      },
+      "reproducibility": {
+        "perplexities": [
+          62.586612701416016,
+          62.586612701416016,
+          62.586612701416016
+        ],
+        "max_absolute_difference": 0.0,
+        "tolerance": 1e-09,
+        "effectively_identical": true
+      }
+    },
+    {
+      "passage_id": "P2",
+      "passage_title": "robotics notebook reflection",
+      "target_token_count": 30,
+      "actual_token_count": 30,
+      "scored_token_count": 29,
+      "prefix_text": "Our robotics team kept a notebook that no one wanted to maintain. At the beginning of the season, it was a messy folder of sketches, half-",
+      "repeat_count": 3,
+      "runs": [
+        {
+          "char_count": 138,
+          "word_count": 26,
+          "token_count": 30,
+          "scored_token_count": 29,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 64.37450408935547,
+          "mean_nll": 4.164717674255371,
+          "inference_time_seconds": 0.08797680004499853,
+          "tokens_per_second": 329.63235745295384
+        },
+        {
+          "char_count": 138,
+          "word_count": 26,
+          "token_count": 30,
+          "scored_token_count": 29,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 64.37450408935547,
+          "mean_nll": 4.164717674255371,
+          "inference_time_seconds": 0.09299400000600144,
+          "tokens_per_second": 311.8480761998458
+        },
+        {
+          "char_count": 138,
+          "word_count": 26,
+          "token_count": 30,
+          "scored_token_count": 29,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 64.37450408935547,
+          "mean_nll": 4.164717674255371,
+          "inference_time_seconds": 0.09038510004756972,
+          "tokens_per_second": 320.8493433623162
+        }
+      ],
+      "selected_run": {
+        "char_count": 138,
+        "word_count": 26,
+        "token_count": 30,
+        "scored_token_count": 29,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 64.37450408935547,
+        "mean_nll": 4.164717674255371,
+        "inference_time_seconds": 0.08797680004499853,
+        "tokens_per_second": 329.63235745295384
+      },
+      "reproducibility": {
+        "perplexities": [
+          64.37450408935547,
+          64.37450408935547,
+          64.37450408935547
+        ],
+        "max_absolute_difference": 0.0,
+        "tolerance": 1e-09,
+        "effectively_identical": true
+      }
+    },
+    {
+      "passage_id": "P2",
+      "passage_title": "robotics notebook reflection",
+      "target_token_count": 50,
+      "actual_token_count": 50,
+      "scored_token_count": 49,
+      "prefix_text": "Our robotics team kept a notebook that no one wanted to maintain. At the beginning of the season, it was a messy folder of sketches, half-finished calculations, and photographs of parts we had already replaced. I was impatient with it because I preferred",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 254,
+          "word_count": 43,
+          "token_count": 50,
+          "scored_token_count": 49,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 57.49460220336914,
+          "mean_nll": 4.051691055297852,
+          "inference_time_seconds": 0.10235719999764115,
+          "tokens_per_second": 478.7157132192872
+        }
+      ],
+      "selected_run": {
+        "char_count": 254,
+        "word_count": 43,
+        "token_count": 50,
+        "scored_token_count": 49,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 57.49460220336914,
+        "mean_nll": 4.051691055297852,
+        "inference_time_seconds": 0.10235719999764115,
+        "tokens_per_second": 478.7157132192872
+      },
+      "reproducibility": {
+        "perplexities": [
+          57.49460220336914
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P2",
+      "passage_title": "robotics notebook reflection",
+      "target_token_count": 75,
+      "actual_token_count": 75,
+      "scored_token_count": 74,
+      "prefix_text": "Our robotics team kept a notebook that no one wanted to maintain. At the beginning of the season, it was a messy folder of sketches, half-finished calculations, and photographs of parts we had already replaced. I was impatient with it because I preferred building to documenting. That changed after our drivetrain failed during a practice match and we spent two evenings rediscovering a wiring",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 393,
+          "word_count": 64,
+          "token_count": 75,
+          "scored_token_count": 74,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 85.63550567626953,
+          "mean_nll": 4.450099945068359,
+          "inference_time_seconds": 0.11731619999045506,
+          "tokens_per_second": 630.773925562034
+        }
+      ],
+      "selected_run": {
+        "char_count": 393,
+        "word_count": 64,
+        "token_count": 75,
+        "scored_token_count": 74,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 85.63550567626953,
+        "mean_nll": 4.450099945068359,
+        "inference_time_seconds": 0.11731619999045506,
+        "tokens_per_second": 630.773925562034
+      },
+      "reproducibility": {
+        "perplexities": [
+          85.63550567626953
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P2",
+      "passage_title": "robotics notebook reflection",
+      "target_token_count": 100,
+      "actual_token_count": 100,
+      "scored_token_count": 99,
+      "prefix_text": "Our robotics team kept a notebook that no one wanted to maintain. At the beginning of the season, it was a messy folder of sketches, half-finished calculations, and photographs of parts we had already replaced. I was impatient with it because I preferred building to documenting. That changed after our drivetrain failed during a practice match and we spent two evenings rediscovering a wiring mistake someone had fixed weeks earlier. I volunteered to reorganize the notebook, partly out of embarrassment and partly because I could see",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 535,
+          "word_count": 86,
+          "token_count": 100,
+          "scored_token_count": 99,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 69.2655029296875,
+          "mean_nll": 4.2379469871521,
+          "inference_time_seconds": 0.1326151000102982,
+          "tokens_per_second": 746.5213236826891
+        }
+      ],
+      "selected_run": {
+        "char_count": 535,
+        "word_count": 86,
+        "token_count": 100,
+        "scored_token_count": 99,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 69.2655029296875,
+        "mean_nll": 4.2379469871521,
+        "inference_time_seconds": 0.1326151000102982,
+        "tokens_per_second": 746.5213236826891
+      },
+      "reproducibility": {
+        "perplexities": [
+          69.2655029296875
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P2",
+      "passage_title": "robotics notebook reflection",
+      "target_token_count": 150,
+      "actual_token_count": 150,
+      "scored_token_count": 149,
+      "prefix_text": "Our robotics team kept a notebook that no one wanted to maintain. At the beginning of the season, it was a messy folder of sketches, half-finished calculations, and photographs of parts we had already replaced. I was impatient with it because I preferred building to documenting. That changed after our drivetrain failed during a practice match and we spent two evenings rediscovering a wiring mistake someone had fixed weeks earlier. I volunteered to reorganize the notebook, partly out of embarrassment and partly because I could see how much time we were losing. I made a page for each subsystem, added dates to every test, and asked teammates to write down not only what worked but what almost worked. The habit felt awkward at first. People joked that I had become the",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 773,
+          "word_count": 131,
+          "token_count": 150,
+          "scored_token_count": 149,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 61.60430908203125,
+          "mean_nll": 4.120731830596924,
+          "inference_time_seconds": 0.17790820001391694,
+          "tokens_per_second": 837.5105812342794
+        }
+      ],
+      "selected_run": {
+        "char_count": 773,
+        "word_count": 131,
+        "token_count": 150,
+        "scored_token_count": 149,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 61.60430908203125,
+        "mean_nll": 4.120731830596924,
+        "inference_time_seconds": 0.17790820001391694,
+        "tokens_per_second": 837.5105812342794
+      },
+      "reproducibility": {
+        "perplexities": [
+          61.60430908203125
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P2",
+      "passage_title": "robotics notebook reflection",
+      "target_token_count": 200,
+      "actual_token_count": 200,
+      "scored_token_count": 199,
+      "prefix_text": "Our robotics team kept a notebook that no one wanted to maintain. At the beginning of the season, it was a messy folder of sketches, half-finished calculations, and photographs of parts we had already replaced. I was impatient with it because I preferred building to documenting. That changed after our drivetrain failed during a practice match and we spent two evenings rediscovering a wiring mistake someone had fixed weeks earlier. I volunteered to reorganize the notebook, partly out of embarrassment and partly because I could see how much time we were losing. I made a page for each subsystem, added dates to every test, and asked teammates to write down not only what worked but what almost worked. The habit felt awkward at first. People joked that I had become the paperwork captain. Then the notebook started answering questions before they became arguments. When an arm motor overheated, we found the earlier load readings. When a sensor gave inconsistent values, we found the calibration notes. By competition day, our robot was still imperfect",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 1056,
+          "word_count": 173,
+          "token_count": 200,
+          "scored_token_count": 199,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 78.04298400878906,
+          "mean_nll": 4.357259750366211,
+          "inference_time_seconds": 0.21403319999808446,
+          "tokens_per_second": 929.7622985676101
+        }
+      ],
+      "selected_run": {
+        "char_count": 1056,
+        "word_count": 173,
+        "token_count": 200,
+        "scored_token_count": 199,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 78.04298400878906,
+        "mean_nll": 4.357259750366211,
+        "inference_time_seconds": 0.21403319999808446,
+        "tokens_per_second": 929.7622985676101
+      },
+      "reproducibility": {
+        "perplexities": [
+          78.04298400878906
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P3",
+      "passage_title": "family translation reflection",
+      "target_token_count": 10,
+      "actual_token_count": 10,
+      "scored_token_count": 9,
+      "prefix_text": "For many years I translated official letters for my grandmother",
+      "repeat_count": 3,
+      "runs": [
+        {
+          "char_count": 63,
+          "word_count": 10,
+          "token_count": 10,
+          "scored_token_count": 9,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 693.2778930664062,
+          "mean_nll": 6.541430950164795,
+          "inference_time_seconds": 0.057522699993569404,
+          "tokens_per_second": 156.45997147223846
+        },
+        {
+          "char_count": 63,
+          "word_count": 10,
+          "token_count": 10,
+          "scored_token_count": 9,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 693.2778930664062,
+          "mean_nll": 6.541430950164795,
+          "inference_time_seconds": 0.057488600024953485,
+          "tokens_per_second": 156.5527773522657
+        },
+        {
+          "char_count": 63,
+          "word_count": 10,
+          "token_count": 10,
+          "scored_token_count": 9,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 693.2778930664062,
+          "mean_nll": 6.541430950164795,
+          "inference_time_seconds": 0.058968500001356006,
+          "tokens_per_second": 152.6238584972153
+        }
+      ],
+      "selected_run": {
+        "char_count": 63,
+        "word_count": 10,
+        "token_count": 10,
+        "scored_token_count": 9,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 693.2778930664062,
+        "mean_nll": 6.541430950164795,
+        "inference_time_seconds": 0.057522699993569404,
+        "tokens_per_second": 156.45997147223846
+      },
+      "reproducibility": {
+        "perplexities": [
+          693.2778930664062,
+          693.2778930664062,
+          693.2778930664062
+        ],
+        "max_absolute_difference": 0.0,
+        "tolerance": 1e-09,
+        "effectively_identical": true
+      }
+    },
+    {
+      "passage_id": "P3",
+      "passage_title": "family translation reflection",
+      "target_token_count": 20,
+      "actual_token_count": 20,
+      "scored_token_count": 19,
+      "prefix_text": "For many years I translated official letters for my grandmother at the kitchen table. The envelopes looked ordinary",
+      "repeat_count": 3,
+      "runs": [
+        {
+          "char_count": 115,
+          "word_count": 18,
+          "token_count": 20,
+          "scored_token_count": 19,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 219.01612854003906,
+          "mean_nll": 5.389145374298096,
+          "inference_time_seconds": 0.08699410001281649,
+          "tokens_per_second": 218.40561598086316
+        },
+        {
+          "char_count": 115,
+          "word_count": 18,
+          "token_count": 20,
+          "scored_token_count": 19,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 219.01612854003906,
+          "mean_nll": 5.389145374298096,
+          "inference_time_seconds": 0.08786580001469702,
+          "tokens_per_second": 216.23885512704527
+        },
+        {
+          "char_count": 115,
+          "word_count": 18,
+          "token_count": 20,
+          "scored_token_count": 19,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 219.01612854003906,
+          "mean_nll": 5.389145374298096,
+          "inference_time_seconds": 0.08863469999050722,
+          "tokens_per_second": 214.36299781050653
+        }
+      ],
+      "selected_run": {
+        "char_count": 115,
+        "word_count": 18,
+        "token_count": 20,
+        "scored_token_count": 19,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 219.01612854003906,
+        "mean_nll": 5.389145374298096,
+        "inference_time_seconds": 0.08699410001281649,
+        "tokens_per_second": 218.40561598086316
+      },
+      "reproducibility": {
+        "perplexities": [
+          219.01612854003906,
+          219.01612854003906,
+          219.01612854003906
+        ],
+        "max_absolute_difference": 0.0,
+        "tolerance": 1e-09,
+        "effectively_identical": true
+      }
+    },
+    {
+      "passage_id": "P3",
+      "passage_title": "family translation reflection",
+      "target_token_count": 30,
+      "actual_token_count": 30,
+      "scored_token_count": 29,
+      "prefix_text": "For many years I translated official letters for my grandmother at the kitchen table. The envelopes looked ordinary, but they often carried questions about appointments, insurance",
+      "repeat_count": 3,
+      "runs": [
+        {
+          "char_count": 179,
+          "word_count": 26,
+          "token_count": 30,
+          "scored_token_count": 29,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 160.74659729003906,
+          "mean_nll": 5.079829216003418,
+          "inference_time_seconds": 0.09203990001697093,
+          "tokens_per_second": 315.0807420982942
+        },
+        {
+          "char_count": 179,
+          "word_count": 26,
+          "token_count": 30,
+          "scored_token_count": 29,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 160.74659729003906,
+          "mean_nll": 5.079829216003418,
+          "inference_time_seconds": 0.13943109998945147,
+          "tokens_per_second": 207.98803138033028
+        },
+        {
+          "char_count": 179,
+          "word_count": 26,
+          "token_count": 30,
+          "scored_token_count": 29,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 160.74659729003906,
+          "mean_nll": 5.079829216003418,
+          "inference_time_seconds": 0.09341910004150122,
+          "tokens_per_second": 310.42902347717774
+        }
+      ],
+      "selected_run": {
+        "char_count": 179,
+        "word_count": 26,
+        "token_count": 30,
+        "scored_token_count": 29,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 160.74659729003906,
+        "mean_nll": 5.079829216003418,
+        "inference_time_seconds": 0.09203990001697093,
+        "tokens_per_second": 315.0807420982942
+      },
+      "reproducibility": {
+        "perplexities": [
+          160.74659729003906,
+          160.74659729003906,
+          160.74659729003906
+        ],
+        "max_absolute_difference": 0.0,
+        "tolerance": 1e-09,
+        "effectively_identical": true
+      }
+    },
+    {
+      "passage_id": "P3",
+      "passage_title": "family translation reflection",
+      "target_token_count": 50,
+      "actual_token_count": 50,
+      "scored_token_count": 49,
+      "prefix_text": "For many years I translated official letters for my grandmother at the kitchen table. The envelopes looked ordinary, but they often carried questions about appointments, insurance forms, or deadlines she did not want to miss. At first I treated translation as a simple exchange",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 277,
+          "word_count": 44,
+          "token_count": 50,
+          "scored_token_count": 49,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 121.86886596679688,
+          "mean_nll": 4.802945613861084,
+          "inference_time_seconds": 0.1009658999973908,
+          "tokens_per_second": 485.31236785158427
+        }
+      ],
+      "selected_run": {
+        "char_count": 277,
+        "word_count": 44,
+        "token_count": 50,
+        "scored_token_count": 49,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 121.86886596679688,
+        "mean_nll": 4.802945613861084,
+        "inference_time_seconds": 0.1009658999973908,
+        "tokens_per_second": 485.31236785158427
+      },
+      "reproducibility": {
+        "perplexities": [
+          121.86886596679688
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P3",
+      "passage_title": "family translation reflection",
+      "target_token_count": 75,
+      "actual_token_count": 75,
+      "scored_token_count": 74,
+      "prefix_text": "For many years I translated official letters for my grandmother at the kitchen table. The envelopes looked ordinary, but they often carried questions about appointments, insurance forms, or deadlines she did not want to miss. At first I treated translation as a simple exchange of words from one language into another. If a sentence said to bring identification, I repeated that instruction and moved on. Grad",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 409,
+          "word_count": 66,
+          "token_count": 75,
+          "scored_token_count": 74,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 93.18035125732422,
+          "mean_nll": 4.534536838531494,
+          "inference_time_seconds": 0.1163941000122577,
+          "tokens_per_second": 635.7710570570752
+        }
+      ],
+      "selected_run": {
+        "char_count": 409,
+        "word_count": 66,
+        "token_count": 75,
+        "scored_token_count": 74,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 93.18035125732422,
+        "mean_nll": 4.534536838531494,
+        "inference_time_seconds": 0.1163941000122577,
+        "tokens_per_second": 635.7710570570752
+      },
+      "reproducibility": {
+        "perplexities": [
+          93.18035125732422
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P3",
+      "passage_title": "family translation reflection",
+      "target_token_count": 100,
+      "actual_token_count": 100,
+      "scored_token_count": 99,
+      "prefix_text": "For many years I translated official letters for my grandmother at the kitchen table. The envelopes looked ordinary, but they often carried questions about appointments, insurance forms, or deadlines she did not want to miss. At first I treated translation as a simple exchange of words from one language into another. If a sentence said to bring identification, I repeated that instruction and moved on. Gradually I noticed that the harder part was not vocabulary. It was context. My grandmother wanted to know which details mattered, what",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 540,
+          "word_count": 87,
+          "token_count": 100,
+          "scored_token_count": 99,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 72.47735595703125,
+          "mean_nll": 4.283274173736572,
+          "inference_time_seconds": 0.14561870001489297,
+          "tokens_per_second": 679.8577379819686
+        }
+      ],
+      "selected_run": {
+        "char_count": 540,
+        "word_count": 87,
+        "token_count": 100,
+        "scored_token_count": 99,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 72.47735595703125,
+        "mean_nll": 4.283274173736572,
+        "inference_time_seconds": 0.14561870001489297,
+        "tokens_per_second": 679.8577379819686
+      },
+      "reproducibility": {
+        "perplexities": [
+          72.47735595703125
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P3",
+      "passage_title": "family translation reflection",
+      "target_token_count": 150,
+      "actual_token_count": 150,
+      "scored_token_count": 149,
+      "prefix_text": "For many years I translated official letters for my grandmother at the kitchen table. The envelopes looked ordinary, but they often carried questions about appointments, insurance forms, or deadlines she did not want to miss. At first I treated translation as a simple exchange of words from one language into another. If a sentence said to bring identification, I repeated that instruction and moved on. Gradually I noticed that the harder part was not vocabulary. It was context. My grandmother wanted to know which details mattered, what would happen if a form was late, and whether a polite phrase was actually a warning. I began keeping a small list of terms, phone numbers, and questions to ask before appointments. That list became useful beyond our family. Neighbors started bringing similar",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 799,
+          "word_count": 130,
+          "token_count": 150,
+          "scored_token_count": 149,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 71.1527328491211,
+          "mean_nll": 4.264828681945801,
+          "inference_time_seconds": 0.17094750003889203,
+          "tokens_per_second": 871.6126294102062
+        }
+      ],
+      "selected_run": {
+        "char_count": 799,
+        "word_count": 130,
+        "token_count": 150,
+        "scored_token_count": 149,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 71.1527328491211,
+        "mean_nll": 4.264828681945801,
+        "inference_time_seconds": 0.17094750003889203,
+        "tokens_per_second": 871.6126294102062
+      },
+      "reproducibility": {
+        "perplexities": [
+          71.1527328491211
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P3",
+      "passage_title": "family translation reflection",
+      "target_token_count": 200,
+      "actual_token_count": 200,
+      "scored_token_count": 199,
+      "prefix_text": "For many years I translated official letters for my grandmother at the kitchen table. The envelopes looked ordinary, but they often carried questions about appointments, insurance forms, or deadlines she did not want to miss. At first I treated translation as a simple exchange of words from one language into another. If a sentence said to bring identification, I repeated that instruction and moved on. Gradually I noticed that the harder part was not vocabulary. It was context. My grandmother wanted to know which details mattered, what would happen if a form was late, and whether a polite phrase was actually a warning. I began keeping a small list of terms, phone numbers, and questions to ask before appointments. That list became useful beyond our family. Neighbors started bringing similar letters, and I saw how easily a confusing sentence could turn into a missed service or an unnecessary fee. The work taught me patience, but it also taught me to respect precision. A translation that sounds fluent but hides uncertainty can be harmful. A good",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 1057,
+          "word_count": 175,
+          "token_count": 200,
+          "scored_token_count": 199,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 67.43724060058594,
+          "mean_nll": 4.211197376251221,
+          "inference_time_seconds": 0.20709239999996498,
+          "tokens_per_second": 960.9237229373634
+        }
+      ],
+      "selected_run": {
+        "char_count": 1057,
+        "word_count": 175,
+        "token_count": 200,
+        "scored_token_count": 199,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 67.43724060058594,
+        "mean_nll": 4.211197376251221,
+        "inference_time_seconds": 0.20709239999996498,
+        "tokens_per_second": 960.9237229373634
+      },
+      "reproducibility": {
+        "perplexities": [
+          67.43724060058594
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P4",
+      "passage_title": "school newspaper reflection",
+      "target_token_count": 10,
+      "actual_token_count": 10,
+      "scored_token_count": 9,
+      "prefix_text": "When I joined the school newspaper, I expected to",
+      "repeat_count": 3,
+      "runs": [
+        {
+          "char_count": 49,
+          "word_count": 9,
+          "token_count": 10,
+          "scored_token_count": 9,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 87.92815399169922,
+          "mean_nll": 4.47652006149292,
+          "inference_time_seconds": 0.057522699993569404,
+          "tokens_per_second": 156.45997147223846
+        },
+        {
+          "char_count": 49,
+          "word_count": 9,
+          "token_count": 10,
+          "scored_token_count": 9,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 87.92815399169922,
+          "mean_nll": 4.47652006149292,
+          "inference_time_seconds": 0.0556310000247322,
+          "tokens_per_second": 161.78030227748587
+        },
+        {
+          "char_count": 49,
+          "word_count": 9,
+          "token_count": 10,
+          "scored_token_count": 9,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 87.92815399169922,
+          "mean_nll": 4.47652006149292,
+          "inference_time_seconds": 0.05534880002960563,
+          "tokens_per_second": 162.60515124421798
+        }
+      ],
+      "selected_run": {
+        "char_count": 49,
+        "word_count": 9,
+        "token_count": 10,
+        "scored_token_count": 9,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 87.92815399169922,
+        "mean_nll": 4.47652006149292,
+        "inference_time_seconds": 0.057522699993569404,
+        "tokens_per_second": 156.45997147223846
+      },
+      "reproducibility": {
+        "perplexities": [
+          87.92815399169922,
+          87.92815399169922,
+          87.92815399169922
+        ],
+        "max_absolute_difference": 0.0,
+        "tolerance": 1e-09,
+        "effectively_identical": true
+      }
+    },
+    {
+      "passage_id": "P4",
+      "passage_title": "school newspaper reflection",
+      "target_token_count": 20,
+      "actual_token_count": 20,
+      "scored_token_count": 19,
+      "prefix_text": "When I joined the school newspaper, I expected to write opinion pieces about decisions everyone was already discussing in",
+      "repeat_count": 3,
+      "runs": [
+        {
+          "char_count": 121,
+          "word_count": 19,
+          "token_count": 20,
+          "scored_token_count": 19,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 106.31299591064453,
+          "mean_nll": 4.666387557983398,
+          "inference_time_seconds": 0.08741279999958351,
+          "tokens_per_second": 217.35947138280122
+        },
+        {
+          "char_count": 121,
+          "word_count": 19,
+          "token_count": 20,
+          "scored_token_count": 19,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 106.31299591064453,
+          "mean_nll": 4.666387557983398,
+          "inference_time_seconds": 0.08751979999942705,
+          "tokens_per_second": 217.093731934081
+        },
+        {
+          "char_count": 121,
+          "word_count": 19,
+          "token_count": 20,
+          "scored_token_count": 19,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 106.31299591064453,
+          "mean_nll": 4.666387557983398,
+          "inference_time_seconds": 0.09425820002797991,
+          "tokens_per_second": 201.57397440604615
+        }
+      ],
+      "selected_run": {
+        "char_count": 121,
+        "word_count": 19,
+        "token_count": 20,
+        "scored_token_count": 19,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 106.31299591064453,
+        "mean_nll": 4.666387557983398,
+        "inference_time_seconds": 0.08741279999958351,
+        "tokens_per_second": 217.35947138280122
+      },
+      "reproducibility": {
+        "perplexities": [
+          106.31299591064453,
+          106.31299591064453,
+          106.31299591064453
+        ],
+        "max_absolute_difference": 0.0,
+        "tolerance": 1e-09,
+        "effectively_identical": true
+      }
+    },
+    {
+      "passage_id": "P4",
+      "passage_title": "school newspaper reflection",
+      "target_token_count": 30,
+      "actual_token_count": 30,
+      "scored_token_count": 29,
+      "prefix_text": "When I joined the school newspaper, I expected to write opinion pieces about decisions everyone was already discussing in the hallway. My first assignment was less glamorous:",
+      "repeat_count": 3,
+      "runs": [
+        {
+          "char_count": 174,
+          "word_count": 27,
+          "token_count": 30,
+          "scored_token_count": 29,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 91.91304779052734,
+          "mean_nll": 4.520843029022217,
+          "inference_time_seconds": 0.09184159996220842,
+          "tokens_per_second": 315.7610495890001
+        },
+        {
+          "char_count": 174,
+          "word_count": 27,
+          "token_count": 30,
+          "scored_token_count": 29,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 91.91304779052734,
+          "mean_nll": 4.520843029022217,
+          "inference_time_seconds": 0.09200220002094284,
+          "tokens_per_second": 315.20985360565953
+        },
+        {
+          "char_count": 174,
+          "word_count": 27,
+          "token_count": 30,
+          "scored_token_count": 29,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 91.91304779052734,
+          "mean_nll": 4.520843029022217,
+          "inference_time_seconds": 0.0918695000000298,
+          "tokens_per_second": 315.66515546498664
+        }
+      ],
+      "selected_run": {
+        "char_count": 174,
+        "word_count": 27,
+        "token_count": 30,
+        "scored_token_count": 29,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 91.91304779052734,
+        "mean_nll": 4.520843029022217,
+        "inference_time_seconds": 0.09184159996220842,
+        "tokens_per_second": 315.7610495890001
+      },
+      "reproducibility": {
+        "perplexities": [
+          91.91304779052734,
+          91.91304779052734,
+          91.91304779052734
+        ],
+        "max_absolute_difference": 0.0,
+        "tolerance": 1e-09,
+        "effectively_identical": true
+      }
+    },
+    {
+      "passage_id": "P4",
+      "passage_title": "school newspaper reflection",
+      "target_token_count": 50,
+      "actual_token_count": 50,
+      "scored_token_count": 49,
+      "prefix_text": "When I joined the school newspaper, I expected to write opinion pieces about decisions everyone was already discussing in the hallway. My first assignment was less glamorous: interview cafeteria staff about a new breakfast program that most students ignored. I arrived with narrow questions and a",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 296,
+          "word_count": 46,
+          "token_count": 50,
+          "scored_token_count": 49,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 113.12708282470703,
+          "mean_nll": 4.728511810302734,
+          "inference_time_seconds": 0.09995209996122867,
+          "tokens_per_second": 490.2348226701296
+        }
+      ],
+      "selected_run": {
+        "char_count": 296,
+        "word_count": 46,
+        "token_count": 50,
+        "scored_token_count": 49,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 113.12708282470703,
+        "mean_nll": 4.728511810302734,
+        "inference_time_seconds": 0.09995209996122867,
+        "tokens_per_second": 490.2348226701296
+      },
+      "reproducibility": {
+        "perplexities": [
+          113.12708282470703
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P4",
+      "passage_title": "school newspaper reflection",
+      "target_token_count": 75,
+      "actual_token_count": 75,
+      "scored_token_count": 74,
+      "prefix_text": "When I joined the school newspaper, I expected to write opinion pieces about decisions everyone was already discussing in the hallway. My first assignment was less glamorous: interview cafeteria staff about a new breakfast program that most students ignored. I arrived with narrow questions and a paragraph almost drafted in my head. The interviews unsettled that plan. One staff member explained that breakfast participation rose when buses arrived",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 449,
+          "word_count": 68,
+          "token_count": 75,
+          "scored_token_count": 74,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 140.8899383544922,
+          "mean_nll": 4.947978973388672,
+          "inference_time_seconds": 0.14415200002258644,
+          "tokens_per_second": 513.3470225068353
+        }
+      ],
+      "selected_run": {
+        "char_count": 449,
+        "word_count": 68,
+        "token_count": 75,
+        "scored_token_count": 74,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 140.8899383544922,
+        "mean_nll": 4.947978973388672,
+        "inference_time_seconds": 0.14415200002258644,
+        "tokens_per_second": 513.3470225068353
+      },
+      "reproducibility": {
+        "perplexities": [
+          140.8899383544922
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P4",
+      "passage_title": "school newspaper reflection",
+      "target_token_count": 100,
+      "actual_token_count": 100,
+      "scored_token_count": 99,
+      "prefix_text": "When I joined the school newspaper, I expected to write opinion pieces about decisions everyone was already discussing in the hallway. My first assignment was less glamorous: interview cafeteria staff about a new breakfast program that most students ignored. I arrived with narrow questions and a paragraph almost drafted in my head. The interviews unsettled that plan. One staff member explained that breakfast participation rose when buses arrived early, another described students who picked up food for younger siblings, and a counselor showed me attendance records that made the program feel",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 596,
+          "word_count": 91,
+          "token_count": 100,
+          "scored_token_count": 99,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 123.16890716552734,
+          "mean_nll": 4.813556671142578,
+          "inference_time_seconds": 0.13631059997715056,
+          "tokens_per_second": 726.282475585869
+        }
+      ],
+      "selected_run": {
+        "char_count": 596,
+        "word_count": 91,
+        "token_count": 100,
+        "scored_token_count": 99,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 123.16890716552734,
+        "mean_nll": 4.813556671142578,
+        "inference_time_seconds": 0.13631059997715056,
+        "tokens_per_second": 726.282475585869
+      },
+      "reproducibility": {
+        "perplexities": [
+          123.16890716552734
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P4",
+      "passage_title": "school newspaper reflection",
+      "target_token_count": 150,
+      "actual_token_count": 150,
+      "scored_token_count": 149,
+      "prefix_text": "When I joined the school newspaper, I expected to write opinion pieces about decisions everyone was already discussing in the hallway. My first assignment was less glamorous: interview cafeteria staff about a new breakfast program that most students ignored. I arrived with narrow questions and a paragraph almost drafted in my head. The interviews unsettled that plan. One staff member explained that breakfast participation rose when buses arrived early, another described students who picked up food for younger siblings, and a counselor showed me attendance records that made the program feel less like a convenience and more like quiet infrastructure. I rewrote the article three times. Each version became less about my opinion and more about the evidence people had trusted me to carry accurately. After publication, a teacher thanked us for explaining a policy she",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 872,
+          "word_count": 136,
+          "token_count": 150,
+          "scored_token_count": 149,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 102.86344909667969,
+          "mean_nll": 4.633402347564697,
+          "inference_time_seconds": 0.1773096999968402,
+          "tokens_per_second": 840.3375562795227
+        }
+      ],
+      "selected_run": {
+        "char_count": 872,
+        "word_count": 136,
+        "token_count": 150,
+        "scored_token_count": 149,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 102.86344909667969,
+        "mean_nll": 4.633402347564697,
+        "inference_time_seconds": 0.1773096999968402,
+        "tokens_per_second": 840.3375562795227
+      },
+      "reproducibility": {
+        "perplexities": [
+          102.86344909667969
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    },
+    {
+      "passage_id": "P4",
+      "passage_title": "school newspaper reflection",
+      "target_token_count": 200,
+      "actual_token_count": 200,
+      "scored_token_count": 199,
+      "prefix_text": "When I joined the school newspaper, I expected to write opinion pieces about decisions everyone was already discussing in the hallway. My first assignment was less glamorous: interview cafeteria staff about a new breakfast program that most students ignored. I arrived with narrow questions and a paragraph almost drafted in my head. The interviews unsettled that plan. One staff member explained that breakfast participation rose when buses arrived early, another described students who picked up food for younger siblings, and a counselor showed me attendance records that made the program feel less like a convenience and more like quiet infrastructure. I rewrote the article three times. Each version became less about my opinion and more about the evidence people had trusted me to carry accurately. After publication, a teacher thanked us for explaining a policy she had misunderstood, and several students asked why the serving line closed before some late buses arrived. The article did not change the school by itself, but it changed my idea of writing. I began to see reporting as a form of careful listening, where the",
+      "repeat_count": 1,
+      "runs": [
+        {
+          "char_count": 1129,
+          "word_count": 181,
+          "token_count": 200,
+          "scored_token_count": 199,
+          "finite": true,
+          "warnings": [],
+          "errors": [],
+          "status": "ok",
+          "perplexity": 87.70099639892578,
+          "mean_nll": 4.473933219909668,
+          "inference_time_seconds": 0.2542832000181079,
+          "tokens_per_second": 782.592007595582
+        }
+      ],
+      "selected_run": {
+        "char_count": 1129,
+        "word_count": 181,
+        "token_count": 200,
+        "scored_token_count": 199,
+        "finite": true,
+        "warnings": [],
+        "errors": [],
+        "status": "ok",
+        "perplexity": 87.70099639892578,
+        "mean_nll": 4.473933219909668,
+        "inference_time_seconds": 0.2542832000181079,
+        "tokens_per_second": 782.592007595582
+      },
+      "reproducibility": {
+        "perplexities": [
+          87.70099639892578
+        ],
+        "max_absolute_difference": null,
+        "tolerance": 1e-09,
+        "effectively_identical": null
+      }
+    }
+  ],
+  "summaries": {
+    "by_target_token_count": [
+      {
+        "target_token_count": 10,
+        "passage_count": 4,
+        "actual_token_counts": [
+          10,
+          10,
+          10,
+          10
+        ],
+        "scored_token_counts": [
+          9,
+          9,
+          9,
+          9
+        ],
+        "perplexity_mean": 340.7299518585205,
+        "perplexity_median": 290.8568801879883,
+        "perplexity_min": 87.92815399169922,
+        "perplexity_max": 693.2778930664062,
+        "perplexity_stdev": 263.28775692387984,
+        "perplexity_cv": 0.7727167966530968,
+        "mean_nll_mean": 5.568038702011108,
+        "mean_nll_stdev": 0.8815904811585609,
+        "mean_nll_cv": 0.1583305232487233
+      },
+      {
+        "target_token_count": 20,
+        "passage_count": 4,
+        "actual_token_counts": [
+          20,
+          20,
+          20,
+          20
+        ],
+        "scored_token_counts": [
+          19,
+          19,
+          19,
+          19
+        ],
+        "perplexity_mean": 121.23708438873291,
+        "perplexity_median": 101.67279815673828,
+        "perplexity_min": 62.586612701416016,
+        "perplexity_max": 219.01612854003906,
+        "perplexity_stdev": 67.8459155395847,
+        "perplexity_cv": 0.5596135529129395,
+        "mean_nll_mean": 4.691782832145691,
+        "mean_nll_stdev": 0.5192522351618134,
+        "mean_nll_cv": 0.11067269175464885
+      },
+      {
+        "target_token_count": 30,
+        "passage_count": 4,
+        "actual_token_counts": [
+          30,
+          30,
+          30,
+          30
+        ],
+        "scored_token_counts": [
+          29,
+          29,
+          29,
+          29
+        ],
+        "perplexity_mean": 93.53103256225586,
+        "perplexity_median": 78.1437759399414,
+        "perplexity_min": 57.08998107910156,
+        "perplexity_max": 160.74659729003906,
+        "perplexity_stdev": 47.25323058509796,
+        "perplexity_cv": 0.505214465088316,
+        "mean_nll_mean": 4.452504634857178,
+        "mean_nll_stdev": 0.46453935760603027,
+        "mean_nll_cv": 0.10433214464715121
+      },
+      {
+        "target_token_count": 50,
+        "passage_count": 4,
+        "actual_token_counts": [
+          50,
+          50,
+          50,
+          50
+        ],
+        "scored_token_counts": [
+          49,
+          49,
+          49,
+          49
+        ],
+        "perplexity_mean": 84.94814109802246,
+        "perplexity_median": 85.31084251403809,
+        "perplexity_min": 47.3020133972168,
+        "perplexity_max": 121.86886596679688,
+        "perplexity_stdev": 37.98298044465544,
+        "perplexity_cv": 0.4471313904423938,
+        "mean_nll_mean": 4.359925329685211,
+        "mean_nll_stdev": 0.47627554975733677,
+        "mean_nll_cv": 0.1092393822698161
+      },
+      {
+        "target_token_count": 75,
+        "passage_count": 4,
+        "actual_token_counts": [
+          75,
+          75,
+          75,
+          75
+        ],
+        "scored_token_counts": [
+          74,
+          74,
+          74,
+          74
+        ],
+        "perplexity_mean": 93.83859729766846,
+        "perplexity_median": 89.40792846679688,
+        "perplexity_min": 55.64859390258789,
+        "perplexity_max": 140.8899383544922,
+        "perplexity_stdev": 35.30830428553839,
+        "perplexity_cv": 0.3762663264619757,
+        "mean_nll_mean": 4.487918138504028,
+        "mean_nll_stdev": 0.38082824136909416,
+        "mean_nll_cv": 0.084856325275139
+      },
+      {
+        "target_token_count": 100,
+        "passage_count": 4,
+        "actual_token_counts": [
+          100,
+          100,
+          100,
+          100
+        ],
+        "scored_token_counts": [
+          99,
+          99,
+          99,
+          99
+        ],
+        "perplexity_mean": 84.37592697143555,
+        "perplexity_median": 72.53464889526367,
+        "perplexity_min": 69.2655029296875,
+        "perplexity_max": 123.16890716552734,
+        "perplexity_stdev": 25.90790435997372,
+        "perplexity_cv": 0.3070532708783695,
+        "mean_nll_mean": 4.404907941818237,
+        "mean_nll_stdev": 0.2732992757608712,
+        "mean_nll_cv": 0.062044265026810076
+      },
+      {
+        "target_token_count": 150,
+        "passage_count": 4,
+        "actual_token_counts": [
+          150,
+          150,
+          150,
+          150
+        ],
+        "scored_token_counts": [
+          149,
+          149,
+          149,
+          149
+        ],
+        "perplexity_mean": 75.31287384033203,
+        "perplexity_median": 68.3918685913086,
+        "perplexity_min": 61.60430908203125,
+        "perplexity_max": 102.86344909667969,
+        "perplexity_stdev": 18.779459655896694,
+        "perplexity_cv": 0.24935258340705888,
+        "mean_nll_mean": 4.300752758979797,
+        "mean_nll_stdev": 0.22947315201326055,
+        "mean_nll_cv": 0.053356508702838104
+      },
+      {
+        "target_token_count": 200,
+        "passage_count": 4,
+        "actual_token_counts": [
+          200,
+          200,
+          200,
+          200
+        ],
+        "scored_token_counts": [
+          199,
+          199,
+          199,
+          199
+        ],
+        "perplexity_mean": 73.92939186096191,
+        "perplexity_median": 72.7401123046875,
+        "perplexity_min": 62.536346435546875,
+        "perplexity_max": 87.70099639892578,
+        "perplexity_stdev": 11.232812707449309,
+        "perplexity_cv": 0.15193974175487227,
+        "mean_nll_mean": 4.2945345640182495,
+        "mean_nll_stdev": 0.15086043797880752,
+        "mean_nll_cv": 0.035128472184807046
+      }
+    ],
+    "within_passage_drift": [
+      {
+        "passage_id": "P1",
+        "passage_title": "community garden reflection",
+        "points": [
+          {
+            "target_token_count": 10,
+            "actual_token_count": 10,
+            "perplexity": 204.8688507080078,
+            "mean_nll": 5.3223700523376465,
+            "delta_from_previous": null,
+            "relative_delta_from_previous": null,
+            "previous_actual_token_count": null
+          },
+          {
+            "target_token_count": 20,
+            "actual_token_count": 20,
+            "perplexity": 97.03260040283203,
+            "mean_nll": 4.575047016143799,
+            "delta_from_previous": -107.83625030517578,
+            "relative_delta_from_previous": -0.5263672341232143,
+            "previous_actual_token_count": 10
+          },
+          {
+            "target_token_count": 30,
+            "actual_token_count": 30,
+            "perplexity": 57.08998107910156,
+            "mean_nll": 4.044628620147705,
+            "delta_from_previous": -39.94261932373047,
+            "relative_delta_from_previous": -0.41164123354324417,
+            "previous_actual_token_count": 20
+          },
+          {
+            "target_token_count": 50,
+            "actual_token_count": 50,
+            "perplexity": 47.3020133972168,
+            "mean_nll": 3.856552839279175,
+            "delta_from_previous": -9.787967681884766,
+            "relative_delta_from_previous": -0.17144808067676454,
+            "previous_actual_token_count": 30
+          },
+          {
+            "target_token_count": 75,
+            "actual_token_count": 75,
+            "perplexity": 55.64859390258789,
+            "mean_nll": 4.019056797027588,
+            "delta_from_previous": 8.346580505371094,
+            "relative_delta_from_previous": 0.1764529648089398,
+            "previous_actual_token_count": 50
+          },
+          {
+            "target_token_count": 100,
+            "actual_token_count": 100,
+            "perplexity": 72.5919418334961,
+            "mean_nll": 4.284853935241699,
+            "delta_from_previous": 16.943347930908203,
+            "relative_delta_from_previous": 0.3044703691986774,
+            "previous_actual_token_count": 75
+          },
+          {
+            "target_token_count": 150,
+            "actual_token_count": 150,
+            "perplexity": 65.6310043334961,
+            "mean_nll": 4.184048175811768,
+            "delta_from_previous": -6.9609375,
+            "relative_delta_from_previous": -0.09589132518270803,
+            "previous_actual_token_count": 100
+          },
+          {
+            "target_token_count": 200,
+            "actual_token_count": 200,
+            "perplexity": 62.536346435546875,
+            "mean_nll": 4.135747909545898,
+            "delta_from_previous": -3.0946578979492188,
+            "relative_delta_from_previous": -0.04715237759008052,
+            "previous_actual_token_count": 150
+          }
+        ],
+        "first_perplexity": 204.8688507080078,
+        "final_perplexity": 62.536346435546875,
+        "absolute_change_first_to_final": -142.33250427246094,
+        "relative_change_first_to_final": -0.6947493666341806
+      },
+      {
+        "passage_id": "P2",
+        "passage_title": "robotics notebook reflection",
+        "points": [
+          {
+            "target_token_count": 10,
+            "actual_token_count": 10,
+            "perplexity": 376.84490966796875,
+            "mean_nll": 5.931833744049072,
+            "delta_from_previous": null,
+            "relative_delta_from_previous": null,
+            "previous_actual_token_count": null
+          },
+          {
+            "target_token_count": 20,
+            "actual_token_count": 20,
+            "perplexity": 62.586612701416016,
+            "mean_nll": 4.136551380157471,
+            "delta_from_previous": -314.25829696655273,
+            "relative_delta_from_previous": -0.8339194424662391,
+            "previous_actual_token_count": 10
+          },
+          {
+            "target_token_count": 30,
+            "actual_token_count": 30,
+            "perplexity": 64.37450408935547,
+            "mean_nll": 4.164717674255371,
+            "delta_from_previous": 1.7878913879394531,
+            "relative_delta_from_previous": 0.028566674417562818,
+            "previous_actual_token_count": 20
+          },
+          {
+            "target_token_count": 50,
+            "actual_token_count": 50,
+            "perplexity": 57.49460220336914,
+            "mean_nll": 4.051691055297852,
+            "delta_from_previous": -6.879901885986328,
+            "relative_delta_from_previous": -0.10687308559979947,
+            "previous_actual_token_count": 30
+          },
+          {
+            "target_token_count": 75,
+            "actual_token_count": 75,
+            "perplexity": 85.63550567626953,
+            "mean_nll": 4.450099945068359,
+            "delta_from_previous": 28.14090347290039,
+            "relative_delta_from_previous": 0.4894529641819377,
+            "previous_actual_token_count": 50
+          },
+          {
+            "target_token_count": 100,
+            "actual_token_count": 100,
+            "perplexity": 69.2655029296875,
+            "mean_nll": 4.2379469871521,
+            "delta_from_previous": -16.37000274658203,
+            "relative_delta_from_previous": -0.19115905975339298,
+            "previous_actual_token_count": 75
+          },
+          {
+            "target_token_count": 150,
+            "actual_token_count": 150,
+            "perplexity": 61.60430908203125,
+            "mean_nll": 4.120731830596924,
+            "delta_from_previous": -7.66119384765625,
+            "relative_delta_from_previous": -0.11060619678793422,
+            "previous_actual_token_count": 100
+          },
+          {
+            "target_token_count": 200,
+            "actual_token_count": 200,
+            "perplexity": 78.04298400878906,
+            "mean_nll": 4.357259750366211,
+            "delta_from_previous": 16.438674926757812,
+            "relative_delta_from_previous": 0.26684293958833877,
+            "previous_actual_token_count": 150
+          }
+        ],
+        "first_perplexity": 376.84490966796875,
+        "final_perplexity": 78.04298400878906,
+        "absolute_change_first_to_final": -298.8019256591797,
+        "relative_change_first_to_final": -0.792904237242978
+      },
+      {
+        "passage_id": "P3",
+        "passage_title": "family translation reflection",
+        "points": [
+          {
+            "target_token_count": 10,
+            "actual_token_count": 10,
+            "perplexity": 693.2778930664062,
+            "mean_nll": 6.541430950164795,
+            "delta_from_previous": null,
+            "relative_delta_from_previous": null,
+            "previous_actual_token_count": null
+          },
+          {
+            "target_token_count": 20,
+            "actual_token_count": 20,
+            "perplexity": 219.01612854003906,
+            "mean_nll": 5.389145374298096,
+            "delta_from_previous": -474.2617645263672,
+            "relative_delta_from_previous": -0.684086091983521,
+            "previous_actual_token_count": 10
+          },
+          {
+            "target_token_count": 30,
+            "actual_token_count": 30,
+            "perplexity": 160.74659729003906,
+            "mean_nll": 5.079829216003418,
+            "delta_from_previous": -58.26953125,
+            "relative_delta_from_previous": -0.2660513252536448,
+            "previous_actual_token_count": 20
+          },
+          {
+            "target_token_count": 50,
+            "actual_token_count": 50,
+            "perplexity": 121.86886596679688,
+            "mean_nll": 4.802945613861084,
+            "delta_from_previous": -38.87773132324219,
+            "relative_delta_from_previous": -0.241857258434492,
+            "previous_actual_token_count": 30
+          },
+          {
+            "target_token_count": 75,
+            "actual_token_count": 75,
+            "perplexity": 93.18035125732422,
+            "mean_nll": 4.534536838531494,
+            "delta_from_previous": -28.688514709472656,
+            "relative_delta_from_previous": -0.23540478925346553,
+            "previous_actual_token_count": 50
+          },
+          {
+            "target_token_count": 100,
+            "actual_token_count": 100,
+            "perplexity": 72.47735595703125,
+            "mean_nll": 4.283274173736572,
+            "delta_from_previous": -20.70299530029297,
+            "relative_delta_from_previous": -0.22218198387254587,
+            "previous_actual_token_count": 75
+          },
+          {
+            "target_token_count": 150,
+            "actual_token_count": 150,
+            "perplexity": 71.1527328491211,
+            "mean_nll": 4.264828681945801,
+            "delta_from_previous": -1.3246231079101562,
+            "relative_delta_from_previous": -0.018276371846338724,
+            "previous_actual_token_count": 100
+          },
+          {
+            "target_token_count": 200,
+            "actual_token_count": 200,
+            "perplexity": 67.43724060058594,
+            "mean_nll": 4.211197376251221,
+            "delta_from_previous": -3.7154922485351562,
+            "relative_delta_from_previous": -0.0522185459329276,
+            "previous_actual_token_count": 150
+          }
+        ],
+        "first_perplexity": 693.2778930664062,
+        "final_perplexity": 67.43724060058594,
+        "absolute_change_first_to_final": -625.8406524658203,
+        "relative_change_first_to_final": -0.902726970995271
+      },
+      {
+        "passage_id": "P4",
+        "passage_title": "school newspaper reflection",
+        "points": [
+          {
+            "target_token_count": 10,
+            "actual_token_count": 10,
+            "perplexity": 87.92815399169922,
+            "mean_nll": 4.47652006149292,
+            "delta_from_previous": null,
+            "relative_delta_from_previous": null,
+            "previous_actual_token_count": null
+          },
+          {
+            "target_token_count": 20,
+            "actual_token_count": 20,
+            "perplexity": 106.31299591064453,
+            "mean_nll": 4.666387557983398,
+            "delta_from_previous": 18.384841918945312,
+            "relative_delta_from_previous": 0.20908936540031214,
+            "previous_actual_token_count": 10
+          },
+          {
+            "target_token_count": 30,
+            "actual_token_count": 30,
+            "perplexity": 91.91304779052734,
+            "mean_nll": 4.520843029022217,
+            "delta_from_previous": -14.399948120117188,
+            "relative_delta_from_previous": -0.1354486156351032,
+            "previous_actual_token_count": 20
+          },
+          {
+            "target_token_count": 50,
+            "actual_token_count": 50,
+            "perplexity": 113.12708282470703,
+            "mean_nll": 4.728511810302734,
+            "delta_from_previous": 21.214035034179688,
+            "relative_delta_from_previous": 0.2308054791364021,
+            "previous_actual_token_count": 30
+          },
+          {
+            "target_token_count": 75,
+            "actual_token_count": 75,
+            "perplexity": 140.8899383544922,
+            "mean_nll": 4.947978973388672,
+            "delta_from_previous": 27.762855529785156,
+            "relative_delta_from_previous": 0.24541298897280261,
+            "previous_actual_token_count": 50
+          },
+          {
+            "target_token_count": 100,
+            "actual_token_count": 100,
+            "perplexity": 123.16890716552734,
+            "mean_nll": 4.813556671142578,
+            "delta_from_previous": -17.721031188964844,
+            "relative_delta_from_previous": -0.12577925291142567,
+            "previous_actual_token_count": 75
+          },
+          {
+            "target_token_count": 150,
+            "actual_token_count": 150,
+            "perplexity": 102.86344909667969,
+            "mean_nll": 4.633402347564697,
+            "delta_from_previous": -20.305458068847656,
+            "relative_delta_from_previous": -0.16485863629169856,
+            "previous_actual_token_count": 100
+          },
+          {
+            "target_token_count": 200,
+            "actual_token_count": 200,
+            "perplexity": 87.70099639892578,
+            "mean_nll": 4.473933219909668,
+            "delta_from_previous": -15.162452697753906,
+            "relative_delta_from_previous": -0.1474036971432191,
+            "previous_actual_token_count": 150
+          }
+        ],
+        "first_perplexity": 87.92815399169922,
+        "final_perplexity": 87.70099639892578,
+        "absolute_change_first_to_final": -0.2271575927734375,
+        "relative_change_first_to_final": -0.002583445488857666
+      }
+    ],
+    "reproducibility": {
+      "repeated_condition_count": 12,
+      "max_absolute_difference_observed": 0.0,
+      "all_effectively_identical": true,
+      "tolerance": 1e-09
+    }
+  },
+  "performance": {
+    "model_load_time_seconds": 1.0486154000391252,
+    "total_experiment_runtime_seconds": 7.692287900019437,
+    "successful_inference_run_count": 56,
+    "median_successful_inference_time_seconds": 0.09437325000180863,
+    "median_tokens_per_second": 308.6726647981597
+  }
+}

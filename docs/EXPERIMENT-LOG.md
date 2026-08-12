@@ -280,6 +280,10 @@ Local sentence-level perplexity using `distilgpt2` is feasible as a measurement 
 
 # EXP-002 — Perplexity Stability by Text Length
 
+## Status
+
+Completed
+
 ## Question
 
 How stable is perplexity when calculated on very short versus longer text?
@@ -290,28 +294,25 @@ Very short sentences will produce noisier and less reliable perplexity measureme
 
 ## Procedure
 
-Evaluate text across increasing lengths:
+Evaluate four fixed fictional English passages using progressively longer tokenizer-prefixes from the same underlying passage.
+
+Target prefix lengths:
 
 ```text
-Very short sentence
-        ↓
-Short sentence
-        ↓
-Medium sentence
-        ↓
-Long sentence
-        ↓
-Paragraph
-        ↓
-Full essay
+10, 20, 30, 50, 75, 100, 150, 200 tokens
 ```
+
+All four passages contained at least 200 tokens, so actual token counts matched the targets in this run.
 
 Record:
 
 * token count
+* scored-token count
+* mean NLL
 * perplexity
 * runtime
-* variance across comparable samples
+* repeated short-prefix measurements
+* variation across passages
 
 ## Purpose
 
@@ -319,11 +320,104 @@ Determine whether the detector requires minimum text lengths before presenting p
 
 ## Result
 
-**TBD**
+### Configuration
+
+- Model: `distilgpt2`
+- Runtime: Hugging Face Transformers
+- Device: CPU, explicitly selected with `torch.device("cpu")`
+- Python: `3.12.9`
+- PyTorch: `2.13.0+cpu`
+- Transformers: `5.15.0`
+- Target token counts: `10`, `20`, `30`, `50`, `75`, `100`, `150`, `200`
+- Repeated conditions: `10`, `20`, and `30` token prefixes, repeated three times per passage
+- Results artifact: `experiments/EXP-002-perplexity-stability/results/results.json`
+
+### Quantitative
+
+Full passage sizes:
+
+| Passage | Title | Full tokens | Words |
+| --- | --- | ---: | ---: |
+| `P1` | community garden reflection | 253 | 220 |
+| `P2` | robotics notebook reflection | 248 | 214 |
+| `P3` | family translation reflection | 240 | 211 |
+| `P4` | school newspaper reflection | 244 | 223 |
+
+Per-passage perplexity by prefix length:
+
+| Prefix tokens | P1 | P2 | P3 | P4 |
+| ---: | ---: | ---: | ---: | ---: |
+| 10 | 204.868851 | 376.844910 | 693.277893 | 87.928154 |
+| 20 | 97.032600 | 62.586613 | 219.016129 | 106.312996 |
+| 30 | 57.089981 | 64.374504 | 160.746597 | 91.913048 |
+| 50 | 47.302013 | 57.494602 | 121.868866 | 113.127083 |
+| 75 | 55.648594 | 85.635506 | 93.180351 | 140.889938 |
+| 100 | 72.591942 | 69.265503 | 72.477356 | 123.168907 |
+| 150 | 65.631004 | 61.604309 | 71.152733 | 102.863449 |
+| 200 | 62.536346 | 78.042984 | 67.437241 | 87.700996 |
+
+Cross-passage summary:
+
+| Prefix tokens | Mean PPL | Median PPL | Min | Max | Stdev | CV |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 10 | 340.73 | 290.86 | 87.93 | 693.28 | 263.29 | 0.77 |
+| 20 | 121.24 | 101.67 | 62.59 | 219.02 | 67.85 | 0.56 |
+| 30 | 93.53 | 78.14 | 57.09 | 160.75 | 47.25 | 0.51 |
+| 50 | 84.95 | 85.31 | 47.30 | 121.87 | 37.98 | 0.45 |
+| 75 | 93.84 | 89.41 | 55.65 | 140.89 | 35.31 | 0.38 |
+| 100 | 84.38 | 72.53 | 69.27 | 123.17 | 25.91 | 0.31 |
+| 150 | 75.31 | 68.39 | 61.60 | 102.86 | 18.78 | 0.25 |
+| 200 | 73.93 | 72.74 | 62.54 | 87.70 | 11.23 | 0.15 |
+
+Reproducibility:
+
+- Repeated condition count: `12`
+- Maximum absolute perplexity difference across repeated runs: `0`
+- Tolerance: `1e-9`
+- All repeated conditions effectively identical: `true`
+
+Performance:
+
+- Model load time: `1.048615` seconds
+- Successful inference runs: `56`
+- Median successful inference time: `0.094373` seconds
+- Median tokens/second: `308.67`
+- Total experiment runtime: `7.692288` seconds
+
+### Qualitative
+
+The implementation reused the EXP-001 causal alignment:
+
+```python
+shift_logits = logits[..., :-1, :].contiguous()
+shift_labels = input_ids[..., 1:].contiguous()
+```
+
+Short-prefix repetitions were deterministic in this CPU/evaluation setup. The observed variation came from prefix length and passage content, not stochastic inference.
+
+Within-passage trajectories were not universally monotonic. P1, P2, and P3 dropped sharply from their first 10-token prefix, while P4 started with relatively low perplexity and fluctuated before returning close to its initial value at 200 tokens.
+
+## Interpretation
+
+Observation: cross-passage perplexity variation was largest at very short prefixes. At 10 tokens, perplexity ranged from `87.93` to `693.28` with CV `0.77`.
+
+Observation: cross-passage variation decreased as prefixes lengthened. At 200 tokens, perplexity ranged from `62.54` to `87.70` with CV `0.15`.
+
+Interpretation: very short prefixes appear sensitive to the specific opening words and early context. Longer prefixes, especially around 150-200 tokens in this small experiment, produced more stable cross-passage measurements.
+
+This does not prove that longer text is better for detection, does not establish a production minimum evidence threshold, and does not imply that lower perplexity means machine authorship.
 
 ## Decision
 
-**TBD**
+`PROCEED`
+
+Continue evaluating perplexity as a candidate measurement, but treat very short sentence-level perplexity as potentially unstable evidence.
+
+Candidate range for later validation: approximately `150-200` tokens appeared more stable in this run. This is not a locked threshold.
+
+## Follow-up
+
+Proceed to the next planned experiment after review. Later evidence-sufficiency work should test this candidate range against real segmented dataset samples rather than adopting it directly.
 
 ---
 
