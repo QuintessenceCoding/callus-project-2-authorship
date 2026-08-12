@@ -12,3 +12,7 @@ models/
 **/hf-cache/
 **/transformers-cache/
 
+# Third-party raw datasets and downloaded archives stay local unless rights are
+# explicitly cleared for redistribution.
+data/raw/
+data/pilot/**/*.txt

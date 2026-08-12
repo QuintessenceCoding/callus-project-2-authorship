@@ -1,0 +1,145 @@
+{
+  "experiment_id": "EXP-003",
+  "name": "Local Generation Feasibility",
+  "created_at_utc": "2026-08-12T20:31:38.110201+00:00",
+  "purpose": "Feasibility only; generated samples are not dataset variants or Essay Families.",
+  "constraints": {
+    "cost": "\u20b90",
+    "paid_apis_used": false,
+    "production_code_modified": false,
+    "dataset_generation_performed": false,
+    "essay_families_created": false
+  },
+  "environment": {
+    "python": "3.12.9",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "processor": "AMD64 Family 23 Model 96 Stepping 1, AuthenticAMD",
+    "torch": "2.13.0+cpu",
+    "transformers": "5.15.0",
+    "device": "cpu",
+    "torch_num_threads": 6
+  },
+  "controlled_task": {
+    "system_prompt": "You write clear, natural, reflective student essays. Follow the user's task directly. Do not mention AI, prompts, models, experiments, or instructions.",
+    "user_task": "Write an original reflective essay of approximately 300 to 500 words. Task: Describe a time when you changed your approach after a setback. Focus on specific actions, reflection, and what you learned.",
+    "target_words": "approximately 300-500"
+  },
+  "model_results": [
+    {
+      "model_id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+      "rationale": "Very small instruction-tuned causal model intended to be practical on CPU.",
+      "runtime": "Hugging Face Transformers",
+      "device": "cpu",
+      "status": "ok",
+      "errors": [],
+      "warnings": [
+        "Generation reached max_new_tokens; output may have been truncated."
+      ],
+      "model_revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+      "model_type": "llama",
+      "parameter_count": 134515008,
+      "approximate_local_cache_size_bytes": 272437613,
+      "load_time_seconds": 1.0045633999397978,
+      "generation_time_seconds": 19.31937799998559,
+      "total_model_runtime_seconds": 20.332678199978545,
+      "prompt_format": "chat_template",
+      "prompt_token_count": 89,
+      "max_new_tokens": 420,
+      "generation_parameters": {
+        "do_sample": false,
+        "temperature": null,
+        "top_p": null,
+        "repetition_penalty": 1.05,
+        "seed": 7
+      },
+      "generation_completed_before_token_limit": false,
+      "output_token_count": 420,
+      "tokens_per_second": 21.73983034030978,
+      "output_word_count": 337,
+      "output_char_count": 1966,
+      "output_sha256": "bdae20111be643dc6d6dbaf633a3d99c185630e71303eb66d83909cee2bbb767",
+      "generated_text": "Once upon a time, in a small village nestled between rolling hills and dense forests, lived a young girl named Aria. She was known for her bright smile and quick wit, often getting into mischief with her friends. One day, while playing near the river, Aria stumbled upon a mysterious box hidden behind a waterfall. As she opened it, she found a small, intricately carved wooden box adorned with strange symbols. The box contained a small, golden locket that had been passed down through generations of Aria's family.\n\nAria's eyes widened as she examined the locket, feeling an inexplicable connection to the box. She realized that the locket held secrets and stories from her ancestors' pasts. She began to study the locket, searching for any clues about its origins and significance.\n\nAs she delved deeper into the locket's history, Aria discovered that it belonged to a long-lost relative who had been a member of the village's elite. The relative had been a skilled warrior and a respected leader, known for their bravery and cunning. The locket was said to hold the memories of their adventures together, but also of their own personal struggles and triumphs.\n\nAria's heart swelled with emotions as she realized that the locket was more than just a simple treasure. It was a piece of history that connected her to her ancestors, and to the people who had come before her. She felt a sense of pride and responsibility, knowing that she had played a role in preserving this precious legacy.\n\nWith newfound determination, Aria decided to use her skills to help others. She started a small community garden, where she planted flowers and vegetables in the nearby fields. The garden became a hub for community bonding and learning, and Aria saw the impact it had on the village.\n\nOne day, while tending to the garden, Aria noticed a young boy sitting by the water's edge. He looked lost and scared. Aria approached him, offering a warm smile and a gentle hand. \"I see",
+      "quality_checks": {
+        "non_empty": true,
+        "word_count": 337,
+        "approximately_requested_length": true,
+        "prompt_leakage_terms": [],
+        "no_prompt_leakage": true,
+        "task_keyword_hits": [
+          "approach"
+        ],
+        "has_task_keyword_signal": false,
+        "ends_with_sentence_punctuation": false,
+        "repeated_4gram_ratio": 0.005988023952095809,
+        "obvious_repeated_lines": [],
+        "obvious_repetition": false,
+        "likely_truncated": true
+      }
+    },
+    {
+      "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+      "rationale": "Sub-1B instruction-tuned causal model selected as a stronger small CPU candidate.",
+      "runtime": "Hugging Face Transformers",
+      "device": "cpu",
+      "status": "ok",
+      "errors": [],
+      "warnings": [],
+      "model_revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+      "model_type": "qwen2",
+      "parameter_count": 494032768,
+      "approximate_local_cache_size_bytes": 999586387,
+      "load_time_seconds": 0.8209366000955924,
+      "generation_time_seconds": 36.24214759992901,
+      "total_model_runtime_seconds": 37.07507630006876,
+      "prompt_format": "chat_template",
+      "prompt_token_count": 88,
+      "max_new_tokens": 420,
+      "generation_parameters": {
+        "do_sample": false,
+        "temperature": null,
+        "top_p": null,
+        "repetition_penalty": 1.05,
+        "seed": 7
+      },
+      "generation_completed_before_token_limit": true,
+      "output_token_count": 383,
+      "tokens_per_second": 10.567806417761794,
+      "output_word_count": 327,
+      "output_char_count": 2019,
+      "output_sha256": "3799337e3197859126d9423e8f916d46dcc0bdbc5b3c92b5937558bfd541f648",
+      "generated_text": "Title: A Turning Point: Overcoming Adversity\n\nOne of the most significant turning points in my life occurred during my sophomore year of college. I had been struggling with a persistent math problem for months, and it was becoming increasingly difficult to keep up with my coursework. The stress and anxiety were overwhelming, and I felt like giving up. However, I knew that I couldn't continue to let this setback define me.\n\nI decided to take a break from studying and focus on my personal growth. I started by setting small, achievable goals for myself, such as reading a book every day or practicing a new hobby. This helped me regain my motivation and gave me a sense of accomplishment. I also made a conscious effort to connect with my professors and classmates, who often provided valuable feedback and support.\n\nAs I continued to work on my studies, I began to notice a change in my mindset. I realized that setbacks are just temporary challenges that can be overcome with persistence and determination. I started to see the beauty in learning and growing, rather than dwelling on the failure.\n\nReflecting on this experience, I learned several important lessons. First, it's crucial to acknowledge and accept setbacks as part of the learning process. They provide opportunities for growth and self-improvement. Second, it's essential to take action towards overcoming these challenges. Failure is not the end, but a stepping stone to success. Third, it's important to surround yourself with positive influences and support systems. Having a strong network of friends, family, and mentors can provide encouragement and guidance during challenging times.\n\nLooking back, I realize that this experience taught me valuable lessons about resilience, perseverance, and the importance of self-care. It has shaped my perspective on life and has given me the strength to face future challenges head-on. I am grateful for the opportunity to learn from this experience and to use it as a foundation for my future endeavors.",
+      "quality_checks": {
+        "non_empty": true,
+        "word_count": 327,
+        "approximately_requested_length": true,
+        "prompt_leakage_terms": [],
+        "no_prompt_leakage": true,
+        "task_keyword_hits": [
+          "setback",
+          "learned"
+        ],
+        "has_task_keyword_signal": true,
+        "ends_with_sentence_punctuation": true,
+        "repeated_4gram_ratio": 0.0,
+        "obvious_repeated_lines": [],
+        "obvious_repetition": false,
+        "likely_truncated": false
+      }
+    }
+  ],
+  "summary": {
+    "candidate_model_count": 2,
+    "successful_generation_count": 2,
+    "basic_quality_pass_count": 1,
+    "median_generation_time_seconds": 27.7807627999573,
+    "median_tokens_per_second": 16.153818379035787,
+    "all_successful_models": [
+      "HuggingFaceTB/SmolLM2-135M-Instruct",
+      "Qwen/Qwen2.5-0.5B-Instruct"
+    ],
+    "quality_pass_models": [
+      "Qwen/Qwen2.5-0.5B-Instruct"
+    ]
+  },
+  "total_experiment_runtime_seconds": 57.943509400007315
+}
