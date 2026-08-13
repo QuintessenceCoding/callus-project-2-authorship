@@ -1,0 +1,1173 @@
+{
+  "experiment_id": "EXP-010",
+  "name": "Evidence Sufficiency & Empirical Abstention",
+  "status": "Completed",
+  "purpose": "Measure how validation performance changes with text length and classifier confidence margin, using the deterministic EXP-006 four-feature baseline.",
+  "source_experiments": {
+    "EXP-005": "D:\\Code\\callushackathon\\project2\\callus-project-2-authorship\\experiments\\EXP-005-feature-distribution\\results\\results.json",
+    "EXP-006": "D:\\Code\\callushackathon\\project2\\callus-project-2-authorship\\experiments\\EXP-006-baseline-classification\\results\\results.json"
+  },
+  "model": {
+    "type": "LogisticRegression",
+    "features": [
+      "perplexity",
+      "sentence_length_cv",
+      "mattr",
+      "pos_3gram_entropy"
+    ],
+    "seed": 20260814,
+    "standardization": "StandardScaler fitted on training data only"
+  },
+  "split": {
+    "train_pair_count": 160,
+    "validation_pair_count": 40,
+    "train_row_count": 320,
+    "validation_row_count": 79
+  },
+  "reproduction": {
+    "saved_exp006_metrics": {
+      "accuracy": 0.9746835443037974,
+      "precision": 0.9523809523809523,
+      "recall": 1.0,
+      "f1": 0.975609756097561,
+      "roc_auc": 0.9955128205128205,
+      "confusion_matrix": [
+        [
+          37,
+          2
+        ],
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    "reproduced_metrics": {
+      "count": 79,
+      "accuracy": 0.9746835443037974,
+      "precision": 0.9523809523809523,
+      "recall": 1.0,
+      "f1": 0.975609756097561,
+      "roc_auc": 0.9955128205128205
+    },
+    "metric_deltas": {
+      "accuracy": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "roc_auc": 0.0
+    },
+    "matches_saved_exp006": true
+  },
+  "word_length_analysis": {
+    "bin_definition": "Whitespace-separated word counts",
+    "bins": [
+      [
+        0,
+        20
+      ],
+      [
+        21,
+        40
+      ],
+      [
+        41,
+        60
+      ],
+      [
+        61,
+        80
+      ],
+      [
+        81,
+        100
+      ],
+      [
+        101,
+        150
+      ],
+      [
+        151,
+        200
+      ],
+      [
+        201,
+        Infinity
+      ]
+    ],
+    "results": [
+      {
+        "bin": "81-100",
+        "sample_count": 1,
+        "human_count": 0,
+        "ai_count": 1,
+        "count": 1,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": null
+      },
+      {
+        "bin": "101-150",
+        "sample_count": 8,
+        "human_count": 0,
+        "ai_count": 8,
+        "count": 8,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": null
+      },
+      {
+        "bin": "151-200",
+        "sample_count": 9,
+        "human_count": 2,
+        "ai_count": 7,
+        "count": 9,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0
+      },
+      {
+        "bin": "201+",
+        "sample_count": 61,
+        "human_count": 37,
+        "ai_count": 24,
+        "count": 61,
+        "accuracy": 0.9672131147540983,
+        "precision": 0.9230769230769231,
+        "recall": 1.0,
+        "f1": 0.96,
+        "roc_auc": 0.9921171171171171
+      }
+    ]
+  },
+  "confidence_margin_analysis": {
+    "definition": "abs(P(AI) - 0.5)",
+    "bins": [
+      [
+        0.0,
+        0.05
+      ],
+      [
+        0.05,
+        0.1
+      ],
+      [
+        0.1,
+        0.15
+      ],
+      [
+        0.15,
+        0.2
+      ],
+      [
+        0.2,
+        0.25
+      ],
+      [
+        0.25,
+        0.3
+      ],
+      [
+        0.3,
+        0.35
+      ],
+      [
+        0.35,
+        0.4
+      ],
+      [
+        0.4,
+        0.45
+      ],
+      [
+        0.45,
+        0.5
+      ]
+    ],
+    "results": [
+      {
+        "bin": "0.00-0.05",
+        "sample_count": 1,
+        "human_count": 1,
+        "ai_count": 0,
+        "count": 1,
+        "accuracy": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "roc_auc": null
+      },
+      {
+        "bin": "0.10-0.15",
+        "sample_count": 1,
+        "human_count": 1,
+        "ai_count": 0,
+        "count": 1,
+        "accuracy": 1.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "roc_auc": null
+      },
+      {
+        "bin": "0.15-0.20",
+        "sample_count": 1,
+        "human_count": 0,
+        "ai_count": 1,
+        "count": 1,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": null
+      },
+      {
+        "bin": "0.20-0.25",
+        "sample_count": 1,
+        "human_count": 0,
+        "ai_count": 1,
+        "count": 1,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": null
+      },
+      {
+        "bin": "0.25-0.30",
+        "sample_count": 3,
+        "human_count": 1,
+        "ai_count": 2,
+        "count": 3,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0
+      },
+      {
+        "bin": "0.35-0.40",
+        "sample_count": 6,
+        "human_count": 2,
+        "ai_count": 4,
+        "count": 6,
+        "accuracy": 0.8333333333333334,
+        "precision": 0.8,
+        "recall": 1.0,
+        "f1": 0.8888888888888888,
+        "roc_auc": 0.625
+      },
+      {
+        "bin": "0.40-0.45",
+        "sample_count": 9,
+        "human_count": 3,
+        "ai_count": 6,
+        "count": 9,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0
+      },
+      {
+        "bin": "0.45-0.50",
+        "sample_count": 57,
+        "human_count": 31,
+        "ai_count": 26,
+        "count": 57,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0
+      }
+    ]
+  },
+  "row_level_validation_predictions": [
+    {
+      "pair_id": "616C3D5795E8",
+      "label": 0,
+      "word_count": 182,
+      "word_bin": "151-200",
+      "ai_probability": 0.024013524463487097,
+      "confidence_margin": 0.4759864755365129,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "616C3D5795E8",
+      "label": 1,
+      "word_count": 81,
+      "word_bin": "81-100",
+      "ai_probability": 0.998740821648697,
+      "confidence_margin": 0.49874082164869704,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "653620381DB3",
+      "label": 0,
+      "word_count": 190,
+      "word_bin": "151-200",
+      "ai_probability": 0.3796050433579741,
+      "confidence_margin": 0.12039495664202587,
+      "margin_bin": "0.10-0.15",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "653620381DB3",
+      "label": 1,
+      "word_count": 193,
+      "word_bin": "151-200",
+      "ai_probability": 0.9959287241759782,
+      "confidence_margin": 0.4959287241759782,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "65B7FDE783F2",
+      "label": 0,
+      "word_count": 484,
+      "word_bin": "201+",
+      "ai_probability": 1.8959134489499369e-19,
+      "confidence_margin": 0.5,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "65B7FDE783F2",
+      "label": 1,
+      "word_count": 380,
+      "word_bin": "201+",
+      "ai_probability": 0.9738389440598546,
+      "confidence_margin": 0.4738389440598546,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "69241D10E69A",
+      "label": 0,
+      "word_count": 262,
+      "word_bin": "201+",
+      "ai_probability": 0.8879409867154674,
+      "confidence_margin": 0.3879409867154674,
+      "margin_bin": "0.35-0.40",
+      "prediction": 1,
+      "correct": false
+    },
+    {
+      "pair_id": "69241D10E69A",
+      "label": 1,
+      "word_count": 144,
+      "word_bin": "101-150",
+      "ai_probability": 0.9980460283988746,
+      "confidence_margin": 0.4980460283988746,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "6D6E937C3A67",
+      "label": 0,
+      "word_count": 572,
+      "word_bin": "201+",
+      "ai_probability": 0.012635854768440181,
+      "confidence_margin": 0.4873641452315598,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "6D6E937C3A67",
+      "label": 1,
+      "word_count": 234,
+      "word_bin": "201+",
+      "ai_probability": 0.946949725984347,
+      "confidence_margin": 0.446949725984347,
+      "margin_bin": "0.40-0.45",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "6FEF6D46714D",
+      "label": 0,
+      "word_count": 597,
+      "word_bin": "201+",
+      "ai_probability": 0.008767526094526874,
+      "confidence_margin": 0.49123247390547314,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "6FEF6D46714D",
+      "label": 1,
+      "word_count": 247,
+      "word_bin": "201+",
+      "ai_probability": 0.8734637698366966,
+      "confidence_margin": 0.3734637698366966,
+      "margin_bin": "0.35-0.40",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "7600F1C7D884",
+      "label": 0,
+      "word_count": 668,
+      "word_bin": "201+",
+      "ai_probability": 0.021621269874542624,
+      "confidence_margin": 0.4783787301254574,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "7600F1C7D884",
+      "label": 1,
+      "word_count": 133,
+      "word_bin": "101-150",
+      "ai_probability": 0.9978192693173643,
+      "confidence_margin": 0.4978192693173643,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "76F0144EB703",
+      "label": 0,
+      "word_count": 433,
+      "word_bin": "201+",
+      "ai_probability": 0.00015157882486024896,
+      "confidence_margin": 0.4998484211751398,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "76F0144EB703",
+      "label": 1,
+      "word_count": 259,
+      "word_bin": "201+",
+      "ai_probability": 0.9844455335195162,
+      "confidence_margin": 0.48444553351951625,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "78E692CD7085",
+      "label": 0,
+      "word_count": 386,
+      "word_bin": "201+",
+      "ai_probability": 0.0003261742038374307,
+      "confidence_margin": 0.4996738257961626,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "78E692CD7085",
+      "label": 1,
+      "word_count": 220,
+      "word_bin": "201+",
+      "ai_probability": 0.9593976233342235,
+      "confidence_margin": 0.4593976233342235,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "7CCC4CDC5CF0",
+      "label": 0,
+      "word_count": 424,
+      "word_bin": "201+",
+      "ai_probability": 0.23151525628735256,
+      "confidence_margin": 0.2684847437126474,
+      "margin_bin": "0.25-0.30",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "7CCC4CDC5CF0",
+      "label": 1,
+      "word_count": 155,
+      "word_bin": "151-200",
+      "ai_probability": 0.9950685017490195,
+      "confidence_margin": 0.4950685017490195,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "80AD3F379BD1",
+      "label": 0,
+      "word_count": 306,
+      "word_bin": "201+",
+      "ai_probability": 1.818473974720076e-06,
+      "confidence_margin": 0.49999818152602526,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "80AD3F379BD1",
+      "label": 1,
+      "word_count": 324,
+      "word_bin": "201+",
+      "ai_probability": 0.7070905908677604,
+      "confidence_margin": 0.20709059086776038,
+      "margin_bin": "0.20-0.25",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "8369840DE791",
+      "label": 0,
+      "word_count": 297,
+      "word_bin": "201+",
+      "ai_probability": 0.0003996864142621139,
+      "confidence_margin": 0.49960031358573787,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "8369840DE791",
+      "label": 1,
+      "word_count": 243,
+      "word_bin": "201+",
+      "ai_probability": 0.9472295031118967,
+      "confidence_margin": 0.4472295031118967,
+      "margin_bin": "0.40-0.45",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "8A6FEEA6C0D3",
+      "label": 0,
+      "word_count": 717,
+      "word_bin": "201+",
+      "ai_probability": 0.0002359230145248549,
+      "confidence_margin": 0.49976407698547515,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "8A6FEEA6C0D3",
+      "label": 1,
+      "word_count": 288,
+      "word_bin": "201+",
+      "ai_probability": 0.6892577307839152,
+      "confidence_margin": 0.18925773078391517,
+      "margin_bin": "0.15-0.20",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "8F29D9B8D64E",
+      "label": 0,
+      "word_count": 475,
+      "word_bin": "201+",
+      "ai_probability": 0.0013940346672213927,
+      "confidence_margin": 0.4986059653327786,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "8F29D9B8D64E",
+      "label": 1,
+      "word_count": 146,
+      "word_bin": "101-150",
+      "ai_probability": 0.9909906332592071,
+      "confidence_margin": 0.4909906332592071,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "93C575DB7931",
+      "label": 0,
+      "word_count": 423,
+      "word_bin": "201+",
+      "ai_probability": 0.00421098482036299,
+      "confidence_margin": 0.495789015179637,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "93C575DB7931",
+      "label": 1,
+      "word_count": 177,
+      "word_bin": "151-200",
+      "ai_probability": 0.984185865476578,
+      "confidence_margin": 0.48418586547657805,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "9860EE12D1B3",
+      "label": 0,
+      "word_count": 453,
+      "word_bin": "201+",
+      "ai_probability": 0.00024567244745648056,
+      "confidence_margin": 0.4997543275525435,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "9860EE12D1B3",
+      "label": 1,
+      "word_count": 213,
+      "word_bin": "201+",
+      "ai_probability": 0.9694150420679982,
+      "confidence_margin": 0.4694150420679982,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "9A9924C0CA97",
+      "label": 0,
+      "word_count": 321,
+      "word_bin": "201+",
+      "ai_probability": 0.10107204406337898,
+      "confidence_margin": 0.398927955936621,
+      "margin_bin": "0.35-0.40",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "9A9924C0CA97",
+      "label": 1,
+      "word_count": 338,
+      "word_bin": "201+",
+      "ai_probability": 0.9570671846395106,
+      "confidence_margin": 0.45706718463951057,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "9E8F3C6405CA",
+      "label": 0,
+      "word_count": 278,
+      "word_bin": "201+",
+      "ai_probability": 0.5188525328616964,
+      "confidence_margin": 0.018852532861696414,
+      "margin_bin": "0.00-0.05",
+      "prediction": 1,
+      "correct": false
+    },
+    {
+      "pair_id": "9E8F3C6405CA",
+      "label": 1,
+      "word_count": 144,
+      "word_bin": "101-150",
+      "ai_probability": 0.9997433721003773,
+      "confidence_margin": 0.49974337210037734,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "A1C1C0FE3C7A",
+      "label": 0,
+      "word_count": 219,
+      "word_bin": "201+",
+      "ai_probability": 6.758310634206863e-05,
+      "confidence_margin": 0.4999324168936579,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "A1C1C0FE3C7A",
+      "label": 1,
+      "word_count": 197,
+      "word_bin": "151-200",
+      "ai_probability": 0.9901218080780465,
+      "confidence_margin": 0.4901218080780465,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "A403FC7A8542",
+      "label": 0,
+      "word_count": 243,
+      "word_bin": "201+",
+      "ai_probability": 0.00013707516965309128,
+      "confidence_margin": 0.4998629248303469,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "A403FC7A8542",
+      "label": 1,
+      "word_count": 212,
+      "word_bin": "201+",
+      "ai_probability": 0.9028347019585858,
+      "confidence_margin": 0.40283470195858584,
+      "margin_bin": "0.40-0.45",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "A8F321EBF782",
+      "label": 0,
+      "word_count": 327,
+      "word_bin": "201+",
+      "ai_probability": 6.903416680674627e-06,
+      "confidence_margin": 0.4999930965833193,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "A8F321EBF782",
+      "label": 1,
+      "word_count": 152,
+      "word_bin": "151-200",
+      "ai_probability": 0.9397636909077172,
+      "confidence_margin": 0.43976369090771716,
+      "margin_bin": "0.40-0.45",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "B5618012B782",
+      "label": 0,
+      "word_count": 655,
+      "word_bin": "201+",
+      "ai_probability": 1.0319950128175808e-10,
+      "confidence_margin": 0.4999999998968005,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "B5618012B782",
+      "label": 1,
+      "word_count": 126,
+      "word_bin": "101-150",
+      "ai_probability": 0.9967475271561157,
+      "confidence_margin": 0.4967475271561157,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "B7938A92A4F9",
+      "label": 0,
+      "word_count": 252,
+      "word_bin": "201+",
+      "ai_probability": 0.030100455365450685,
+      "confidence_margin": 0.4698995446345493,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "B7938A92A4F9",
+      "label": 1,
+      "word_count": 117,
+      "word_bin": "101-150",
+      "ai_probability": 0.9975142260649851,
+      "confidence_margin": 0.4975142260649851,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "BA6FC6ECE68E",
+      "label": 0,
+      "word_count": 805,
+      "word_bin": "201+",
+      "ai_probability": 0.037944011982405886,
+      "confidence_margin": 0.4620559880175941,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "BA6FC6ECE68E",
+      "label": 1,
+      "word_count": 241,
+      "word_bin": "201+",
+      "ai_probability": 0.9933730554530432,
+      "confidence_margin": 0.4933730554530432,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "BFAEA615906C",
+      "label": 0,
+      "word_count": 356,
+      "word_bin": "201+",
+      "ai_probability": 0.03413821189311111,
+      "confidence_margin": 0.4658617881068889,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "BFAEA615906C",
+      "label": 1,
+      "word_count": 125,
+      "word_bin": "101-150",
+      "ai_probability": 0.9715628938668773,
+      "confidence_margin": 0.47156289386687733,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "C676CE973E9E",
+      "label": 0,
+      "word_count": 432,
+      "word_bin": "201+",
+      "ai_probability": 0.0017001344055048932,
+      "confidence_margin": 0.49829986559449513,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "C676CE973E9E",
+      "label": 1,
+      "word_count": 223,
+      "word_bin": "201+",
+      "ai_probability": 0.9936317389766084,
+      "confidence_margin": 0.4936317389766084,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "C71E90669DFA",
+      "label": 0,
+      "word_count": 471,
+      "word_bin": "201+",
+      "ai_probability": 0.0010339405715924452,
+      "confidence_margin": 0.49896605942840755,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "C71E90669DFA",
+      "label": 1,
+      "word_count": 205,
+      "word_bin": "201+",
+      "ai_probability": 0.8976745472471968,
+      "confidence_margin": 0.39767454724719675,
+      "margin_bin": "0.35-0.40",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "CA29A62DA67B",
+      "label": 0,
+      "word_count": 409,
+      "word_bin": "201+",
+      "ai_probability": 0.00038188172618812687,
+      "confidence_margin": 0.49961811827381186,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "CA29A62DA67B",
+      "label": 1,
+      "word_count": 311,
+      "word_bin": "201+",
+      "ai_probability": 0.770816947380099,
+      "confidence_margin": 0.270816947380099,
+      "margin_bin": "0.25-0.30",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "CBEB284749D7",
+      "label": 0,
+      "word_count": 428,
+      "word_bin": "201+",
+      "ai_probability": 0.0585112537036025,
+      "confidence_margin": 0.4414887462963975,
+      "margin_bin": "0.40-0.45",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "CBEB284749D7",
+      "label": 1,
+      "word_count": 265,
+      "word_bin": "201+",
+      "ai_probability": 0.986488245260424,
+      "confidence_margin": 0.486488245260424,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "CDE661A599F5",
+      "label": 0,
+      "word_count": 475,
+      "word_bin": "201+",
+      "ai_probability": 0.006417914047292105,
+      "confidence_margin": 0.4935820859527079,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "CDE661A599F5",
+      "label": 1,
+      "word_count": 265,
+      "word_bin": "201+",
+      "ai_probability": 0.9752879217037107,
+      "confidence_margin": 0.4752879217037107,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "D1D770AF6855",
+      "label": 0,
+      "word_count": 400,
+      "word_bin": "201+",
+      "ai_probability": 0.08137167251769901,
+      "confidence_margin": 0.418628327482301,
+      "margin_bin": "0.40-0.45",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "D1D770AF6855",
+      "label": 1,
+      "word_count": 152,
+      "word_bin": "151-200",
+      "ai_probability": 0.9975974314086618,
+      "confidence_margin": 0.49759743140866175,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "D6407F1D3515",
+      "label": 0,
+      "word_count": 378,
+      "word_bin": "201+",
+      "ai_probability": 0.07084980000785882,
+      "confidence_margin": 0.4291501999921412,
+      "margin_bin": "0.40-0.45",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "D6407F1D3515",
+      "label": 1,
+      "word_count": 183,
+      "word_bin": "151-200",
+      "ai_probability": 0.9993035883502681,
+      "confidence_margin": 0.4993035883502681,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "D93EC6A7E859",
+      "label": 0,
+      "word_count": 210,
+      "word_bin": "201+",
+      "ai_probability": 1.8861418440285134e-12,
+      "confidence_margin": 0.49999999999811384,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "D93EC6A7E859",
+      "label": 1,
+      "word_count": 281,
+      "word_bin": "201+",
+      "ai_probability": 0.9916062902723114,
+      "confidence_margin": 0.4916062902723114,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "DB34A89420F2",
+      "label": 0,
+      "word_count": 486,
+      "word_bin": "201+",
+      "ai_probability": 0.0008087341501091115,
+      "confidence_margin": 0.4991912658498909,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "DB34A89420F2",
+      "label": 1,
+      "word_count": 121,
+      "word_bin": "101-150",
+      "ai_probability": 0.9997600399014553,
+      "confidence_margin": 0.49976003990145534,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "DBC8CBF56BB9",
+      "label": 0,
+      "word_count": 801,
+      "word_bin": "201+",
+      "ai_probability": 0.009740548497258748,
+      "confidence_margin": 0.49025945150274125,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "DBC8CBF56BB9",
+      "label": 1,
+      "word_count": 299,
+      "word_bin": "201+",
+      "ai_probability": 0.8685388622554638,
+      "confidence_margin": 0.36853886225546384,
+      "margin_bin": "0.35-0.40",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "DD10F696E570",
+      "label": 1,
+      "word_count": 240,
+      "word_bin": "201+",
+      "ai_probability": 0.9489476090820776,
+      "confidence_margin": 0.44894760908207765,
+      "margin_bin": "0.40-0.45",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "E0656353B8F2",
+      "label": 0,
+      "word_count": 925,
+      "word_bin": "201+",
+      "ai_probability": 0.008605159733355577,
+      "confidence_margin": 0.49139484026664443,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "E0656353B8F2",
+      "label": 1,
+      "word_count": 243,
+      "word_bin": "201+",
+      "ai_probability": 0.9480097985533403,
+      "confidence_margin": 0.44800979855334033,
+      "margin_bin": "0.40-0.45",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "E19E1BEB08EA",
+      "label": 0,
+      "word_count": 1124,
+      "word_bin": "201+",
+      "ai_probability": 0.006919073743205378,
+      "confidence_margin": 0.4930809262567946,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "E19E1BEB08EA",
+      "label": 1,
+      "word_count": 243,
+      "word_bin": "201+",
+      "ai_probability": 0.9962650070972281,
+      "confidence_margin": 0.4962650070972281,
+      "margin_bin": "0.45-0.50",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "E3611716918E",
+      "label": 0,
+      "word_count": 381,
+      "word_bin": "201+",
+      "ai_probability": 4.972557052234906e-10,
+      "confidence_margin": 0.4999999995027443,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "E3611716918E",
+      "label": 1,
+      "word_count": 240,
+      "word_bin": "201+",
+      "ai_probability": 0.7823828783284497,
+      "confidence_margin": 0.28238287832844966,
+      "margin_bin": "0.25-0.30",
+      "prediction": 1,
+      "correct": true
+    },
+    {
+      "pair_id": "EF45D0314A20",
+      "label": 0,
+      "word_count": 670,
+      "word_bin": "201+",
+      "ai_probability": 0.004254938961193101,
+      "confidence_margin": 0.4957450610388069,
+      "margin_bin": "0.45-0.50",
+      "prediction": 0,
+      "correct": true
+    },
+    {
+      "pair_id": "EF45D0314A20",
+      "label": 1,
+      "word_count": 284,
+      "word_bin": "201+",
+      "ai_probability": 0.873278270959981,
+      "confidence_margin": 0.373278270959981,
+      "margin_bin": "0.35-0.40",
+      "prediction": 1,
+      "correct": true
+    }
+  ],
+  "interpretation_guardrail": "This experiment estimates whether empirical abstention regions are justified on the same bounded validation split used by EXP-006. It does not establish universal thresholds.",
+  "validation": {
+    "pair_split_disjoint": true,
+    "both_classes_in_train": true,
+    "both_classes_in_validation": true,
+    "reproduced_exp006_metrics": true,
+    "validation_row_count_matches_exp006": true,
+    "raw_dataset_rows_joined": true,
+    "all_passed": true
+  }
+}

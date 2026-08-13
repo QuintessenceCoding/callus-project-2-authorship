@@ -425,896 +425,471 @@ Proceed to the next planned experiment after review. Later evidence-sufficiency 
 
 ## Status
 
-Planned
+Completed
 
 ## Question
 
 Can a small locally runnable instruction-tuned language model generate coherent essay text at practical speed under the ₹0 constraint?
 
-## Hypothesis
-
-A sufficiently small open-weight instruction-tuned model should be capable of generating coherent short essay samples locally on consumer hardware, but model size, runtime overhead, and generation speed may create practical trade-offs.
-
 ## Motivation
 
-The dataset requires locally generated AI, polished, and spliced variants. Before constructing any Essay Families, we need to establish that local generation is technically practical and reproducible under the project's ₹0 constraint.
-
-This experiment evaluates generation feasibility only. It does not evaluate AI-detection accuracy and does not authorize full dataset generation.
-
-## Dataset / Inputs
-
-- Dataset version: N/A
-- Input source: Controlled generation prompt
-- Number of inputs: One shared task prompt per candidate model
-- Categories: N/A
-- Split: N/A
-- Reason: This is a local runtime feasibility experiment, not a dataset evaluation.
+The controlled dataset plan requires local AI generation for AI-polished/spliced variants. This experiment establishes whether local generation is technically practical before using it in later controlled experiments.
 
 ## Configuration
 
-- Candidate models: Two small locally runnable instruction-tuned open-weight models
-- Runtime: Free local inference runtime
-- Device: CPU unless the environment requires otherwise
-- Target output: approximately 300–500 words
-- Generation parameters: recorded after implementation
-- Random seed: recorded where supported
-
-The models must be practical to download and run in the available environment. This bounded experiment should not select a 7B+ model.
-
-## Procedure
-
-1. Select two small candidate instruction-tuned models that satisfy the ₹0/local constraint.
-2. Run the same controlled essay-generation task with each model.
-3. Generate one short sample per model.
-4. Record actual model loading and generation measurements.
-5. Inspect the generated outputs for basic quality and prompt leakage.
-6. Compare practical speed, output length, and quality.
-7. Recommend whether local generation should proceed to the pilot.
-
-Generated samples are experiment artifacts only and must not become the actual project dataset.
-
-## Metrics
-
-Record:
-
-- model name/version
-- runtime
-- model size where available
-- model load time
-- generation time
-- output token count
-- tokens/second where measurable
-- successful/failed generation
-- basic quality observations
-- prompt leakage or malformed-output observations
+- Candidate models: `Qwen2.5-0.5B-Instruct` and `SmolLM2-135M`
+- Runtime: local CPU inference
+- Input: one controlled essay-generation prompt per model
+- Target: short coherent essay sample
+- Hardware: local development machine
 
 ## Result
 
-**TBD**
+`Qwen2.5-0.5B-Instruct` produced a complete coherent sample in approximately 36 seconds and was selected as the current local generation candidate.
 
-### Quantitative
-
-Record actual measurements after execution.
-
-### Qualitative
-
-Record actual observations from the generated samples.
+`SmolLM2-135M` was faster but hit the configured output limit and ended mid-sentence in the bounded comparison.
 
 ## Interpretation
 
-Separate measured observations from hypotheses.
-
-The experiment must not claim that the selected model is suitable for AI detection merely because it generates coherent text. It only establishes whether the model/runtime combination is practical for controlled dataset generation.
+Local generation is technically feasible under the ₹0 constraint. The selected model is a generation candidate for controlled experiments; this does not establish that it represents all machine-generated prose or that it should be treated as the final generation model without later validation.
 
 ## Decision
 
-**TBD**
+`PROCEED`
 
-Allowed outcomes:
-
-- `PROCEED`
-- `PROCEED WITH SMALLER MODEL`
-- `BLOCKED`
-
-Explain the decision using the observed generation success, speed, and output quality.
-
-## Follow-up
-
-If feasible, finalize the generation model/runtime and move to the controlled generation pilot and prompt-versioning work. Do not construct the full dataset directly from this experiment.
+Use `Qwen2.5-0.5B-Instruct` as the current local generation candidate for controlled generation experiments.
 
 ---
 
-# EXP-004 — Sentence Segmentation Feasibility**
+# EXP-004 — Feature Extraction Laboratory
 
-**## Question**
-
-Can \`spaCy\` reliably segment admissions-style essays into usable sentences?
-
-**## Hypothesis**
-
-A standard English spaCy pipeline will provide sufficiently reliable sentence boundaries for the target domain.
-
-**## Procedure**
-
-Test against essays containing:
-
-\* abbreviations
-\* quotations
-\* punctuation-heavy sentences
-\* dialogue
-\* unusual formatting
-\* short fragments
-
-Record obvious segmentation errors.
-
-**## Purpose**
-
-Sentence boundaries affect every downstream feature.
-
-**## Result**
-
-**\*\*TBD\*\***
-
-**## Decision**
-
-**\*\*TBD\*\***
-
-**---**
-
-**# EXP-005 — Feature Distribution Sanity Check**
-
-**## Status**
+## Status
 
 Completed
 
-**## Question**
+## Question
+
+Can one essay be converted reliably into the quantitative features required by the planned detector?
+
+## Configuration
+
+- Perplexity: validated EXP-001 `distilgpt2` implementation
+- Sentence segmentation/POS: spaCy `en_core_web_sm`
+- MATTR window: `25` tokens
+- Runtime: CPU
+
+## Procedure
+
+For the main fixture, extract per-sentence token count and perplexity, then calculate essay-level sentence-length CV, MATTR, and POS 3-gram entropy.
+
+Also run a very short edge-case input and abstain when a feature does not have enough evidence.
+
+## Result
+
+Main fixture:
+
+- Sentence count: `4`
+- Sentence perplexities: `359.442383`, `59.085762`, `392.833679`, `186.261276`
+- Sentence-length CV: `0.409558`
+- MATTR: `0.951429`
+- POS 3-gram entropy: `5.781250`
+
+Edge-case fixture:
+
+- One-token input produced no perplexity.
+- Sentence-length CV was unavailable because there were insufficient sentences.
+- MATTR was unavailable because there were insufficient tokens for the 25-token window.
+- POS 3-gram entropy was unavailable because there were insufficient POS tags for 3-grams.
+
+## Interpretation
+
+The requested feature measurements are technically implementable and can explicitly report insufficient evidence. The experiment validates extraction, not predictive usefulness.
+
+## Decision
+
+`PROCEED`
+
+Reuse the validated feature implementations in later experiments.
+
+---
+
+# EXP-005 — Feature Distribution Sanity Check
+
+## Status
+
+Completed
+
+## Question
 
 Do the EXP-004 candidate features produce measurable paired human-vs-AI distributions on DAIGT External data without training a classifier or setting thresholds?
 
-**## Dataset**
+## Dataset
 
-- Dataset: DAIGT External local CSV
-- Source path: `data/raw/daigt_external/daigt_external_dataset.csv`
+- Source: `data/raw/daigt_external/daigt_external_dataset.csv`
 - Total scanned rows: `2421`
 - Usable paired rows: `2421`
 - Selected paired rows: `200`
-- Pair semantics: `text` = human/student writing; `source_text` = AI-generated text from the same CSV row
-- Raw CSV SHA-256 before and after run: `3a1ba6c2ba557b83a13022efadb3239185cda05b50a9d31017fcf7967f33bb18`
+- Pair semantics: `text` = human/student writing; `source_text` = AI-generated text
+- Sampling seed: `20260813`
+- Raw CSV SHA-256 before and after: `3a1ba6c2ba557b83a13022efadb3239185cda05b50a9d31017fcf7967f33bb18`
 
-**## Configuration**
+## Result
 
-- Random seed: `20260813`
-- Sample target: `200` paired records
-- Perplexity model: `distilgpt2`
-- Runtime: Hugging Face Transformers on CPU
-- Sentence/POS pipeline: spaCy `en_core_web_sm`
-- Feature source: EXP-004 feature implementations reused for `sentence_length_cv`, `mattr`, lexical tokenization, and `pos_3gram_entropy`; perplexity reused from EXP-001 through EXP-004.
-- Document perplexity summary: median of valid sentence perplexities
-- Results artifact: `experiments/EXP-005-feature-distribution/results/results.json`
+| Feature | Human median | AI median | Paired median diff | Cohen's d |
+| --- | ---: | ---: | ---: | ---: |
+| perplexity | 98.196951 | 42.932217 | -53.462189 | -1.184548 |
+| sentence-length CV | 0.489799 | 0.297963 | -0.211034 | -1.604178 |
+| MATTR | 0.850048 | 0.905364 | 0.056470 | 1.929558 |
+| POS 3-gram entropy | 7.249802 | 6.665574 | -0.609158 | -1.675681 |
 
-**## Procedure**
+One human sample lacked sentence-length CV. No outliers were removed.
 
-1. Scan the DAIGT External CSV for rows with both `text` and `source_text`.
-2. Select a deterministic sample of 200 usable rows using seed `20260813`.
-3. Preserve each row as a human/AI pair from the same source row.
-4. Extract the four candidate features for each side of each pair.
-5. Summarize class distributions and paired AI-minus-human differences.
-6. Validate sample size, uniqueness, pair preservation, feature availability, summary consistency, and raw dataset integrity.
+## Interpretation
 
-No classifier, thresholds, anomaly scoring, or feature promotion/rejection decisions were performed.
+All four candidate features showed measurable paired differences in this bounded DAIGT sample. This establishes candidate signal worth testing, but not production thresholds or target-domain generalization.
 
-**## Metrics**
-
-For each feature and class:
-
-- valid count
-- missing/abstained count
-- mean
-- median
-- standard deviation
-- IQR
-- min
-- max
-
-For human-vs-AI comparison:
-
-- class medians
-- AI-minus-human median difference
-- paired AI-minus-human differences where both values are valid
-- Cohen's d where valid
-- range and IQR overlap ratios
-
-**## Result**
-
-**### Quantitative**
-
-Class distribution summary:
-
-| Feature | Class | Valid | Missing | Mean | Median | Stdev | IQR | Min | Max |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| perplexity | human | 200 | 0 | 118.607749 | 98.196951 | 87.340346 | 56.245147 | 33.789711 | 799.672791 |
-| perplexity | AI | 200 | 0 | 44.676744 | 42.932217 | 12.743399 | 14.562595 | 20.824144 | 120.996506 |
-| sentence_length_cv | human | 199 | 1 | 0.527162 | 0.489799 | 0.179204 | 0.194288 | 0.153779 | 1.188102 |
-| sentence_length_cv | AI | 200 | 0 | 0.300048 | 0.297963 | 0.089636 | 0.124705 | 0.053878 | 0.624626 |
-| MATTR | human | 200 | 0 | 0.845757 | 0.850048 | 0.034253 | 0.043237 | 0.713290 | 0.916962 |
-| MATTR | AI | 200 | 0 | 0.903339 | 0.905364 | 0.024655 | 0.029848 | 0.811667 | 0.947191 |
-| POS 3-gram entropy | human | 200 | 0 | 7.236224 | 7.249802 | 0.393334 | 0.550990 | 6.267128 | 8.025335 |
-| POS 3-gram entropy | AI | 200 | 0 | 6.631243 | 6.665574 | 0.325549 | 0.450480 | 5.821791 | 7.396942 |
-
-Human-vs-AI summary:
-
-| Feature | Human median | AI median | Median diff, AI - human | Paired valid | Paired missing | Paired median diff | Cohen's d, AI - human | Range overlap | IQR overlap |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| perplexity | 98.196951 | 42.932217 | -55.264734 | 200 | 0 | -53.462189 | -1.184548 | 0.111969 | 0.000000 |
-| sentence_length_cv | 0.489799 | 0.297963 | -0.191836 | 199 | 1 | -0.211034 | -1.604178 | 0.415126 | 0.000000 |
-| MATTR | 0.850048 | 0.905364 | 0.055316 | 200 | 0 | 0.056470 | 1.929558 | 0.450171 | 0.000000 |
-| POS 3-gram entropy | 7.249802 | 6.665574 | -0.584228 | 200 | 0 | -0.609158 | -1.675681 | 0.512726 | 0.000000 |
-
-Paired direction counts:
-
-| Feature | AI > human | AI < human | AI = human |
-| --- | ---: | ---: | ---: |
-| perplexity | 12 | 188 | 0 |
-| sentence_length_cv | 18 | 181 | 0 |
-| MATTR | 190 | 10 | 0 |
-| POS 3-gram entropy | 14 | 186 | 0 |
-
-Runtime: `683.744290` seconds.
-
-**### Qualitative**
-
-All four features produced measurable paired distributions. One human row abstained for `sentence_length_cv` because at least two sentences are required for CV. No outliers were removed.
-
-The observed class medians differed for all four features in this sample. The IQR overlap ratio was `0.0` for all four features, while min-max ranges overlapped for all four features. These observations are limited to this DAIGT External paired sample and do not establish thresholds, classifier performance, target-domain generalization, or final feature inclusion.
-
-**## Validation**
-
-All configured validation checks passed:
-
-- expected sample size reached
-- selected row indices and IDs are unique
-- pair results match selected source row indices and IDs
-- pair count equals selected count
-- raw dataset checksum unchanged
-- finite feature values when present
-- MATTR values remain in `[0, 1]`
-- distribution summary counts match pair-level feature availability
-
-**## Decision**
+## Decision
 
 `PROCEED TO BASELINE MODELING`
 
-The distribution sanity check is complete and supports running a bounded baseline/modeling experiment next. EXP-005 does not promote or reject any feature by itself.
+---
 
-**## Follow-up**
+# EXP-006 — Baseline Classification
 
-Run a paired-data baseline experiment with explicit train/validation separation, beginning with a perplexity-only baseline and then the four-feature set. Threshold/model decisions should be made only inside the development split protocol and not on final test data.
-
-**---**
-
-**# EXP-006 — Feature Distribution Sanity Check**
-
-**## Question**
-
-Do candidate features produce sensible distributions across the available categories?
-
-**## Hypothesis**
-
-Some candidate features will show separation between human and machine-generated text, but significant overlap will remain.
-
-**## Procedure**
-
-Plot and summarize feature distributions across:
-
-\* human
-\* AI
-\* hybrid
-\* ESL/control where available
-
-Inspect:
-
-\* overlap
-\* outliers
-\* suspiciously perfect separation
-\* length effects
-
-**## Important Constraint**
-
-A feature that perfectly separates the categories should be treated as suspicious rather than immediately celebrated.
-
-Perfect separation may indicate:
-
-\* metadata leakage
-\* source artifacts
-\* topic confounding
-\* generation artifacts
-
-**## Result**
-
-**\*\*TBD\*\***
-
-**## Decision**
-
-**\*\*TBD\*\***
-
-**---**
-
-**# EXP-007 — Hybrid Local-Anomaly Feasibility**
-
-**## Status**
+## Status
 
 Completed
 
-**## Objective**
+## Question
 
-Test whether a known two-sentence AI passage inserted into an otherwise human essay becomes locally anomalous relative to the rest of that same hybrid essay.
+Does the four-feature model improve classification over a perplexity-only baseline on unseen paired DAIGT data?
 
-This is a feasibility experiment only. It does not implement a production local-anomaly scorer, train a classifier, create thresholds, or process the full DAIGT dataset.
+## Dataset / Split
 
-**## Dataset / Source**
+- Source: 200 paired records from EXP-005
+- Pair-level split: `160` training pairs / `40` validation pairs
+- Training rows: `320`
+- Validation rows: `79` after one missing-feature row was removed
+- Seed: `20260814`
+- Human and AI members of each pair remained in the same split
 
-- Raw dataset: `data/raw/daigt_external/daigt_external_dataset.csv`
-- Dataset semantics: `text` = human/student-written text; `source_text` = AI-generated text; `instructions` = shared task/generation context
-- Raw CSV SHA-256 before and after run: `3a1ba6c2ba557b83a13022efadb3239185cda05b50a9d31017fcf7967f33bb18`
-- Results artifact: `experiments/EXP-007-local-anomaly/results/results.json`
+## Models
 
-**## 20-Pair Selection Method**
+### Perplexity-only baseline
 
-EXP-007 used exactly the first 20 `pair_results` from `experiments/EXP-005-feature-distribution/results/results.json`.
+Logistic Regression using standardized perplexity.
 
-No resampling and no new random seed were used.
+### Four-feature model
 
-Selected pair IDs:
+Logistic Regression using standardized:
 
-```text
-616C3D5795E8, 61E85C09E36D, 62E5030D1A59, 638D7F913AAB,
-63E2278271E4, 642CB997325C, 653620381DB3, 65B7FDE783F2,
-674F5DA988D2, 67D58F9FA53C, 68004683BC3C, 69241D10E69A,
-694C96A1E9A0, 6AB122D640E1, 6B3B3CB54EB9, 6CD1B8B6BEA8,
-6D6E937C3A67, 6E90DC70B7A9, 6F30733E6B4B, 6FEF6D46714D
-```
+- perplexity
+- sentence-length CV
+- MATTR
+- POS 3-gram entropy
 
-**## Hybrid Construction**
+## Result
 
-For each selected pair:
+| Metric | Perplexity only | Four features |
+| --- | ---: | ---: |
+| Accuracy | 0.860759 | **0.974684** |
+| Precision | 0.795918 | **0.952381** |
+| Recall | 0.975000 | **1.000000** |
+| F1 | 0.876404 | **0.975610** |
+| ROC-AUC | 0.956410 | **0.995513** |
 
-1. Segment human `text` with the EXP-004 spaCy pipeline.
-2. Segment AI `source_text` with the same pipeline.
-3. Require at least 2 human sentences and at least 3 AI sentences.
-4. Select exactly 2 contiguous AI sentences from the middle of the AI text.
-5. Insert the AI block at human sentence boundary `floor(human_sentence_count / 2)`.
-6. Record the inserted AI sentence indices as zero-based hybrid sentence indices.
+F1 improvement: `+0.099205`, approximately `+9.9` percentage points.
 
-No human or AI sentence rewriting was performed.
+Standardized coefficients:
 
-**## Features**
+- perplexity: `-2.767575`
+- sentence-length CV: `-1.318850`
+- MATTR: `+2.271050`
+- POS 3-gram entropy: `-1.938117`
 
-EXP-007 reused the existing EXP-004 / EXP-001 implementations:
+## Interpretation
 
-- sentence segmentation: spaCy `en_core_web_sm`
-- perplexity: EXP-001 `calculate_perplexity`, loaded through EXP-004
-- lexical tokenization: EXP-004 `tokenize_for_lexical_features`
-- MATTR: EXP-004 `mattr`, window size `25`
-- POS 3-gram entropy: EXP-004 `pos_trigram_entropy`
+Perplexity alone is already a strong baseline. The four-feature model substantially improved validation performance on this controlled, pair-aware DAIGT split.
 
-Per hybrid sentence:
+This is a bounded dataset result and does not establish admissions-domain performance.
 
-- sentence perplexity
-- sentence token count / sentence length
-- local MATTR
-- local POS 3-gram entropy
+## Validation
 
-Local windows used a centered 3-sentence window where possible. Edge behavior: first sentence uses `[0, 1]`; last sentence uses `[n-2, n-1]`; interior sentences use `[i-1, i, i+1]`.
+- Train/validation pair sets were disjoint.
+- Both classes were present in both splits.
+- No raw datasets were modified.
 
-**## Robust Anomaly Definition**
+## Decision
 
-For each feature:
+`PROCEED`
 
-```text
-robust_z = 0.6745 * (value - median(reference_values)) / MAD(reference_values)
-```
+Use the four-feature Logistic Regression as the primary global detection baseline.
 
-The reference distribution is the other sentence/window values in the same hybrid essay, excluding the current sentence/window.
+---
 
-If `MAD == 0`, the component z-score is unavailable and no value is fabricated.
+# EXP-007 — Hybrid Local-Anomaly Feasibility
 
-The experimental local anomaly score is:
+## Status
 
-```text
-mean(abs(available component z-scores))
-```
+Completed
 
-This is only an experimental ranking score.
+## Question
 
-**## Measured Results**
+Can a known two-sentence AI passage inserted into an otherwise human essay become locally anomalous relative to the rest of that hybrid?
 
-Construction:
+## Dataset
 
-| Measure | Value |
-| --- | ---: |
-| Selected pairs | 20 |
-| Eligible pairs | 20 |
-| Successful hybrids | 20 |
-| Rejected pairs | 0 |
-| Total inserted AI sentences | 40 |
+- Raw source: `data/raw/daigt_external/daigt_external_dataset.csv`
+- Exact first 20 pair results from EXP-005
+- Successful hybrids: `20`
+- Ground-truth inserted AI sentences: `40`
+- Raw CSV unchanged
 
-Aggregate capture:
+## Method
+
+For each pair:
+
+1. Segment human and AI text using the EXP-004 spaCy pipeline.
+2. Select two contiguous AI sentences.
+3. Insert them into the human essay at a sentence boundary.
+4. Calculate per-sentence perplexity, length, local MATTR, and local POS 3-gram entropy.
+5. Compute leave-one-out robust z-scores within each hybrid.
+6. Average absolute available z-scores into an experimental anomaly ranking.
+
+## Result
 
 | Capture band | Rate | Count |
 | --- | ---: | ---: |
-| Top 50% | 0.550 | 22 / 40 |
-| Top 25% | 0.150 | 6 / 40 |
-| Top 10% | 0.025 | 1 / 40 |
+| Top 50% | 55.0% | 22 / 40 |
+| Top 25% | 15.0% | 6 / 40 |
+| Top 10% | 2.5% | 1 / 40 |
 
-AI-vs-human anomaly summary:
+Median anomaly:
 
-| Class | Count | Mean | Median | Stdev | IQR | Min | Max |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Inserted AI sentences | 40 | 1.032682 | 0.977125 | 0.461367 | 0.614979 | 0.312276 | 2.184944 |
-| Human sentences | 383 | 3.422957 | 0.869977 | 44.140034 | 0.719832 | 0.154095 | 864.776786 |
+- Inserted AI: `0.977125`
+- Human: `0.869977`
+- Difference: `+0.107147`
 
-Median difference, AI minus human: `0.107147`.
+## Interpretation
 
-**## Limitations**
+The local anomaly score is computable and sometimes ranks inserted AI sentences highly, but human outliers frequently dominate. It is therefore not sufficiently reliable as a standalone localization mechanism.
 
-- The hybrids are synthetic and insert a contiguous two-sentence AI block; this does not model every form of real AI-assisted writing.
-- Results are from DAIGT External student-writing pairs, not admissions essays.
-- The high human mean and maximum show that retained human outliers can be more anomalous than inserted AI sentences.
-- The experiment does not establish production thresholds, detection accuracy, or final local-anomaly behavior.
-
-**## Validation**
-
-All validation checks passed:
-
-- no duplicate pair IDs
-- raw dataset unchanged
-- every hybrid has exactly 2 inserted AI sentences
-- inserted AI text matches selected source-text sentence strings
-- ground-truth indices are valid
-- human sentence sequence is preserved
-- finite anomaly values are finite
-- unavailable features have explicit reasons
-- result counts are internally consistent
-
-**## Decision**
+## Decision
 
 `PROCEED WITH REVISION`
 
-The within-document robust anomaly approach is feasible to compute and sometimes ranks inserted AI sentences relatively high, but this exact experimental score is not sufficient as a standalone detector because overlap is substantial and human outliers can dominate.
+Revise the local-evidence formulation rather than promoting the current anomaly score.
 
-**## Follow-up**
+---
 
-Run a local-window sensitivity experiment comparing window sizes and component feature contributions on the same synthetic hybrids before considering any production scoring design.
+# EXP-008 — Local Window & Feature Contribution Sensitivity
 
-**---**
+## Status
 
-**# EXP-008 — Local Baseline Stability**
+Completed
 
-**## Question**
+## Question
 
-Can a local stylistic baseline be estimated reliably using robust statistics?
+Can changing local context size or restricting the contributing feature set materially improve EXP-007's local anomaly signal?
 
-**## Hypothesis**
+## Configuration
 
-Median/MAD with leave-one-out exclusion will be more stable than mean/std when local outliers are present.
+Same 20 hybrids / 40 ground-truth AI sentences from EXP-007.
 
-**## Comparison**
+Windows: `1`, `3`, `5`, `7` sentences.
 
-Compare:
+Feature configurations:
 
-**### Method A**
+- perplexity only
+- sentence length only
+- MATTR only
+- POS 3-gram entropy only
+- all four
 
-Mean + standard deviation
+Total configurations: `20`.
 
-**### Method B**
+## Result
 
-Median + MAD
+| Window / Feature set | AI − human median anomaly | Top-25% | Top-10% |
+| --- | ---: | ---: | ---: |
+| 1 / all features | -0.054192 | 22.5% | 7.5% |
+| 3 / all features | 0.106537 | 27.5% | 2.5% |
+| 5 / all features | 0.113813 | 20.0% | 10.0% |
+| 7 / all features | 0.072074 | 22.5% | 7.5% |
+| 7 / POS entropy only | 0.413327 | 42.1% | 15.8% |
 
-**### Method C**
+Additional observations:
 
-Leave-one-out median + MAD
+- Sentence length alone showed essentially no median separation.
+- The apparent 1-sentence MATTR result had incomplete coverage because of the 25-token MATTR requirement.
+- No window consistently rescued the all-feature anomaly score.
 
-**### Method D**
+## Interpretation
 
-Leave-one-out local-window median + MAD
+Changing window size does not consistently solve the local anomaly problem. POS entropy showed the strongest individual local signal in one larger-window setting, but not enough to justify a standalone production detector.
 
-**## Test Conditions**
+## Decision
 
-Include:
+`REVISE LOCAL EVIDENCE FORMULATION`
 
-\* normal human essays
-\* AI-spliced essays
-\* AI-polished essays
-\* very short essays
-\* essays with few sentences
+Do not lock a local anomaly score based on this sensitivity sweep.
 
-**## Metrics**
+---
 
-Record:
+# EXP-009 — Boundary Discontinuity Feasibility
 
-\* baseline stability
-\* anomaly-score stability
-\* zero/near-zero MAD frequency
-\* ability to identify known transformed passages
+## Status
 
-**## Result**
+Completed
 
-**\*\*TBD\*\***
+## Question
 
-**## Decision**
+Can abrupt feature changes across adjacent sentence boundaries localize a known inserted AI passage better than within-document anomaly scoring?
 
-**\*\*TBD\*\***
+## Dataset
 
-**---**
+The exact same 20 synthetic hybrids from EXP-007 were reused, producing `40` target boundaries.
 
-**# EXP-009 — Local Window Size**
+Target boundaries were the two boundaries surrounding the inserted AI block:
 
-**## Question**
+- human → AI
+- AI → human
 
-What local context size provides the most stable and useful anomaly measurement?
+## Method
 
-**## Candidate Windows**
+For each adjacent sentence boundary, measure:
 
-\`\`\`text
-±2 sentences
-±3 sentences
-±4 sentences
-paragraph-level
-whole-document
-\`\`\`
+- raw perplexity change
+- log-perplexity change
+- sentence-length change
+- MATTR change
+- POS 3-gram entropy change
 
-**## Hypothesis**
+Normalize each boundary feature with a within-hybrid robust z-score and calculate an experimental combined boundary score.
 
-A local window should better capture stylistic discontinuities than a whole-document baseline while remaining sufficiently large for stable statistics.
+## Result
 
-**## Result**
+- Target boundaries: `40`
+- Top 50% capture: `60.0%`
+- Top 25% capture: `32.5%`
+- Top 10% capture: `25.0%`
+- Target-boundary median minus human-internal-boundary median: `+0.048926`
 
-**\*\*TBD\*\***
+## Interpretation
 
-**## Decision**
+Boundary discontinuity contains some localization signal, but separation from ordinary human→human boundaries is small. Individual human boundaries can still rank above the true insertion boundaries.
 
-**\*\*TBD\*\***
+The experiment therefore does not justify replacing the rejected local anomaly score with a production boundary score.
 
-**---**
+## Decision
 
-**# EXP-010 — Evidence Sufficiency Thresholds**
+`PROCEED TO EVIDENCE SUFFICIENCY / FINAL LOCAL-EVIDENCE DESIGN`
 
-**## Question**
+Treat boundary discontinuity as an experimental supporting signal only, not a standalone detector.
 
-At what text/context sizes do the detector's measurements become too unstable to support a strong interpretation?
+---
 
-**## Candidate Inputs**
+# EXP-010 — Evidence Sufficiency & Empirical Abstention
 
-Vary:
+## Status
 
-\* sentence length
-\* passage length
-\* number of neighboring sentences
-\* number of available baseline observations
+Completed
 
-Record:
+## Question
 
-\* feature stability
-\* anomaly stability
-\* perplexity stability
-\* classification confidence
+When does the global classifier have enough evidence to make a useful claim, and when should it abstain?
 
-**## Goal**
+## Objective
 
-Define conditions under which the system should return:
+The earlier EXP-010 diagnostic only measured feature availability. It did not justify numeric abstention thresholds, so it was replaced by this empirical reproduction and binning experiment.
 
-\`\`\`text
-Insufficient Evidence
-\`\`\`
+## Configuration
 
-rather than forcing a classification.
+- Source: EXP-005 paired feature data + EXP-006 baseline protocol
+- Model: four-feature Logistic Regression
+- Features:
+  - perplexity
+  - sentence-length CV
+  - MATTR
+  - POS 3-gram entropy
+- Pair split: `160` train / `40` validation
+- Validation rows: `79`
+- Seed: `20260814`
+- Standardization fitted on training data only
 
-**## Result**
+## Reproduction Check
 
-**\*\*TBD\*\***
+The EXP-006 model was recreated before any abstention analysis.
 
-**## Decision**
+Reproduced metrics matched the saved EXP-006 metrics exactly:
 
-**\*\*TBD\*\***
+| Metric | Reproduced |
+| --- | ---: |
+| Accuracy | 0.974684 |
+| Precision | 0.952381 |
+| Recall | 1.000000 |
+| F1 | 0.975610 |
+| ROC-AUC | 0.995513 |
 
-**---**
+All metric deltas were `0.0`.
 
-**# EXP-011 — Logistic Regression vs Random Forest**
+## Text-Length Analysis
 
-**## Question**
+The validation set did not contain sufficiently short examples to empirically establish a minimum text-length threshold.
 
-Does a nonlinear classifier provide meaningful value over a transparent linear classifier?
+Observed bins:
 
-**## Candidates**
+| Word-count bin | Samples | Accuracy | F1 |
+| --- | ---: | ---: | ---: |
+| 81–100 | 1 | 1.000000 | 1.000000 |
+| 101–150 | 8 | 1.000000 | 1.000000 |
+| 151–200 | 9 | 1.000000 | 1.000000 |
+| 201+ | 61 | 0.967213 | 0.960000 |
 
-**### Logistic Regression**
+The absence of shorter validation samples means this experiment cannot defensibly derive a cutoff such as `40 words`.
 
-Advantages:
+EXP-002 nevertheless showed that short prefixes are substantially less stable for perplexity measurement: cross-passage CV was `0.77` at 10 tokens versus `0.15` at 200 tokens. This is evidence for caution with short inputs, not a validated classifier threshold.
 
-\* interpretable
-\* fast
-\* simple
-\* easy to calibrate
+## Confidence-Margin Analysis
 
-**### Random Forest**
+Confidence margin is:
 
-Advantages:
+```text
+abs(P(AI) - 0.5)
+```
 
-\* nonlinear relationships
-\* minimal distribution assumptions
-\* potentially stronger performance
+The validation distribution was heavily concentrated at high margins.
 
-**## Comparison**
+- `0.00–0.05`: `1` sample, accuracy `0.0`
+- `0.35–0.40`: `6` samples, accuracy `0.833333`
+- `0.40–0.45`: `9` samples, accuracy `1.0`
+- `0.45–0.50`: `57` samples, accuracy `1.0`
 
-Evaluate using the same:
+The single near-boundary example was a human sample with `P(AI)=0.51885` and was misclassified. The sample is useful as a qualitative example of uncertainty, but there are not enough near-boundary cases to validate a numeric confidence dead-zone.
 
-\* dataset
-\* features
-\* split
-\* evaluation metrics
+## Interpretation
 
-**## Decision Criteria**
+This experiment supports an abstention *architecture* but does not support a statistically validated numeric threshold.
 
-Consider:
+The defensible production behavior is therefore:
 
-\* F1
-\* precision
-\* recall
-\* FPR
-\* calibration
-\* OOD performance
-\* computational cost
-\* interpretability
+1. **Hard insufficiency:** abstain when required feature measurements cannot be computed reliably.
+2. **Soft uncertainty:** expose classifier uncertainty near the decision boundary without claiming that an exact numeric dead-zone has been empirically validated.
+3. **No forced verdict:** missing or contradictory evidence should not be converted into a confident AI/human claim.
 
-**## Result**
+## Decision
 
-**\*\*TBD\*\***
+`PROCEED TO IMPLEMENTATION WITH CONSERVATIVE ABSTENTION`
 
-**## Decision**
+Do not lock an arbitrary minimum word-count threshold or confidence-margin threshold from this bounded validation set.
 
-**\*\*TBD\*\***
+## Follow-up
 
-**---**
+Close the feasibility experiment loop and begin the production detection pipeline. Further experiments such as OOD/topic generalization, unseen-model evaluation, ESL bias auditing, and failure analysis should be performed after a working detector exists and should be treated as refinement/evaluation rather than prerequisites for implementation.
 
-**# EXP-012 — Feature Ablation**
+---
 
-**## Question**
-
-Which candidate feature groups provide incremental value?
-
-**## Baseline**
-
-Perplexity only.
-
-**## Progression**
-
-\`\`\`text
-Perplexity
-    ↓
-\+ Rhythm
-    ↓
-\+ Lexical
-    ↓
-\+ Syntax
-    ↓
-\+ Repetition
-    ↓
-\+ Local consistency
-\`\`\`
-
-**## Goal**
-
-Determine which feature groups:
-
-\* improve performance
-\* add redundancy
-\* hurt generalization
-\* increase bias
-\* increase computational cost without sufficient benefit
-
-**## Result**
-
-**\*\*TBD\*\***
-
-**## Decision**
-
-**\*\*TBD\*\***
-
-**---**
-
-**# EXP-013 — Hybrid Detection**
-
-**## Question**
-
-Can the detector identify localized machine-associated writing inside otherwise human essays?
-
-**## Test Cases**
-
-**### AI Polishing**
-
-Selected human passages modified by a local model.
-
-**### AI Splicing**
-
-Selected passages replaced with newly generated text.
-
-**## Metrics**
-
-Evaluate:
-
-\* document-level classification
-\* sentence-level classification
-\* localization precision
-\* localization recall
-\* passage overlap
-\* false-positive spillover
-
-**## Result**
-
-**\*\*TBD\*\***
-
-**## Decision**
-
-**\*\*TBD\*\***
-
-**---**
-
-**# EXP-014 — Global vs Local Signal**
-
-**## Question**
-
-Does combining machine association with local stylistic anomaly improve interpretation of hybrid writing?
-
-**## Compare**
-
-**### Global only**
-
-\`\`\`text
-S\_global
-\`\`\`
-
-**### Local only**
-
-\`\`\`text
-S\_local
-\`\`\`
-
-**### Combined**
-
-\`\`\`text
-S\_global + S\_local
-\`\`\`
-
-**## Important**
-
-The combination method should not be assumed beforehand.
-
-Candidate methods may include:
-
-\* rule-based interpretation
-\* classifier input
-\* calibrated combination
-\* evidence matrix
-
-The simplest defensible method should be preferred.
-
-**## Result**
-
-**\*\*TBD\*\***
-
-**## Decision**
-
-**\*\*TBD\*\***
-
-**---**
-
-**# EXP-015 — Topic Generalization**
-
-**## Question**
-
-Does the detector generalize to an unseen topic cluster?
-
-**## Procedure**
-
-Hold out a topic cluster from training.
-
-Evaluate on that topic only.
-
-**## Result**
-
-**\*\*TBD\*\***
-
-**## Decision**
-
-**\*\*TBD\*\***
-
-**---**
-
-**# EXP-016 — Unseen Model Generalization**
-
-**## Question**
-
-Does the detector generalize to a generation model that was not present during training?
-
-**## Procedure**
-
-Train using available model families except one.
-
-Evaluate on the held-out generation model.
-
-**## Interpretation**
-
-A performance drop should be documented rather than automatically treated as an implementation failure.
-
-**## Result**
-
-**\*\*TBD\*\***
-
-**## Decision**
-
-**\*\*TBD\*\***
-
-**---**
-
-**# EXP-017 — ESL Bias Audit**
-
-**## Question**
-
-Does the detector produce a disproportionately high false-positive rate on the ESL/non-native-English control set?
-
-**## Compare**
-
-\* general human test set
-\* ESL/control set
-
-Metrics:
-
-\* FPR
-\* machine-association score
-\* evidence strength
-\* feature distributions
-
-**## Result**
-
-**\*\*TBD\*\***
-
-**## Decision**
-
-**\*\*TBD\*\***
-
-**---**
-
-**# EXP-018 — Confident Failure Analysis**
-
-**## Question**
-
-What causes the detector's strongest incorrect predictions?
-
-**## Procedure**
-
-Select at least three confident failures.
-
-For each:
-
-1\. inspect text
-2\. inspect feature vector
-3\. inspect global signal
-4\. inspect local signal
-5\. inspect evidence sufficiency
-6\. identify likely failure mechanism
-7\. determine whether mitigation is justified
-
-**## Result**
-
-**\*\*TBD\*\***
-
-**## Decision**
-
-**\*\*TBD\*\***
-
-**---**
-
-**# 6. Experiment Promotion Rules**
+# 6. Experiment Promotion Rules**
 
 An experimental finding may influence the production system when:
 
@@ -1429,13 +1004,13 @@ Experiments should remain separable from production application code.
 | EXP-001 | Local perplexity feasibility | Completed |
 | EXP-002 | Perplexity stability by text length | Completed |
 | EXP-003 | Local generation feasibility | Completed |
-| EXP-004 | Sentence segmentation feasibility | Planned |
-| EXP-005 | Candidate feature extraction | Planned |
-| EXP-006 | Feature distribution sanity check | Planned |
-| EXP-007 | Perplexity baseline | Planned |
-| EXP-008 | Local baseline stability | Planned |
-| EXP-009 | Local window size | Planned |
-| EXP-010 | Evidence sufficiency thresholds | Planned |
+| EXP-004 | Feature extraction laboratory | Completed |
+| EXP-005 | Feature distribution sanity check | Completed |
+| EXP-006 | Baseline classification | Completed |
+| EXP-007 | Hybrid local-anomaly feasibility | Completed |
+| EXP-008 | Local window & feature sensitivity | Completed |
+| EXP-009 | Boundary discontinuity feasibility | Completed |
+| EXP-010 | Evidence sufficiency & empirical abstention | Completed |
 | EXP-011 | Logistic Regression vs Random Forest | Planned |
 | EXP-012 | Feature ablation | Planned |
 | EXP-013 | Hybrid detection | Planned |
@@ -1453,12 +1028,22 @@ The order may change based on feasibility results.
 
 **Phase:** 1 — Research & Feasibility
 
-**Status:** EXP-001 and EXP-002 completed. Human-source inspection and the generation protocol have been established.
+**Status:** EXP-001 through EXP-010 completed.
 
-The next experiment to execute is:
+Current evidence supports:
 
-> **EXP-003 — Local Generation Feasibility**
+- local perplexity extraction is technically feasible;
+- very short prefixes produce less stable perplexity measurements than longer prefixes;
+- the four candidate features show measurable paired signal on the controlled DAIGT sample;
+- the four-feature Logistic Regression baseline substantially outperformed the perplexity-only baseline on the bounded pair-aware validation split;
+- the initial within-document local anomaly score is not reliable enough to serve as the primary localization mechanism;
+- local window and feature sensitivity did not consistently rescue the anomaly score;
+- boundary discontinuity shows some signal but does not provide sufficiently strong separation for a standalone production local detector;
+- feature measurement failures should result in abstention rather than fabricated values;
+- the bounded validation data do not justify a universal numeric minimum-word or confidence dead-zone threshold.
 
-EXP-003 will determine whether local instruction-tuned generation is practical under the ₹0 constraint before any Essay Families are constructed.
+The research phase is now complete for the purposes of beginning implementation.
 
-No production detection architecture should depend on a specific generation model or runtime until the relevant feasibility experiment has been completed.
+> **Next: build the production detection pipeline using the four-feature Logistic Regression as the primary global signal, with conservative insufficient-evidence handling.**
+
+Further experiments should be treated as post-implementation evaluation/refinement rather than prerequisites for the first working detector.
