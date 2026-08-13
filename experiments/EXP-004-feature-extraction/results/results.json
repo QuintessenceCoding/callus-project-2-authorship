@@ -1,0 +1,278 @@
+{
+  "experiment_id": "EXP-004",
+  "name": "Feature Extraction Laboratory",
+  "created_at_utc": "2026-08-13T18:12:48.158171+00:00",
+  "environment": {
+    "python": "3.12.9",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "processor": "AMD64 Family 23 Model 96 Stepping 1, AuthenticAMD",
+    "torch": "2.13.0+cpu",
+    "transformers": "5.15.0",
+    "spacy": "3.8.15",
+    "device": "cpu"
+  },
+  "method": {
+    "sentence_segmentation": {
+      "library": "spaCy",
+      "model": "en_core_web_sm"
+    },
+    "perplexity": {
+      "source_experiment": "EXP-001",
+      "source_file": "D:\\Code\\callushackathon\\project2\\callus-project-2-authorship\\experiments\\EXP-001-perplexity-feasibility\\run.py",
+      "model_identifier": "distilgpt2",
+      "device": "cpu",
+      "causal_shift": "Reused EXP-001 calculate_perplexity implementation."
+    },
+    "essay_features": {
+      "sentence_length_cv": "stdev/mean of per-sentence spaCy token counts (excluding punctuation and spaces)",
+      "mattr": "moving-average type-token ratio over lowercase alphabetic tokens, window=25",
+      "pos_3gram_entropy": "Shannon entropy (base 2) of POS-tag trigrams over non-space, non-punctuation tokens"
+    },
+    "edge_case_fixture_included": true
+  },
+  "fixtures": [
+    {
+      "fixture_id": "fixture-main-essay",
+      "category": "main",
+      "input_text": "I used to think leadership meant always speaking first. During my junior year, I coordinated peer tutoring at our library, and the role forced me to listen more carefully than I ever had before. When a lesson failed, we documented what confused students and rewrote the examples together. By spring, the program was less about my planning and more about routines the whole team could maintain.",
+      "sentence_count": 4,
+      "sentence_features": [
+        {
+          "sentence_id": 1,
+          "sentence_text": "I used to think leadership meant always speaking first.",
+          "token_count": 10,
+          "perplexity": 359.4423828125,
+          "perplexity_status": "ok",
+          "perplexity_reason_unavailable": null,
+          "perplexity_warnings": []
+        },
+        {
+          "sentence_id": 2,
+          "sentence_text": "During my junior year, I coordinated peer tutoring at our library, and the role forced me to listen more carefully than I ever had before.",
+          "token_count": 29,
+          "perplexity": 59.08576202392578,
+          "perplexity_status": "ok",
+          "perplexity_reason_unavailable": null,
+          "perplexity_warnings": []
+        },
+        {
+          "sentence_id": 3,
+          "sentence_text": "When a lesson failed, we documented what confused students and rewrote the examples together.",
+          "token_count": 17,
+          "perplexity": 392.83367919921875,
+          "perplexity_status": "ok",
+          "perplexity_reason_unavailable": null,
+          "perplexity_warnings": []
+        },
+        {
+          "sentence_id": 4,
+          "sentence_text": "By spring, the program was less about my planning and more about routines the whole team could maintain.",
+          "token_count": 20,
+          "perplexity": 186.2612762451172,
+          "perplexity_status": "ok",
+          "perplexity_reason_unavailable": null,
+          "perplexity_warnings": []
+        }
+      ],
+      "essay_features": {
+        "sentence_length_cv": {
+          "value": 0.4095582814689554,
+          "meta": {
+            "available": true,
+            "reason": null,
+            "sentence_count": 4,
+            "mean_sentence_length_tokens": 16.5,
+            "stdev_sentence_length_tokens": 6.757711644237764
+          }
+        },
+        "mattr": {
+          "value": 0.9514285714285714,
+          "meta": {
+            "available": true,
+            "reason": null,
+            "window_size": 25,
+            "token_count": 66,
+            "window_count": 42
+          }
+        },
+        "pos_3gram_entropy": {
+          "value": 5.78125,
+          "meta": {
+            "available": true,
+            "reason": null,
+            "pos_tag_count": 66,
+            "trigram_count": 64,
+            "unique_trigram_count": 57
+          }
+        }
+      },
+      "timing_seconds": 2.471570599998813
+    },
+    {
+      "fixture_id": "fixture-edge-short",
+      "category": "edge",
+      "input_text": "Hi",
+      "sentence_count": 1,
+      "sentence_features": [
+        {
+          "sentence_id": 1,
+          "sentence_text": "Hi",
+          "token_count": 1,
+          "perplexity": null,
+          "perplexity_status": "insufficient_input",
+          "perplexity_reason_unavailable": "At least two tokens are required because token 1 has no preceding-token prediction in the supplied sequence.",
+          "perplexity_warnings": []
+        }
+      ],
+      "essay_features": {
+        "sentence_length_cv": {
+          "value": null,
+          "meta": {
+            "available": false,
+            "reason": "insufficient_sentences_for_cv: require_at_least=2",
+            "sentence_count": 1
+          }
+        },
+        "mattr": {
+          "value": null,
+          "meta": {
+            "available": false,
+            "reason": "insufficient_tokens_for_window: have=1 require_at_least=25",
+            "window_size": 25,
+            "token_count": 1
+          }
+        },
+        "pos_3gram_entropy": {
+          "value": null,
+          "meta": {
+            "available": false,
+            "reason": "insufficient_pos_tags_for_3grams: have=1 require_at_least=3",
+            "pos_tag_count": 1,
+            "trigram_count": 0
+          }
+        }
+      },
+      "timing_seconds": 0.02427000000170665
+    }
+  ],
+  "validation": {
+    "per_fixture": {
+      "fixture-main-essay": {
+        "checks": {
+          "sentence_count_matches": {
+            "passed": true,
+            "observed_sentence_count": 4,
+            "observed_rows": 4
+          },
+          "token_counts_non_negative": {
+            "passed": true,
+            "observed_token_counts": [
+              10,
+              29,
+              17,
+              20
+            ]
+          },
+          "successful_perplexities_finite": {
+            "passed": true,
+            "observed_perplexities": [
+              359.4423828125,
+              59.08576202392578,
+              392.83367919921875,
+              186.2612762451172
+            ]
+          },
+          "sentence_length_cv_validity": {
+            "passed": true,
+            "cv_value": 0.4095582814689554,
+            "cv_available": true,
+            "cv_expected": true,
+            "meta": {
+              "available": true,
+              "reason": null,
+              "sentence_count": 4,
+              "mean_sentence_length_tokens": 16.5,
+              "stdev_sentence_length_tokens": 6.757711644237764
+            }
+          },
+          "mattr_valid_range": {
+            "passed": true,
+            "mattr_value": 0.9514285714285714,
+            "meta": {
+              "available": true,
+              "reason": null,
+              "window_size": 25,
+              "token_count": 66,
+              "window_count": 42
+            }
+          },
+          "pos_entropy_finite_when_ngrams_exist": {
+            "passed": true,
+            "pos_entropy_value": 5.78125,
+            "meta": {
+              "available": true,
+              "reason": null,
+              "pos_tag_count": 66,
+              "trigram_count": 64,
+              "unique_trigram_count": 57
+            }
+          }
+        },
+        "all_passed": true
+      },
+      "fixture-edge-short": {
+        "checks": {
+          "sentence_count_matches": {
+            "passed": true,
+            "observed_sentence_count": 1,
+            "observed_rows": 1
+          },
+          "token_counts_non_negative": {
+            "passed": true,
+            "observed_token_counts": [
+              1
+            ]
+          },
+          "successful_perplexities_finite": {
+            "passed": true,
+            "observed_perplexities": []
+          },
+          "sentence_length_cv_validity": {
+            "passed": true,
+            "cv_value": null,
+            "cv_available": false,
+            "cv_expected": false,
+            "meta": {
+              "available": false,
+              "reason": "insufficient_sentences_for_cv: require_at_least=2",
+              "sentence_count": 1
+            }
+          },
+          "mattr_valid_range": {
+            "passed": true,
+            "mattr_value": null,
+            "meta": {
+              "available": false,
+              "reason": "insufficient_tokens_for_window: have=1 require_at_least=25",
+              "window_size": 25,
+              "token_count": 1
+            }
+          },
+          "pos_entropy_finite_when_ngrams_exist": {
+            "passed": true,
+            "pos_entropy_value": null,
+            "meta": {
+              "available": false,
+              "reason": "insufficient_pos_tags_for_3grams: have=1 require_at_least=3",
+              "pos_tag_count": 1,
+              "trigram_count": 0
+            }
+          }
+        },
+        "all_passed": true
+      }
+    },
+    "all_passed": true
+  },
+  "timing_seconds": 8.031212499998219
+}

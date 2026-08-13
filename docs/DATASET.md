@@ -1,6 +1,9 @@
-**# Dataset Design & Data Governance**
+Here is the cleaned and properly formatted version of your Markdown file, with all the escaped characters, broken tables, and inconsistent heading tags fixed:
 
-**## 1. Purpose**
+```markdown
+# Dataset Design & Data Governance
+
+## 1. Purpose
 
 This document defines how data for Project 2 will be sourced, transformed, organized, split, validated, and documented.
 
@@ -8,52 +11,52 @@ The dataset is part of the detection system rather than a disposable implementat
 
 The goal is to construct a dataset that allows us to evaluate whether the detector learns writing characteristics rather than:
 
-\* topic
-\* source identity
-\* prompt wording
-\* dataset artifacts
-\* generation-model fingerprints
-\* essay-family relationships
+* topic
+* source identity
+* prompt wording
+* dataset artifacts
+* generation-model fingerprints
+* essay-family relationships
 
 The dataset must also support explicit investigation of:
 
-\* hybrid writing
-\* unseen generation models
-\* topic shifts
-\* ESL/non-native-English false positives
+* hybrid writing
+* unseen generation models
+* topic shifts
+* ESL/non-native-English false positives
 
-**---**
+---
 
-**# 2. Dataset Principles**
+# 2. Dataset Principles
 
-**## 2.1 Provenance First**
+## 2.1 Provenance First
 
 Every source document must have traceable provenance.
 
 For each source, record:
 
-\* source name
-\* source URL or identifier
-\* original dataset/archive
-\* collection date where relevant
-\* license or usage terms
-\* intended use
-\* transformation performed
-\* whether redistribution is permitted
+* source name
+* source URL or identifier
+* original dataset/archive
+* collection date where relevant
+* license or usage terms
+* intended use
+* transformation performed
+* whether redistribution is permitted
 
 A document with unclear provenance should not silently enter the final dataset.
 
-**---**
+---
 
-**## 2.2 Family-Based Organization**
+## 2.2 Family-Based Organization
 
-The primary unit of organization is the **\*\*Essay Family\*\***, not the individual document.
+The primary unit of organization is the **Essay Family**, not the individual document.
 
 An Essay Family contains a human source essay and any controlled variants derived from it.
 
 Conceptually:
 
-\`\`\`text id="8cxg9r"
+```text
 Essay Family
 │
 ├── Human Original
@@ -63,20 +66,21 @@ Essay Family
 ├── AI Polished
 │
 └── AI Spliced
-\`\`\`
+
+```
 
 The family relationship must be preserved in metadata even after documents are transformed.
 
-**---**
+---
 
-**## 2.3 Experimental Control**
+## 2.3 Experimental Control
 
 Where practical, AI-generated variants should preserve the underlying:
 
-\* prompt/topic
-\* narrative constraints
-\* intended subject
-\* core facts
+* prompt/topic
+* narrative constraints
+* intended subject
+* core facts
 
 This allows the classifier to focus more strongly on writing characteristics.
 
@@ -84,167 +88,238 @@ The goal is not to make AI and human text identical.
 
 The goal is to reduce obvious topic-level confounding.
 
-**---**
+---
 
-**## 2.4 No Dataset Leakage**
+## 2.4 No Dataset Leakage
 
 Related documents must never be split across train, validation, and test sets.
 
-The atomic split unit is the **\*\*Essay Family\*\***.
+The atomic split unit is the **Essay Family**.
 
-**---**
+---
 
-**# 3. Dataset Categories**
+# 3. Dataset Categories
 
 The planned dataset contains five primary categories.
 
-\| Category        | Description                                                       | Purpose                        |
-\| --------------- | ----------------------------------------------------------------- | ------------------------------ |
-\| Human           | Original human-authored essays                                    | Human baseline                 |
-\| AI              | Fully machine-generated essays                                    | Machine baseline               |
-\| Hybrid-Polished | Human essays with selected passages AI-polished                   | Subtle AI-assistance detection |
-\| Hybrid-Spliced  | Human essays with selected passages replaced by AI-generated text | Local discontinuity detection  |
-\| ESL Control     | Human essays produced by non-native English writers               | Bias audit                     |
+| Category | Description | Purpose |
+| --- | --- | --- |
+| Human | Original human-authored essays | Human baseline |
+| AI | Fully machine-generated essays | Machine baseline |
+| Hybrid-Polished | Human essays with selected passages AI-polished | Subtle AI-assistance detection |
+| Hybrid-Spliced | Human essays with selected passages replaced by AI-generated text | Local discontinuity detection |
+| ESL Control | Human essays produced by non-native English writers | Bias audit |
 
 These categories are analytical labels.
 
 They do not imply that the detector can always distinguish them correctly.
 
-**---**
+---
 
 # 4. Human Source Data
 
-Human essays form the foundation of the dataset.
+The project uses a multi-tier dataset strategy rather than requiring a single perfect admissions-essay corpus.
 
-Preferred sources should be:
+### Tier 1 — Primary Controlled Training / Development Corpus: PERSUADE
 
-* relevant to college/admissions-style writing
-* legally usable for the project's intended purpose
-* sufficiently documented
-* diverse in topic
-* sufficiently long for feature extraction
-* written in English
+PERSUADE is the main human-writing proxy corpus for controlled family construction, feature experiments, classifier development, and hybrid-writing experiments.
 
-Potential source types include:
+The locally inspected training source contains `8,426` unique essays, multiple prompts, discourse annotations, text-dependent and independent tasks, and ELL metadata. The available grade values in this source version include grades 6, 8, 9, 10, and NA.
 
-* public admissions essay datasets or archives with clearly documented usage rights
-* research datasets containing student writing
-* public educational writing collections
-* other datasets with appropriate usage rights
+The inspected PERSUADE writing is predominantly argumentative/source-based student assignment writing. It is therefore **not treated as an admissions-essay corpus**. The project explicitly treats PERSUADE as a training-domain proxy.
 
-No source will be considered approved solely because it is publicly accessible or hosted on a public dataset platform.
+### Tier 2 — External Validation: Anthropic Persuasion
 
-A dataset listing, mirror, or third-party upload does not by itself establish that the underlying essays may be used, transformed, or redistributed.
+The Anthropic Persuasion dataset is reserved for external paired human-vs-model writing validation where useful.
 
-Before a source is approved, verify the actual dataset license and, where relevant, the terms governing the underlying text.
+Its role is to test whether selected linguistic signals transfer to a separately collected human/model corpus.
 
-The approved source list is intentionally left open until this verification is complete.
+It is not treated as the admissions target domain.
 
-**# 5. Source Inclusion Criteria**
+The exact dataset version, source URL, and applicable usage terms are recorded in the source manifest.
 
-A human essay may be considered for inclusion when it satisfies the project's requirements.
+### Tier 3 — Target-Domain Evaluation: Consented Admissions Micro-Set
 
-Candidate criteria:
+Where feasible, a small set of genuinely college-admissions/personal-statement essays may be obtained through direct author consent.
 
-\* English text
-\* meaningful prose rather than metadata or boilerplate
-\* sufficient length for analysis
-\* primarily narrative/reflection-oriented
-\* identifiable source provenance
-\* permitted usage
-\* no obvious duplicated content
-\* no corrupted extraction
+This is a local target-domain evaluation set, not a representative admissions corpus.
 
-The exact minimum word count will be determined through feasibility experiments.
+Raw consented essays remain local unless redistribution is explicitly permitted.
 
-**---**
+### Tier 4 — ESL / Non-Native-English Bias Audit: ELLIPSE
 
-**# 6. Source Exclusion Criteria**
+ELLIPSE is reserved for the ESL/non-native-English audit.
+
+It is not automatically treated as an ordinary training category. Its purpose is to measure whether detector features create elevated false-positive rates on English-learner writing.
+
+### Auxiliary Source: CELL
+
+CELL remains an auxiliary undergraduate academic-writing source.
+
+Our inspection showed that the sampled CELL material is primarily academic/assignment writing rather than admissions-style personal writing. It is therefore not the primary family source.
+
+### AIDE
+
+The currently downloaded AIDE training file is **not yet approved as a benchmark source**.
+
+The inspected file contains `1,378` rows with only `3` rows labeled as generated. Its exact role is therefore pending further source/version analysis.
+
+Until resolved, AIDE remains reference material rather than a production training/evaluation dependency.
+
+This multi-tier design makes the domain shift explicit rather than hiding it.
+
+---
+
+# 4A. Current Dataset Architecture
+
+```text
+PERSUADE
+    ↓
+controlled human/student-writing families
+    ↓
+human / AI-generated / AI-polished / AI-spliced
+
+Anthropic Persuasion
+    ↓
+external human-vs-model validation
+
+ELLIPSE
+    ↓
+ESL / non-native-English bias audit
+
+Consented admissions micro-set
+    ↓
+target-domain local evaluation
+
+CELL
+    ↓
+auxiliary student-writing source
+
+AIDE
+    ↓
+reference / pending validation
+
+```
+
+The project does not require all sources to serve the same role.
+
+The key target-domain limitation is explicit: the main controlled corpus is student writing rather than college admissions personal essays. Admissions-domain performance is therefore treated as a domain-shift question.
+
+---
+
+# 5. Source Inclusion Criteria
+
+A human source document may be considered for inclusion when it satisfies the requirements of its intended dataset tier.
+
+General criteria:
+
+* English text
+* meaningful prose rather than metadata or boilerplate
+* sufficient length for planned feature extraction
+* identifiable source provenance
+* usage appropriate for the intended project role
+* no obvious duplicated content
+* no corrupted extraction
+
+Role-specific criteria:
+
+* **PERSUADE:** prefer grade 9/10 where practical and diversify across prompts; retain ELL metadata only for later audit.
+* **Anthropic Persuasion:** require identifiable human/model pairing and preserved source labels.
+* **Admissions micro-set:** require explicit author consent for local use and any AI transformation.
+* **ELLIPSE:** retain only metadata required for the documented bias audit.
+
+The exact minimum word count remains evidence-driven and will be validated during feature experimentation.
+
+---
+
+# 6. Source Exclusion Criteria
 
 Potential exclusions include:
 
-\* extremely short responses
-\* duplicated essays
-\* corrupted text
-\* non-English text for the primary dataset
-\* essays with unclear provenance
-\* text with insufficient usable content
-\* content whose usage rights cannot be established
-\* documents dominated by quotations or externally sourced text
+* extremely short responses
+* duplicated essays
+* corrupted text
+* non-English text for the primary dataset
+* essays with unclear provenance
+* text with insufficient usable content
+* content whose usage rights cannot be established
+* documents dominated by quotations or externally sourced text
 
 Exclusion decisions should be recorded where they materially affect dataset composition.
 
-**---**
+---
 
-**# 7. Essay Family Schema**
+# 7. Essay Family Schema
 
 Each family should have a stable identifier.
 
 Example:
 
-\`\`\`text id="3b0y8m"
-family\_id: FAM-0001
+```text
+family_id: FAM-0001
 
 source:
-  type: human
-  source\_id: ...
-  provenance: ...
+  type: human
+  source_id: ...
+  provenance: ...
 
 variants:
-  human: ...
-  ai\_generated: ...
-  ai\_polished: ...
-  ai\_spliced: ...
-\`\`\`
+  human: ...
+  ai_generated: ...
+  ai_polished: ...
+  ai_spliced: ...
+
+```
 
 The family ID must remain stable throughout preprocessing and splitting.
 
-**---**
+---
 
-**# 8. Document Metadata**
+# 8. Document Metadata
 
 Every document should have metadata sufficient for later analysis.
 
 Conceptual schema:
 
-\`\`\`json id="5od2ka"
+```json
 {
-  "document\_id": "DOC-0001",
-  "family\_id": "FAM-0001",
-  "category": "human",
-  "source\_id": "SOURCE-01",
-  "topic\_id": "TOPIC-07",
-  "generation\_model": null,
-  "transformation": null,
-  "word\_count": 742,
-  "language": "en",
-  "split": "train"
+  "document_id": "DOC-0001",
+  "family_id": "FAM-0001",
+  "category": "human",
+  "source_id": "SOURCE-01",
+  "topic_id": "TOPIC-07",
+  "generation_model": null,
+  "transformation": null,
+  "word_count": 742,
+  "language": "en",
+  "split": "train"
 }
-\`\`\`
+
+```
 
 Additional fields may be added as the dataset develops.
 
-**---**
+---
 
-**# 9. Generation Metadata**
+# 9. Generation Metadata
 
 AI-generated documents must record:
 
-\* generation model
-\* model version where available
-\* generation runtime
-\* generation configuration
-\* prompt/template identifier
-\* generation date
-\* temperature or sampling settings where applicable
-\* source family
-\* transformation type
+* generation model
+* model version where available
+* generation runtime
+* generation configuration
+* prompt/template identifier
+* generation date
+* temperature or sampling settings where applicable
+* source family
+* transformation type
 
 The exact prompt text should be preserved when redistribution and privacy constraints permit.
 
 Otherwise, store a prompt/template identifier and document the generation procedure separately.
 
-**---**
+---
 
 # 10. AI Generation Strategy
 
@@ -256,120 +331,132 @@ The core requirement is:
 * local inference
 * no paid model/API dependency
 * reproducible generation where the runtime permits it
-* practical generation time on the available development hardware
+* practical generation time on the available hardware
 
-Potential local model families may include small quantized instruction-tuned models that can run on consumer hardware.
+### Current Pilot Configuration
 
-The exact generation model(s), runtime, quantization, and generation parameters remain pending feasibility testing.
+EXP-003 selected:
 
-Generation will be piloted on a small number of essay families before the dataset is scaled. Dataset size must be constrained by measured local generation time and quality rather than a predetermined target.
+* Model: `Qwen/Qwen2.5-0.5B-Instruct`
+* Runtime: Hugging Face Transformers
+* Device: CPU
 
-**# 11. AI-Generated Variant**
+Observed baseline:
 
-An AI-generated variant should be created from the same underlying prompt/topic or narrative constraints as its human counterpart where practical.
+* approximately 327 generated words
+* approximately 36.2 seconds generation time
+* natural completion before the token limit
+* no obvious prompt leakage
+* no obvious repetition
 
-Conceptually:
+These observations establish the current pilot configuration; they do not claim universal model superiority.
 
-\`\`\`text id="7k0k90"
-Human source
-     │
-     ├── original essay
-     │
-     └── controlled prompt/context
-               │
-               ▼
-          Local model
-               │
-               ▼
-        AI-generated essay
-\`\`\`
+Generation will be piloted on a small number of Essay Families before scaling. Dataset size must be constrained by measured local generation time and quality.
 
-The goal is to reduce topic confounding.
+A generation-model or runtime change creates a new dataset version.
 
-The generated essay should be stored independently while maintaining its family relationship.
+---
 
-**---**
+# 11. AI-Generated Variant
 
-**# 12. Hybrid-Polished Variant**
+An AI-generated variant is created from the same task or prompt context as its human counterpart where practical.
+
+For PERSUADE family construction:
+
+* the model may receive the assignment/task context
+* the model must not receive the original human essay
+* the generated essay should be an independent response to the task
+* the generated response must not intentionally imitate the source author's wording
+
+For external paired datasets such as Anthropic Persuasion, existing human/model labels are preserved rather than regenerated unnecessarily.
+
+The goal is to reduce task/topic confounding while keeping the authorship process distinct.
+
+---
+
+# 12. Hybrid-Polished Variant
 
 The hybrid-polished category represents human text that has been modified by an AI system.
 
 The transformation protocol should specify:
 
-\* which passage(s) were selected
-\* approximate proportion of the essay transformed
-\* whether meaning was preserved
-\* model used
-\* transformation prompt/template
-\* generation settings
+* which passage(s) were selected
+* approximate proportion of the essay transformed
+* whether meaning was preserved
+* model used
+* transformation prompt/template
+* generation settings
 
 Example:
 
-\`\`\`text id="n6n8fp"
+```text
 Human essay
 │
 ├── Human paragraph
 ├── Human paragraph
-├── AI-polished paragraph  ← transformed
+├── AI-polished paragraph  ← transformed
 ├── Human paragraph
 └── Human paragraph
-\`\`\`
+
+```
 
 The original human text must remain available for comparison.
 
-**---**
+---
 
-**# 13. Hybrid-Spliced Variant**
+# 13. Hybrid-Spliced Variant
 
 The hybrid-spliced category represents human essays containing newly generated machine-written passages.
 
 Example:
 
-\`\`\`text id="i9rj3q"
+```text
 Human paragraph
 Human paragraph
 AI-generated paragraph
 Human paragraph
 Human paragraph
-\`\`\`
+
+```
 
 The metadata must identify:
 
-\* inserted passage boundaries
-\* source family
-\* generation model
-\* generation procedure
+* inserted passage boundaries
+* source family
+* generation model
+* generation procedure
 
 This allows evaluation of whether the local anomaly signal identifies discontinuities.
 
-**---**
+---
 
-**# 14. Hybrid Transformation Metadata**
+# 14. Hybrid Transformation Metadata
 
 Hybrid variants should record transformation locations.
 
 Conceptual structure:
 
-\`\`\`json id="h0i2so"
+```json
 {
-  "transformation": "polished",
-  "segments": [
-    {
-      "start": 412,
-      "end": 893,
-      "type": "ai\_modified"
-    }
-  ]
+  "transformation": "polished",
+  "segments": [
+    {
+      "start": 412,
+      "end": 893,
+      "type": "ai_modified"
+    }
+  ]
 }
-\`\`\`
+
+```
 
 The exact schema may change.
 
 The important requirement is that ground-truth transformation boundaries remain available for evaluation.
 
-**---**
+---
 
-**# 15. ESL Control Set**
+# 15. ESL Control Set
 
 The project will include an ESL/non-native-English control set where legally and ethically appropriate data is available.
 
@@ -381,27 +468,27 @@ Metadata should avoid unnecessary personal information.
 
 Only information required for the bias experiment should be retained.
 
-**---**
+---
 
-**# 16. ESL Evaluation Principle**
+# 16. ESL Evaluation Principle
 
 The project should not assume:
 
-\> ESL writing has lower lexical diversity.
+> ESL writing has lower lexical diversity.
 
 Instead, that is treated as a hypothesis to test.
 
 Potential measurements include:
 
-\* false-positive rate
-\* machine-association distribution
-\* evidence-strength distribution
-\* feature-level differences
-\* local-anomaly behavior
+* false-positive rate
+* machine-association distribution
+* evidence-strength distribution
+* feature-level differences
+* local-anomaly behavior
 
 If elevated false positives are observed, the result must be documented.
 
-**---**
+---
 
 # 17. Dataset Size
 
@@ -437,6 +524,8 @@ A smaller, well-controlled dataset is preferable to a larger dataset with:
 * inadequate metadata
 * impractical local generation cost.
 
+---
+
 # 18. Dataset Composition
 
 The intended composition is:
@@ -451,6 +540,7 @@ Human Essay Family
 
 Separate:
 ESL / non-native-English Control Set
+
 ```
 
 The four family variants are the primary experimental documents.
@@ -461,60 +551,63 @@ Exact proportions will be finalized after source and generation feasibility is e
 
 The dataset should not be artificially balanced if doing so would create unrealistic sampling or reduce important evaluation coverage.
 
-**# 19. Topic Distribution**
+---
+
+# 19. Topic Distribution
 
 Topic distribution must be tracked.
 
 Potential topic metadata may include broad clusters such as:
 
-\* family
-\* education
-\* failure
-\* leadership
-\* community
-\* identity
-\* extracurricular activity
-\* personal growth
-\* challenge
-\* achievement
+* family
+* education
+* failure
+* leadership
+* community
+* identity
+* extracurricular activity
+* personal growth
+* challenge
+* achievement
 
 These categories are illustrative.
 
 The actual topic taxonomy should be derived from the available data rather than imposed arbitrarily.
 
-**---**
+---
 
-**# 20. Topic Leakage Prevention**
+# 20. Topic Leakage Prevention
 
 Topic information must not become a proxy for the label.
 
 For example, this dataset design is dangerous:
 
-\`\`\`text id="4k4p6w"
+```text
 Human:
-  sports
-  family
-  volunteering
+  sports
+  family
+  volunteering
 
 AI:
-  technology
-  leadership
-  academics
-\`\`\`
+  technology
+  leadership
+  academics
+
+```
 
 The classifier could learn topic vocabulary instead of writing characteristics.
 
 Paired families and topic-aware splitting should reduce this risk.
 
-**---**
+---
 
-**# 21. Family-Level Splitting**
+# 21. Family-Level Splitting
 
 The split process must operate on family IDs.
 
 Example:
 
-\`\`\`text id="t3a7q1"
+```text
 TRAIN
 ├── FAM-001
 ├── FAM-002
@@ -527,47 +620,48 @@ VALIDATION
 TEST
 ├── FAM-006
 └── FAM-007
-\`\`\`
 
-All variants of \`FAM-001\` remain in TRAIN.
+```
+
+All variants of `FAM-001` remain in TRAIN.
 
 No variant may appear in another split.
 
-**---**
+---
 
-**# 22. Split Strategy**
+# 22. Split Strategy
 
 The target split will be approximately:
 
-\* training: 70–80%
-\* validation: 10–15%
-\* test: 10–20%
+* training: 70–80%
+* validation: 10–15%
+* test: 10–20%
 
 Exact percentages are less important than maintaining:
 
-\* family isolation
-\* category coverage
-\* topic diversity
-\* model diversity
-\* sufficient evaluation size
+* family isolation
+* category coverage
+* topic diversity
+* model diversity
+* sufficient evaluation size
 
 The final split should be generated deterministically and recorded.
 
-**---**
+---
 
 # 23. Out-of-Distribution Splits
 
 Where dataset size permits, separate OOD evaluation sets should be maintained.
 
-**### Unseen Topic**
+### Unseen Topic
 
 A topic cluster absent from training.
 
-**### Unseen Generation Model**
+### Unseen Generation Model
 
 A generation model absent from training.
 
-**### Hybrid**
+### Hybrid
 
 A transformation type or composition that was not fully represented during training.
 
@@ -577,43 +671,46 @@ OOD evaluation must not be created by casually moving individual variants betwee
 
 The generation model used for the OOD holdout must not appear in the training/validation generation pool for the corresponding experiment.
 
-**# 24. Dataset Leakage Checks**
+---
+
+# 24. Dataset Leakage Checks
 
 Before training, automated checks should verify:
 
-**### Family leakage**
+### Family leakage
 
 No family appears in multiple splits.
 
-**### Duplicate text**
+### Duplicate text
 
 Exact duplicates do not cross splits.
 
-**### Near duplicates**
+### Near duplicates
 
 Highly similar documents are investigated.
 
-**### Prompt leakage**
+### Prompt leakage
 
 Generation prompts or metadata do not accidentally encode labels.
 
-**### Metadata leakage**
+### Metadata leakage
 
 Fields such as:
 
-\`\`\`text
-generation\_model = GPT-X
-\`\`\`
+```text
+generation_model = GPT-X
+
+```
 
 must never become model features unless intentionally part of an experiment.
 
-**### Transformation markers**
+### Transformation markers
 
 Ground-truth metadata must remain outside the feature matrix used for classification.
 
-**---**
+---
 
-**# 25. Text Normalization**
+# 25. Text Normalization
 
 Raw text should be preserved.
 
@@ -621,33 +718,33 @@ A separate normalized representation may be created for feature extraction.
 
 Potential normalization includes:
 
-\* Unicode normalization
-\* whitespace normalization
-\* consistent line endings
-\* removal of extraction artifacts
+* Unicode normalization
+* whitespace normalization
+* consistent line endings
+* removal of extraction artifacts
 
 Normalization must not:
 
-\* rewrite prose
-\* correct grammar
-\* alter punctuation unnecessarily
-\* remove stylistic characteristics being measured
+* rewrite prose
+* correct grammar
+* alter punctuation unnecessarily
+* remove stylistic characteristics being measured
 
 Both original and normalized representations should be traceable.
 
-**---**
+---
 
-**# 26. Sentence and Passage Ground Truth**
+# 26. Sentence and Passage Ground Truth
 
 For hybrid documents, transformation boundaries should be mapped to:
 
-\* character offsets
-\* sentence IDs
-\* passage IDs
+* character offsets
+* sentence IDs
+* passage IDs
 
 Example:
 
-\`\`\`text id="9g7wq2"
+```text
 Essay
 │
 ├── Sentence 1 — human
@@ -655,49 +752,50 @@ Essay
 ├── Sentence 3 — AI-modified
 ├── Sentence 4 — AI-modified
 └── Sentence 5 — human
-\`\`\`
+
+```
 
 This allows sentence-level detection to be evaluated against known transformation regions.
 
-**---**
+---
 
-**# 27. Generation Reproducibility**
+# 27. Generation Reproducibility
 
 AI-generation scripts should be deterministic where the selected model/runtime allows it.
 
 Record:
 
-\* model
-\* prompt
-\* parameters
-\* seed where supported
-\* runtime
-\* timestamp
-\* source family
+* model
+* prompt
+* parameters
+* seed where supported
+* runtime
+* timestamp
+* source family
 
 If exact deterministic reproduction is impossible, the generation configuration must still be documented.
 
-**---**
+---
 
-**# 28. Generation Quality Control**
+# 28. Generation Quality Control
 
 Generated essays should not be accepted blindly.
 
 Potential checks include:
 
-\* minimum length
-\* successful generation
-\* no obvious prompt leakage
-\* no meta-commentary
-\* no generation artifacts
-\* no accidental copying of the source essay
-\* reasonable coherence
+* minimum length
+* successful generation
+* no obvious prompt leakage
+* no meta-commentary
+* no generation artifacts
+* no accidental copying of the source essay
+* reasonable coherence
 
 Rejected generations should be recorded rather than silently replaced.
 
-**---**
+---
 
-**# 29. Source Data Privacy**
+# 29. Source Data Privacy
 
 The dataset should not retain unnecessary personal information.
 
@@ -705,123 +803,126 @@ Potentially sensitive metadata should be removed or minimized unless required fo
 
 The runtime application should not require persistent storage of user-submitted essays.
 
-**---**
+---
 
-**# 30. Data Versioning**
+# 30. Data Versioning
 
 Dataset changes must produce a new dataset version.
 
 Example:
 
-\`\`\`text id="6p3n5v"
+```text
 dataset-v0.1
 dataset-v0.2
 dataset-v1.0
-\`\`\`
+
+```
 
 A dataset version should identify:
 
-\* source composition
-\* transformation protocol
-\* split configuration
-\* preprocessing
-\* generation models
-\* known limitations
+* source composition
+* transformation protocol
+* split configuration
+* preprocessing
+* generation models
+* known limitations
 
 Model evaluation results must reference the dataset version used.
 
-**---**
+---
 
-**# 31. Data Manifest**
+# 31. Data Manifest
 
 A machine-readable manifest should eventually contain one row per document.
 
 Conceptual columns:
 
-\`\`\`text id="c5b4fq"
-document\_id
-family\_id
+```text
+document_id
+family_id
 category
-source\_id
-topic\_id
+source_id
+topic_id
 language
-word\_count
-generation\_model
-transformation\_type
-transformation\_regions
+word_count
+generation_model
+transformation_type
+transformation_regions
 split
-dataset\_version
-\`\`\`
+dataset_version
+
+```
 
 The manifest is the authoritative mapping between documents and metadata.
 
-**---**
+---
 
-**# 32. Feature Matrix Boundary**
+# 32. Feature Matrix Boundary
 
 Dataset metadata and ML features must remain separate.
 
 Example:
 
-\`\`\`text id="krx0k8"
+```text
 Metadata
 ────────────────────
-family\_id
-source\_id
-topic\_id
+family_id
+source_id
+topic_id
 category
-generation\_model
+generation_model
 split
-transformation\_type
+transformation_type
 
-             ↓
+             ↓
 
-       Feature extraction
+       Feature extraction
 
-             ↓
+             ↓
 
 ML Feature Matrix
 ────────────────────
 perplexity
-sentence\_length
+sentence_length
 MATTR
-POS\_entropy
+POS_entropy
 ...
-\`\`\`
 
-Fields such as \`category\`, \`generation\_model\`, or \`transformation\_type\` must never accidentally enter the classifier feature matrix.
+```
 
-**---**
+Fields such as `category`, `generation_model`, or `transformation_type` must never accidentally enter the classifier feature matrix.
 
-**# 33. Training Data**
+---
+
+# 33. Training Data
 
 The training set may contain:
 
-\* human documents
-\* AI documents
-\* selected hybrid documents depending on the experiment
+* human documents
+* AI documents
+* selected hybrid documents depending on the experiment
 
 The training composition must be explicitly recorded for each experiment.
 
 Different experiments may intentionally use different training configurations.
 
-**---**
+---
 
-**# 34. Validation Data**
+# 34. Validation Data
 
 Validation data is used for development decisions such as:
 
-\* feature selection
-\* classifier comparison
-\* threshold selection
-\* calibration
-\* evidence-sufficiency thresholds
+* feature selection
+* classifier comparison
+* threshold selection
+* calibration
+* evidence-sufficiency thresholds
 
 Validation data must remain separate from final test evaluation.
 
-**---**
+---
 
-**# 35. Test Data**
+# 35. Test Data
 
 The final test set is reserved for evaluation.
 
@@ -829,91 +930,105 @@ It must not be repeatedly inspected and used to guide model changes.
 
 Once the methodology is locked, the final test set should be evaluated and reported.
 
-**---**
+---
 
-**# 36. Dataset Limitations**
+# 36. Dataset Limitations
 
-The dataset is expected to have limitations.
+The current strategy has known limitations.
 
-Potential limitations include:
+### Domain mismatch
 
-\* limited number of source essays
-\* limited model families
-\* synthetic AI generation
-\* imperfect human/AI pairing
-\* topic imbalance
-\* limited ESL data
-\* domain-specific writing
-\* licensing constraints
-\* local model generation quality
-\* inability to reproduce some external model behavior
+PERSUADE and Anthropic Persuasion are not college admissions personal-essay corpora. Primary controlled experiments therefore operate partly outside the target domain.
+
+### Synthetic generation
+
+AI-generated, AI-polished, and AI-spliced variants are controlled experimental constructions, not a complete representation of real student AI use.
+
+### Model coverage
+
+The current local generator is small (`Qwen/Qwen2.5-0.5B-Instruct`); results may not transfer to every LLM.
+
+### ESL coverage
+
+The ESL audit depends on the coverage and quality of the selected control corpus.
+
+### Local compute
+
+Generation and feature extraction are constrained by local CPU resources.
+
+### Admissions evaluation scope
+
+A small consented admissions micro-set, if obtained, can test target-domain transfer but cannot establish population-level admissions performance.
 
 These limitations must be reported in the final evaluation.
 
-**---**
+---
 
-**# 37. What the Dataset Does Not Represent**
+# 37. What the Dataset Does Not Represent
 
 Unless explicitly added and documented, the dataset does not claim to represent:
 
-\* all college applicants
-\* all English-language writers
-\* all geographic regions
-\* all socioeconomic backgrounds
-\* all educational systems
-\* all LLM families
-\* all prompting strategies
-\* all editing workflows
-\* adversarially optimized AI text
+* all college applicants
+* all English-language writers
+* all geographic regions
+* all socioeconomic backgrounds
+* all educational systems
+* all LLM families
+* all prompting strategies
+* all editing workflows
+* adversarially optimized AI text
+* all college admissions personal-writing styles
 
-The detector's claims must remain bounded by the observed data.
+The primary controlled corpus should be described as **student argumentative writing**, not admissions writing.
 
-**---**
+The detector's claims must remain bounded by the observed data and by any separate target-domain evaluation.
 
-**# 38. Dataset Acceptance Checklist**
+---
+
+# 38. Dataset Acceptance Checklist
 
 Before a dataset version is used for model training, verify:
 
-**### Provenance**
+### Provenance
 
-\* [ ] Every source has documented provenance.
-\* [ ] Usage rights have been reviewed.
-\* [ ] Source identifiers are preserved.
+* [ ] Every source has documented provenance.
+* [ ] Usage rights have been reviewed.
+* [ ] Source identifiers are preserved.
 
-**### Structure**
+### Structure
 
-\* [ ] Every document has a family ID.
-\* [ ] Every document has a unique document ID.
-\* [ ] Categories are recorded.
-\* [ ] Transformation metadata exists where applicable.
+* [ ] Every document has a family ID.
+* [ ] Every document has a unique document ID.
+* [ ] Categories are recorded.
+* [ ] Transformation metadata exists where applicable.
 
-**### Leakage**
+### Leakage
 
-\* [ ] No family crosses splits.
-\* [ ] Exact duplicates are checked.
-\* [ ] Near duplicates are investigated.
-\* [ ] Metadata is excluded from ML features.
+* [ ] No family crosses splits.
+* [ ] Exact duplicates are checked.
+* [ ] Near duplicates are investigated.
+* [ ] Metadata is excluded from ML features.
 
-**### Generation**
+### Generation
 
-\* [ ] Model identity is recorded.
-\* [ ] Generation configuration is recorded.
-\* [ ] Hybrid transformation regions are recorded.
-\* [ ] Failed generations are tracked.
+* [ ] Model identity is recorded.
+* [ ] Generation configuration is recorded.
+* [ ] Hybrid transformation regions are recorded.
+* [ ] Failed generations are tracked.
 
-**### Evaluation**
+### Evaluation
 
-\* [ ] Test set is isolated.
-\* [ ] OOD configuration is documented.
-\* [ ] ESL/control data is separately identifiable.
+* [ ] Test set is isolated.
+* [ ] OOD configuration is documented.
+* [ ] ESL/control data is separately identifiable.
 
-**---**
+---
 
 # 39. Current Dataset Status
 
-**Phase:** 2 — Dataset Design / Source Verification
+**Phase:** 2 — Dataset Design / Source Strategy
 
-**Status:** Dataset contract defined; source approval and local generation feasibility are pending.
+**Status:** Dataset strategy locked at the role level. PERSUADE is the primary controlled proxy corpus; the next execution phase is feature extraction.
 
 ### Accepted principles
 
@@ -929,34 +1044,37 @@ Before a dataset version is used for model training, verify:
 * test-set isolation
 * ₹0/local generation
 * pilot-first dataset scaling
-* raw-data separation from the GitHub repository
+* raw-data separation from GitHub
+* explicit domain-shift reporting
+* separate dataset roles
 
 ### Current decisions
 
-* The primary dataset will be organized around Essay Families.
-* Each family may contain human, AI-generated, AI-polished, and AI-spliced variants.
-* ESL/non-native-English data will be maintained as a separately identifiable control set.
+* **PERSUADE** is the primary controlled human/student-writing corpus.
+* PERSUADE is explicitly treated as a proxy domain, not admissions writing.
+* **Anthropic Persuasion** is reserved for external paired human-vs-model validation where useful.
+* **ELLIPSE** is reserved for the ESL/non-native-English bias audit.
+* A small **consented admissions micro-set** may be used for target-domain local evaluation if available.
+* **CELL** remains an auxiliary undergraduate academic-writing source.
+* **AIDE** is not yet approved as a production benchmark because the inspected training file is highly label-skewed and its release role requires further verification.
+* `Qwen/Qwen2.5-0.5B-Instruct` with Hugging Face Transformers on CPU is the current local generation configuration.
 * Family IDs are the atomic split unit.
 * Raw third-party text will not be committed to GitHub unless its usage and redistribution rights explicitly permit it.
-* Dataset source approval requires verification of actual licensing/usage terms rather than relying on public availability.
-* A small pilot will be built before scaling the dataset.
-* Local generation models will be selected based on measured feasibility rather than assumed model size.
+* The absence of a large open admissions corpus is no longer an implementation blocker.
 
 ### Pending
 
-* approved primary human dataset source(s)
-* approved ESL/control dataset source
-* exact dataset size after pilot
-* exact topic taxonomy
-* local generation model(s)
-* generation runtime
-* generation prompts
-* generation parameters
-* final split proportions
+* exact PERSUADE pilot family selection
+* hybrid transformation proportions
+* generation prompts/parameters
+* Anthropic validation subset
+* approved ELLIPSE acquisition/version
+* whether a consented admissions micro-set can be obtained
+* final dataset size and split proportions
 * OOD configuration
-* minimum essay length
+* minimum evidence/essay length
 
-These should be resolved through source verification, the dataset pilot, and measured generation feasibility rather than assumed in advance.
+The next major workstream is the Feature Extraction Laboratory.
 
 ---
 
@@ -964,7 +1082,7 @@ These should be resolved through source verification, the dataset pilot, and mea
 
 Before constructing the full dataset, the pipeline should be validated on a small pilot.
 
-The pilot should contain approximately **5 complete Essay Families**, subject to availability of approved source essays.
+The pilot should contain approximately **5 complete Essay Families**, subject to source suitability.
 
 Each pilot family should, where feasible, produce:
 
@@ -985,19 +1103,25 @@ The pilot must validate:
 * duplicate/leakage checks
 * generation runtime
 
-The pilot is not intended to support final model evaluation.
+The pilot is not intended to support final model evaluation. Its purpose is to establish whether dataset construction is practical before scaling.
 
-Its purpose is to establish whether the proposed dataset construction process is practical before scaling.
+### Current PERSUADE Pilot Status
 
-## Current CELL Pilot Status
+PERSUADE has been reconstructed from its annotation-level CSV into essay-level text using the correct inclusive discourse offsets.
 
-CELL is currently treated as a candidate undergraduate academic-writing source, not an admissions-specific corpus.
+The selector streams the raw source CSV, preserves source whitespace/newline information where present, and records provenance metadata.
 
-The first extracted CELL pilot, `data/pilot/cell_english_5_essay_pilot/`, was an ingestion validation artifact. Its five records share the same encoded term/course/task/assignment/question path and should not be treated as the final five Essay Families.
+The current selected pool is a proxy-domain pilot of student argumentative writing rather than admissions essays.
 
-The second extracted CELL pilot, `data/pilot/cell_english_source_pilot/`, is a human-source diversity pilot. It contains clean English responses selected across distinct encoded source paths. These records are not Essay Families, and no AI-generated, AI-polished, or AI-spliced variants have been created.
+### Current CELL Pilot Status
 
-No final dataset size, Essay Family structure, split, topic taxonomy, or AI-generation protocol has been established from these pilots.
+CELL is treated as an auxiliary undergraduate academic-writing source. Its pilot records are not Essay Families.
+
+### Admissions Target-Domain Status
+
+No large reusable admissions corpus is approved as the primary training source.
+
+A small consented admissions micro-set may be added later for target-domain evaluation, but feature extraction and detector development do not depend on it.
 
 ---
 
@@ -1028,20 +1152,29 @@ A candidate dataset is not approved merely because:
 * it is hosted on Kaggle or another dataset platform
 * another project has used it
 
-Before approval, record:
+Before assigning a source a production role, record:
 
 * dataset name
 * official source location
 * dataset version where available
-* license
-* relevant usage restrictions
-* whether modification is permitted
+* license or documented usage terms
+* relevant modification restrictions
 * whether redistribution is permitted
 * whether commercial use is restricted
 * whether the underlying text has separate rights considerations
 * intended role in this project
 
-If these points cannot be established with reasonable confidence, the source remains **pending** and should not enter the final dataset.
+The project does not require identical licensing conditions across every dataset tier.
+
+Sources may be:
+
+* primary controlled training data
+* external validation data
+* local-only target-domain evaluation data
+* bias-audit data
+* reference-only data
+
+If a source cannot be used for the intended role with reasonable confidence, it must not be silently promoted into that role.
 
 ---
 
@@ -1051,6 +1184,7 @@ The first constructed pilot should receive an explicit version identifier, for e
 
 ```text
 dataset-v0.1-pilot
+
 ```
 
 The pilot version should record:
@@ -1063,6 +1197,10 @@ The pilot version should record:
 * split configuration
 * known failures
 * generation runtime
-* known limitations
+* known limitations 
 
 Scaling the dataset or changing the generation protocol should produce a new dataset version rather than silently replacing the pilot.
+
+```
+
+```
