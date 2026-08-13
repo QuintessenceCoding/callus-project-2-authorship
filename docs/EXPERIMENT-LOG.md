@@ -561,55 +561,134 @@ Sentence boundaries affect every downstream feature.
 
 **---**
 
-**# EXP-005 — Candidate Feature Extraction**
+**# EXP-005 — Feature Distribution Sanity Check**
+
+**## Status**
+
+Completed
 
 **## Question**
 
-Can the initial candidate features be extracted reliably and efficiently?
+Do the EXP-004 candidate features produce measurable paired human-vs-AI distributions on DAIGT External data without training a classifier or setting thresholds?
 
-**## Candidate Features**
+**## Dataset**
 
-**### Predictability**
+- Dataset: DAIGT External local CSV
+- Source path: `data/raw/daigt_external/daigt_external_dataset.csv`
+- Total scanned rows: `2421`
+- Usable paired rows: `2421`
+- Selected paired rows: `200`
+- Pair semantics: `text` = human/student writing; `source_text` = AI-generated text from the same CSV row
+- Raw CSV SHA-256 before and after run: `3a1ba6c2ba557b83a13022efadb3239185cda05b50a9d31017fcf7967f33bb18`
 
-\* sentence perplexity
+**## Configuration**
 
-**### Rhythm**
+- Random seed: `20260813`
+- Sample target: `200` paired records
+- Perplexity model: `distilgpt2`
+- Runtime: Hugging Face Transformers on CPU
+- Sentence/POS pipeline: spaCy `en_core_web_sm`
+- Feature source: EXP-004 feature implementations reused for `sentence_length_cv`, `mattr`, lexical tokenization, and `pos_3gram_entropy`; perplexity reused from EXP-001 through EXP-004.
+- Document perplexity summary: median of valid sentence perplexities
+- Results artifact: `experiments/EXP-005-feature-distribution/results/results.json`
 
-\* sentence length
-\* sentence length variation
-\* punctuation distribution
+**## Procedure**
 
-**### Lexical**
+1. Scan the DAIGT External CSV for rows with both `text` and `source_text`.
+2. Select a deterministic sample of 200 usable rows using seed `20260813`.
+3. Preserve each row as a human/AI pair from the same source row.
+4. Extract the four candidate features for each side of each pair.
+5. Summarize class distributions and paired AI-minus-human differences.
+6. Validate sample size, uniqueness, pair preservation, feature availability, summary consistency, and raw dataset integrity.
 
-\* MATTR
-\* rare-word proportion
-
-**### Syntax**
-
-\* POS n-gram entropy
-\* dependency statistics
+No classifier, thresholds, anomaly scoring, or feature promotion/rejection decisions were performed.
 
 **## Metrics**
 
-Record:
+For each feature and class:
 
-\* extraction time
-\* missing values
-\* numerical stability
-\* feature distributions
-\* implementation complexity
+- valid count
+- missing/abstained count
+- mean
+- median
+- standard deviation
+- IQR
+- min
+- max
 
-**## Purpose**
+For human-vs-AI comparison:
 
-This is a technical feasibility experiment, not yet a classification experiment.
+- class medians
+- AI-minus-human median difference
+- paired AI-minus-human differences where both values are valid
+- Cohen's d where valid
+- range and IQR overlap ratios
 
 **## Result**
 
-**\*\*TBD\*\***
+**### Quantitative**
+
+Class distribution summary:
+
+| Feature | Class | Valid | Missing | Mean | Median | Stdev | IQR | Min | Max |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| perplexity | human | 200 | 0 | 118.607749 | 98.196951 | 87.340346 | 56.245147 | 33.789711 | 799.672791 |
+| perplexity | AI | 200 | 0 | 44.676744 | 42.932217 | 12.743399 | 14.562595 | 20.824144 | 120.996506 |
+| sentence_length_cv | human | 199 | 1 | 0.527162 | 0.489799 | 0.179204 | 0.194288 | 0.153779 | 1.188102 |
+| sentence_length_cv | AI | 200 | 0 | 0.300048 | 0.297963 | 0.089636 | 0.124705 | 0.053878 | 0.624626 |
+| MATTR | human | 200 | 0 | 0.845757 | 0.850048 | 0.034253 | 0.043237 | 0.713290 | 0.916962 |
+| MATTR | AI | 200 | 0 | 0.903339 | 0.905364 | 0.024655 | 0.029848 | 0.811667 | 0.947191 |
+| POS 3-gram entropy | human | 200 | 0 | 7.236224 | 7.249802 | 0.393334 | 0.550990 | 6.267128 | 8.025335 |
+| POS 3-gram entropy | AI | 200 | 0 | 6.631243 | 6.665574 | 0.325549 | 0.450480 | 5.821791 | 7.396942 |
+
+Human-vs-AI summary:
+
+| Feature | Human median | AI median | Median diff, AI - human | Paired valid | Paired missing | Paired median diff | Cohen's d, AI - human | Range overlap | IQR overlap |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| perplexity | 98.196951 | 42.932217 | -55.264734 | 200 | 0 | -53.462189 | -1.184548 | 0.111969 | 0.000000 |
+| sentence_length_cv | 0.489799 | 0.297963 | -0.191836 | 199 | 1 | -0.211034 | -1.604178 | 0.415126 | 0.000000 |
+| MATTR | 0.850048 | 0.905364 | 0.055316 | 200 | 0 | 0.056470 | 1.929558 | 0.450171 | 0.000000 |
+| POS 3-gram entropy | 7.249802 | 6.665574 | -0.584228 | 200 | 0 | -0.609158 | -1.675681 | 0.512726 | 0.000000 |
+
+Paired direction counts:
+
+| Feature | AI > human | AI < human | AI = human |
+| --- | ---: | ---: | ---: |
+| perplexity | 12 | 188 | 0 |
+| sentence_length_cv | 18 | 181 | 0 |
+| MATTR | 190 | 10 | 0 |
+| POS 3-gram entropy | 14 | 186 | 0 |
+
+Runtime: `683.744290` seconds.
+
+**### Qualitative**
+
+All four features produced measurable paired distributions. One human row abstained for `sentence_length_cv` because at least two sentences are required for CV. No outliers were removed.
+
+The observed class medians differed for all four features in this sample. The IQR overlap ratio was `0.0` for all four features, while min-max ranges overlapped for all four features. These observations are limited to this DAIGT External paired sample and do not establish thresholds, classifier performance, target-domain generalization, or final feature inclusion.
+
+**## Validation**
+
+All configured validation checks passed:
+
+- expected sample size reached
+- selected row indices and IDs are unique
+- pair results match selected source row indices and IDs
+- pair count equals selected count
+- raw dataset checksum unchanged
+- finite feature values when present
+- MATTR values remain in `[0, 1]`
+- distribution summary counts match pair-level feature availability
 
 **## Decision**
 
-**\*\*TBD\*\***
+`PROCEED TO BASELINE MODELING`
+
+The distribution sanity check is complete and supports running a bounded baseline/modeling experiment next. EXP-005 does not promote or reject any feature by itself.
+
+**## Follow-up**
+
+Run a paired-data baseline experiment with explicit train/validation separation, beginning with a perplexity-only baseline and then the four-feature set. Threshold/model decisions should be made only inside the development split protocol and not on final test data.
 
 **---**
 

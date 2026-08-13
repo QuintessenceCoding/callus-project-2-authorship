@@ -1,0 +1,75 @@
+{
+  "experiment_id": "EXP-006",
+  "name": "Baseline Classification",
+  "seed": 20260814,
+  "source_experiment": "EXP-005",
+  "feature_definition_source": "EXP-004",
+  "input_pair_count": 200,
+  "rows_before_feature_filter": 400,
+  "rows_dropped_for_missing_features": 1,
+  "train_pair_count": 160,
+  "validation_pair_count": 40,
+  "train_row_count": 320,
+  "validation_row_count": 79,
+  "models": {
+    "perplexity_only": {
+      "features": [
+        "perplexity"
+      ],
+      "metrics": {
+        "accuracy": 0.8607594936708861,
+        "precision": 0.7959183673469388,
+        "recall": 0.975,
+        "f1": 0.8764044943820225,
+        "roc_auc": 0.9564102564102565,
+        "confusion_matrix": [
+          [
+            29,
+            10
+          ],
+          [
+            1,
+            39
+          ]
+        ]
+      }
+    },
+    "all_features": {
+      "features": [
+        "perplexity",
+        "sentence_length_cv",
+        "mattr",
+        "pos_3gram_entropy"
+      ],
+      "metrics": {
+        "accuracy": 0.9746835443037974,
+        "precision": 0.9523809523809523,
+        "recall": 1.0,
+        "f1": 0.975609756097561,
+        "roc_auc": 0.9955128205128205,
+        "confusion_matrix": [
+          [
+            37,
+            2
+          ],
+          [
+            0,
+            40
+          ]
+        ]
+      },
+      "standardized_coefficients": {
+        "perplexity": -2.7675753591498458,
+        "sentence_length_cv": -1.3188499214138107,
+        "mattr": 2.2710501219056365,
+        "pos_3gram_entropy": -1.9381168346795694
+      }
+    }
+  },
+  "delta_f1": 0.09920526171553845,
+  "validation": {
+    "pair_disjoint": true,
+    "both_classes_in_train": true,
+    "both_classes_in_validation": true
+  }
+}
