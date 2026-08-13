@@ -1,0 +1,774 @@
+{
+  "experiment_id": "EXP-008",
+  "name": "Local Window & Feature Contribution Sensitivity",
+  "source_experiment": "EXP-007",
+  "hybrid_count": 20,
+  "ground_truth_ai_sentences": 40,
+  "window_sizes": [
+    1,
+    3,
+    5,
+    7
+  ],
+  "feature_configurations": {
+    "perplexity_only": [
+      "perplexity"
+    ],
+    "sentence_length_only": [
+      "sentence_length"
+    ],
+    "mattr_only": [
+      "local_mattr"
+    ],
+    "pos_3gram_entropy_only": [
+      "local_pos_3gram_entropy"
+    ],
+    "all_features": [
+      "perplexity",
+      "sentence_length",
+      "local_mattr",
+      "local_pos_3gram_entropy"
+    ]
+  },
+  "results": [
+    {
+      "window_size": 1,
+      "window_name": "1_sentence",
+      "feature_set_name": "perplexity_only",
+      "feature_set": [
+        "perplexity"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 1.0460444100967883,
+        "median": 0.9316045996309157,
+        "stdev": 0.6804207528706366,
+        "iqr": 0.5096928212602877,
+        "q1": 0.6811104109589253,
+        "q3": 1.190803232219213,
+        "min": 0.025318138346134892,
+        "max": 2.9022823440820877
+      },
+      "human_anomaly_summary": {
+        "count": 382,
+        "mean": 10.646390257114044,
+        "median": 0.6787029614305944,
+        "stdev": 176.71665727408552,
+        "iqr": 1.0151075030995043,
+        "q1": 0.29559756876051907,
+        "q3": 1.3107050718600233,
+        "min": 0.0002728180317329374,
+        "max": 3454.886082760533
+      },
+      "ai_minus_human_median": 0.2529016382003213,
+      "top_50_capture": 0.75,
+      "top_25_capture": 0.275,
+      "top_10_capture": 0.05
+    },
+    {
+      "window_size": 1,
+      "window_name": "1_sentence",
+      "feature_set_name": "sentence_length_only",
+      "feature_set": [
+        "sentence_length"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 0.9539560975274725,
+        "median": 0.6745,
+        "stdev": 0.9716845311420227,
+        "iqr": 0.7796589972527472,
+        "q1": 0.3858918269230769,
+        "q3": 1.1655508241758241,
+        "min": 0.0,
+        "max": 4.38425
+      },
+      "human_anomaly_summary": {
+        "count": 383,
+        "mean": 1.095859525905325,
+        "median": 0.6745,
+        "stdev": 1.5444175825964541,
+        "iqr": 0.8993333333333333,
+        "q1": 0.33725,
+        "q3": 1.2365833333333334,
+        "min": 0.0,
+        "max": 15.898928571428572
+      },
+      "ai_minus_human_median": 0.0,
+      "top_50_capture": 0.475,
+      "top_25_capture": 0.275,
+      "top_10_capture": 0.175
+    },
+    {
+      "window_size": 1,
+      "window_name": "1_sentence",
+      "feature_set_name": "mattr_only",
+      "feature_set": [
+        "local_mattr"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 10,
+      "ai_anomaly_summary": {
+        "count": 10,
+        "mean": 2.322380448775627,
+        "median": 1.7630595776772249,
+        "stdev": 2.1253392476492787,
+        "iqr": 3.99240810597084,
+        "q1": 0.46977882892969036,
+        "q3": 4.46218693490053,
+        "min": 0.018736111111109087,
+        "max": 5.396000000000013
+      },
+      "human_anomaly_summary": {
+        "count": 118,
+        "mean": 1.3643406263156421,
+        "median": 0.8006402148277263,
+        "stdev": 1.5038183776213914,
+        "iqr": 1.474320243171423,
+        "q1": 0.36574861111110984,
+        "q3": 1.840068854282533,
+        "min": 0.01927142857142643,
+        "max": 9.892666666666655
+      },
+      "ai_minus_human_median": 0.9624193628494986,
+      "top_50_capture": 0.7,
+      "top_25_capture": 0.5,
+      "top_10_capture": 0.4
+    },
+    {
+      "window_size": 1,
+      "window_name": "1_sentence",
+      "feature_set_name": "pos_3gram_entropy_only",
+      "feature_set": [
+        "local_pos_3gram_entropy"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 0.9485714616633688,
+        "median": 0.7883710064514629,
+        "stdev": 0.7357058386356148,
+        "iqr": 1.056672730126472,
+        "q1": 0.3570415009448543,
+        "q3": 1.4137142310713264,
+        "min": 0.039605834693096684,
+        "max": 2.996123440041189
+      },
+      "human_anomaly_summary": {
+        "count": 380,
+        "mean": 1.014496603178629,
+        "median": 0.7375944382871322,
+        "stdev": 0.9311820151368525,
+        "iqr": 1.0054846964602882,
+        "q1": 0.3788561694804841,
+        "q3": 1.3843408659407723,
+        "min": 0.0,
+        "max": 7.6929099582455835
+      },
+      "ai_minus_human_median": 0.05077656816433063,
+      "top_50_capture": 0.5,
+      "top_25_capture": 0.25,
+      "top_10_capture": 0.125
+    },
+    {
+      "window_size": 1,
+      "window_name": "1_sentence",
+      "feature_set_name": "all_features",
+      "feature_set": [
+        "perplexity",
+        "sentence_length",
+        "local_mattr",
+        "local_pos_3gram_entropy"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 1.0665344970025572,
+        "median": 0.8563648966880749,
+        "stdev": 0.6594279867378339,
+        "iqr": 0.865768979745848,
+        "q1": 0.5812262407929701,
+        "q3": 1.4469952205388181,
+        "min": 0.1706982029387392,
+        "max": 2.851328807157687
+      },
+      "human_anomaly_summary": {
+        "count": 383,
+        "mean": 5.755645123831566,
+        "median": 0.9105568208655491,
+        "stdev": 88.26994475497578,
+        "iqr": 0.9828476990155359,
+        "q1": 0.5190268409441574,
+        "q3": 1.5018745399596933,
+        "min": 0.06084208252195941,
+        "max": 1728.5222413802665
+      },
+      "ai_minus_human_median": -0.054191924177474204,
+      "top_50_capture": 0.55,
+      "top_25_capture": 0.225,
+      "top_10_capture": 0.075
+    },
+    {
+      "window_size": 3,
+      "window_name": "3_sentence",
+      "feature_set_name": "perplexity_only",
+      "feature_set": [
+        "perplexity"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 1.0460444100967883,
+        "median": 0.9316045996309157,
+        "stdev": 0.6804207528706366,
+        "iqr": 0.5096928212602877,
+        "q1": 0.6811104109589253,
+        "q3": 1.190803232219213,
+        "min": 0.025318138346134892,
+        "max": 2.9022823440820877
+      },
+      "human_anomaly_summary": {
+        "count": 382,
+        "mean": 10.646390257114044,
+        "median": 0.6787029614305944,
+        "stdev": 176.71665727408552,
+        "iqr": 1.0151075030995043,
+        "q1": 0.29559756876051907,
+        "q3": 1.3107050718600233,
+        "min": 0.0002728180317329374,
+        "max": 3454.886082760533
+      },
+      "ai_minus_human_median": 0.2529016382003213,
+      "top_50_capture": 0.75,
+      "top_25_capture": 0.275,
+      "top_10_capture": 0.05
+    },
+    {
+      "window_size": 3,
+      "window_name": "3_sentence",
+      "feature_set_name": "sentence_length_only",
+      "feature_set": [
+        "sentence_length"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 0.9539560975274725,
+        "median": 0.6745,
+        "stdev": 0.9716845311420227,
+        "iqr": 0.7796589972527472,
+        "q1": 0.3858918269230769,
+        "q3": 1.1655508241758241,
+        "min": 0.0,
+        "max": 4.38425
+      },
+      "human_anomaly_summary": {
+        "count": 383,
+        "mean": 1.095859525905325,
+        "median": 0.6745,
+        "stdev": 1.5444175825964541,
+        "iqr": 0.8993333333333333,
+        "q1": 0.33725,
+        "q3": 1.2365833333333334,
+        "min": 0.0,
+        "max": 15.898928571428572
+      },
+      "ai_minus_human_median": 0.0,
+      "top_50_capture": 0.475,
+      "top_25_capture": 0.275,
+      "top_10_capture": 0.175
+    },
+    {
+      "window_size": 3,
+      "window_name": "3_sentence",
+      "feature_set_name": "mattr_only",
+      "feature_set": [
+        "local_mattr"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 1.164871629584859,
+        "median": 0.9487353447468723,
+        "stdev": 1.0039679628819849,
+        "iqr": 0.8045874167925646,
+        "q1": 0.6033254417096472,
+        "q3": 1.4079128585022118,
+        "min": 0.04126667610820056,
+        "max": 5.369586901549321
+      },
+      "human_anomaly_summary": {
+        "count": 382,
+        "mean": 0.9412862019223762,
+        "median": 0.7175374470086162,
+        "stdev": 0.8802296532103938,
+        "iqr": 0.9573545845571043,
+        "q1": 0.3039265272820979,
+        "q3": 1.2612811118392022,
+        "min": 0.0018874803082909904,
+        "max": 6.036815124220603
+      },
+      "ai_minus_human_median": 0.23119789773825605,
+      "top_50_capture": 0.7,
+      "top_25_capture": 0.275,
+      "top_10_capture": 0.1
+    },
+    {
+      "window_size": 3,
+      "window_name": "3_sentence",
+      "feature_set_name": "pos_3gram_entropy_only",
+      "feature_set": [
+        "local_pos_3gram_entropy"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 1.1613572997072827,
+        "median": 0.9385039617762712,
+        "stdev": 0.9997682650939311,
+        "iqr": 0.9301200563681267,
+        "q1": 0.5525672140513274,
+        "q3": 1.482687270419454,
+        "min": 0.04687685747259366,
+        "max": 5.24541041965132
+      },
+      "human_anomaly_summary": {
+        "count": 383,
+        "mean": 1.03742723389261,
+        "median": 0.7395371859770562,
+        "stdev": 1.0437593602530637,
+        "iqr": 0.9647235946713397,
+        "q1": 0.4069545605318227,
+        "q3": 1.3716781552031625,
+        "min": 0.017240437807968512,
+        "max": 8.95659355100857
+      },
+      "ai_minus_human_median": 0.19896677579921496,
+      "top_50_capture": 0.6,
+      "top_25_capture": 0.375,
+      "top_10_capture": 0.175
+    },
+    {
+      "window_size": 3,
+      "window_name": "3_sentence",
+      "feature_set_name": "all_features",
+      "feature_set": [
+        "perplexity",
+        "sentence_length",
+        "local_mattr",
+        "local_pos_3gram_entropy"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 1.0815573592291006,
+        "median": 0.9851218915099806,
+        "stdev": 0.49798354820718466,
+        "iqr": 0.6344006418648842,
+        "q1": 0.6984949543794268,
+        "q3": 1.332895596244311,
+        "min": 0.31227565660230117,
+        "max": 2.2147746367395578
+      },
+      "human_anomaly_summary": {
+        "count": 383,
+        "mean": 3.4249529446482847,
+        "median": 0.878585345484394,
+        "stdev": 44.139519741187776,
+        "iqr": 0.7404136056279854,
+        "q1": 0.6331633776035489,
+        "q3": 1.3735769832315343,
+        "min": 0.14632431841217503,
+        "max": 864.776785691352
+      },
+      "ai_minus_human_median": 0.1065365460255866,
+      "top_50_capture": 0.575,
+      "top_25_capture": 0.275,
+      "top_10_capture": 0.025
+    },
+    {
+      "window_size": 5,
+      "window_name": "5_sentence",
+      "feature_set_name": "perplexity_only",
+      "feature_set": [
+        "perplexity"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 1.0460444100967883,
+        "median": 0.9316045996309157,
+        "stdev": 0.6804207528706366,
+        "iqr": 0.5096928212602877,
+        "q1": 0.6811104109589253,
+        "q3": 1.190803232219213,
+        "min": 0.025318138346134892,
+        "max": 2.9022823440820877
+      },
+      "human_anomaly_summary": {
+        "count": 382,
+        "mean": 10.646390257114044,
+        "median": 0.6787029614305944,
+        "stdev": 176.71665727408552,
+        "iqr": 1.0151075030995043,
+        "q1": 0.29559756876051907,
+        "q3": 1.3107050718600233,
+        "min": 0.0002728180317329374,
+        "max": 3454.886082760533
+      },
+      "ai_minus_human_median": 0.2529016382003213,
+      "top_50_capture": 0.75,
+      "top_25_capture": 0.275,
+      "top_10_capture": 0.05
+    },
+    {
+      "window_size": 5,
+      "window_name": "5_sentence",
+      "feature_set_name": "sentence_length_only",
+      "feature_set": [
+        "sentence_length"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 0.9539560975274725,
+        "median": 0.6745,
+        "stdev": 0.9716845311420227,
+        "iqr": 0.7796589972527472,
+        "q1": 0.3858918269230769,
+        "q3": 1.1655508241758241,
+        "min": 0.0,
+        "max": 4.38425
+      },
+      "human_anomaly_summary": {
+        "count": 383,
+        "mean": 1.095859525905325,
+        "median": 0.6745,
+        "stdev": 1.5444175825964541,
+        "iqr": 0.8993333333333333,
+        "q1": 0.33725,
+        "q3": 1.2365833333333334,
+        "min": 0.0,
+        "max": 15.898928571428572
+      },
+      "ai_minus_human_median": 0.0,
+      "top_50_capture": 0.475,
+      "top_25_capture": 0.275,
+      "top_10_capture": 0.175
+    },
+    {
+      "window_size": 5,
+      "window_name": "5_sentence",
+      "feature_set_name": "mattr_only",
+      "feature_set": [
+        "local_mattr"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 1.9490446386825113,
+        "median": 0.7760444924884777,
+        "stdev": 3.4276447200321405,
+        "iqr": 1.2069140289359845,
+        "q1": 0.35185418466859464,
+        "q3": 1.5587682136045793,
+        "min": 0.07482556634303633,
+        "max": 15.193582102613119
+      },
+      "human_anomaly_summary": {
+        "count": 383,
+        "mean": 1.1203600198891877,
+        "median": 0.7242962974371677,
+        "stdev": 1.5754076655703562,
+        "iqr": 1.075116543077398,
+        "q1": 0.32784613237037386,
+        "q3": 1.4029626754477718,
+        "min": 0.0,
+        "max": 18.40438638062785
+      },
+      "ai_minus_human_median": 0.05174819505131001,
+      "top_50_capture": 0.525,
+      "top_25_capture": 0.375,
+      "top_10_capture": 0.175
+    },
+    {
+      "window_size": 5,
+      "window_name": "5_sentence",
+      "feature_set_name": "pos_3gram_entropy_only",
+      "feature_set": [
+        "local_pos_3gram_entropy"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 1.1010428943836104,
+        "median": 0.7756702536818997,
+        "stdev": 1.0312198456930688,
+        "iqr": 1.0840104588429098,
+        "q1": 0.372345357265474,
+        "q3": 1.4563558161083838,
+        "min": 0.05488349682178629,
+        "max": 3.8386902907987674
+      },
+      "human_anomaly_summary": {
+        "count": 383,
+        "mean": 0.9899989001370026,
+        "median": 0.7244006207940052,
+        "stdev": 1.044338939467295,
+        "iqr": 0.7962155041802024,
+        "q1": 0.34126932053429165,
+        "q3": 1.137484824714494,
+        "min": 0.0,
+        "max": 6.78221061585186
+      },
+      "ai_minus_human_median": 0.051269632887894434,
+      "top_50_capture": 0.475,
+      "top_25_capture": 0.325,
+      "top_10_capture": 0.15
+    },
+    {
+      "window_size": 5,
+      "window_name": "5_sentence",
+      "feature_set_name": "all_features",
+      "feature_set": [
+        "perplexity",
+        "sentence_length",
+        "local_mattr",
+        "local_pos_3gram_entropy"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 1.2625220101725956,
+        "median": 1.0144057453342317,
+        "stdev": 1.0388640045458404,
+        "iqr": 0.7979410041361181,
+        "q1": 0.5857056037662185,
+        "q3": 1.3836466079023366,
+        "min": 0.3870868818947501,
+        "max": 5.804053751537016
+      },
+      "human_anomaly_summary": {
+        "count": 383,
+        "mean": 3.4568143598880834,
+        "median": 0.9005931460616261,
+        "stdev": 44.13868036483071,
+        "iqr": 0.7568207528982354,
+        "q1": 0.6429060440488759,
+        "q3": 1.3997267969471112,
+        "min": 0.18922098372490437,
+        "max": 864.7699279185858
+      },
+      "ai_minus_human_median": 0.11381259927260556,
+      "top_50_capture": 0.525,
+      "top_25_capture": 0.2,
+      "top_10_capture": 0.1
+    },
+    {
+      "window_size": 7,
+      "window_name": "7_sentence",
+      "feature_set_name": "perplexity_only",
+      "feature_set": [
+        "perplexity"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 1.0460444100967883,
+        "median": 0.9316045996309157,
+        "stdev": 0.6804207528706366,
+        "iqr": 0.5096928212602877,
+        "q1": 0.6811104109589253,
+        "q3": 1.190803232219213,
+        "min": 0.025318138346134892,
+        "max": 2.9022823440820877
+      },
+      "human_anomaly_summary": {
+        "count": 382,
+        "mean": 10.646390257114044,
+        "median": 0.6787029614305944,
+        "stdev": 176.71665727408552,
+        "iqr": 1.0151075030995043,
+        "q1": 0.29559756876051907,
+        "q3": 1.3107050718600233,
+        "min": 0.0002728180317329374,
+        "max": 3454.886082760533
+      },
+      "ai_minus_human_median": 0.2529016382003213,
+      "top_50_capture": 0.75,
+      "top_25_capture": 0.275,
+      "top_10_capture": 0.05
+    },
+    {
+      "window_size": 7,
+      "window_name": "7_sentence",
+      "feature_set_name": "sentence_length_only",
+      "feature_set": [
+        "sentence_length"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 0.9539560975274725,
+        "median": 0.6745,
+        "stdev": 0.9716845311420227,
+        "iqr": 0.7796589972527472,
+        "q1": 0.3858918269230769,
+        "q3": 1.1655508241758241,
+        "min": 0.0,
+        "max": 4.38425
+      },
+      "human_anomaly_summary": {
+        "count": 383,
+        "mean": 1.095859525905325,
+        "median": 0.6745,
+        "stdev": 1.5444175825964541,
+        "iqr": 0.8993333333333333,
+        "q1": 0.33725,
+        "q3": 1.2365833333333334,
+        "min": 0.0,
+        "max": 15.898928571428572
+      },
+      "ai_minus_human_median": 0.0,
+      "top_50_capture": 0.475,
+      "top_25_capture": 0.275,
+      "top_10_capture": 0.175
+    },
+    {
+      "window_size": 7,
+      "window_name": "7_sentence",
+      "feature_set_name": "mattr_only",
+      "feature_set": [
+        "local_mattr"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 38,
+      "ai_anomaly_summary": {
+        "count": 38,
+        "mean": 1.6331382651341595,
+        "median": 0.8694486722773755,
+        "stdev": 3.382066480030112,
+        "iqr": 1.104953061131825,
+        "q1": 0.347509671356931,
+        "q3": 1.452462732488756,
+        "min": 0.04699519130976005,
+        "max": 20.043286793393886
+      },
+      "human_anomaly_summary": {
+        "count": 377,
+        "mean": 1.2375753283076376,
+        "median": 0.7102342636529073,
+        "stdev": 2.2165415246962636,
+        "iqr": 0.9986439095557675,
+        "q1": 0.30261952425812505,
+        "q3": 1.3012634338138926,
+        "min": 0.0,
+        "max": 18.485409552479716
+      },
+      "ai_minus_human_median": 0.15921440862446823,
+      "top_50_capture": 0.5263157894736842,
+      "top_25_capture": 0.2631578947368421,
+      "top_10_capture": 0.10526315789473684
+    },
+    {
+      "window_size": 7,
+      "window_name": "7_sentence",
+      "feature_set_name": "pos_3gram_entropy_only",
+      "feature_set": [
+        "local_pos_3gram_entropy"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 38,
+      "ai_anomaly_summary": {
+        "count": 38,
+        "mean": 1.85480909237133,
+        "median": 1.1325083242811087,
+        "stdev": 3.234148123529047,
+        "iqr": 1.0789528876872554,
+        "q1": 0.5565558783277725,
+        "q3": 1.6355087660150278,
+        "min": 0.018882285923566278,
+        "max": 15.51573694935914
+      },
+      "human_anomaly_summary": {
+        "count": 377,
+        "mean": 0.9561729580295456,
+        "median": 0.7191814982861935,
+        "stdev": 1.311980415782953,
+        "iqr": 0.8310004147349539,
+        "q1": 0.41929150005065047,
+        "q3": 1.2502919147856044,
+        "min": 0.0,
+        "max": 22.25494579382885
+      },
+      "ai_minus_human_median": 0.4133268259949152,
+      "top_50_capture": 0.5789473684210527,
+      "top_25_capture": 0.42105263157894735,
+      "top_10_capture": 0.15789473684210525
+    },
+    {
+      "window_size": 7,
+      "window_name": "7_sentence",
+      "feature_set_name": "all_features",
+      "feature_set": [
+        "perplexity",
+        "sentence_length",
+        "local_mattr",
+        "local_pos_3gram_entropy"
+      ],
+      "hybrid_count": 20,
+      "ai_ground_truth_sentence_count": 40,
+      "ai_anomaly_summary": {
+        "count": 40,
+        "mean": 1.3519839923131893,
+        "median": 1.005353709340543,
+        "stdev": 1.2265244287444732,
+        "iqr": 0.8934045840778151,
+        "q1": 0.6362970587112053,
+        "q3": 1.5297016427890204,
+        "min": 0.3379280448172926,
+        "max": 6.379844568736841
+      },
+      "human_anomaly_summary": {
+        "count": 383,
+        "mean": 3.4866086109314582,
+        "median": 0.9332796053899728,
+        "stdev": 44.1379582473323,
+        "iqr": 0.7484958668021848,
+        "q1": 0.6327838842189548,
+        "q3": 1.3812797510211396,
+        "min": 0.09886858391645136,
+        "max": 864.7317439496699
+      },
+      "ai_minus_human_median": 0.07207410395057012,
+      "top_50_capture": 0.575,
+      "top_25_capture": 0.225,
+      "top_10_capture": 0.075
+    }
+  ],
+  "validation": {
+    "hybrid_count_ok": true,
+    "ground_truth_sentence_count_ok": true,
+    "configuration_count_ok": true,
+    "all_passed": true
+  },
+  "timing_seconds": 130.387745299995
+}
