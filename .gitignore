@@ -37,8 +37,13 @@ models/
 
 data/raw/
 
-# Human-source pilot text files are local-only.
-data/pilot/**/selected/*.txt
+# Local pilot / evaluation data stays local-only.
+
+data/pilot/
+
+# Local ad-hoc test files.
+
+bird_test.txt
 
 # =========================
 # Local runtime / logs
