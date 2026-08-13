@@ -1,3 +1,7 @@
+# =========================
+# Python
+# =========================
+
 .venv/
 __pycache__/
 *.py[cod]
@@ -5,14 +9,48 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
-# Local model/download caches must stay out of the repository.
+# =========================
+# Node / Frontend
+# =========================
+
+node_modules/
+dist/
+.vite/
+coverage/
+
+# =========================
+# Local model / download caches
+# =========================
+
 .cache/
 models/
 **/huggingface/
 **/hf-cache/
 **/transformers-cache/
 
-# Third-party raw datasets and downloaded archives stay local unless rights are
-# explicitly cleared for redistribution.
+# =========================
+# Local datasets / archives
+# =========================
+
+# Third-party raw datasets and downloaded archives stay local unless
+# rights are explicitly cleared for redistribution.
+
 data/raw/
-data/pilot/**/*.txt
+
+# Human-source pilot text files are local-only.
+data/pilot/**/selected/*.txt
+
+# =========================
+# Local runtime / logs
+# =========================
+
+*.log
+*.err.log
+
+# =========================
+# Environment / secrets
+# =========================
+
+.env
+.env.*
+!.env.example

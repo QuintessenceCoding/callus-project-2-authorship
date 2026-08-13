@@ -1,0 +1,71 @@
+{
+  "artifact_version": "production-four-feature-logreg-v1",
+  "created_at_utc": "2026-08-13T21:00:14.439688+00:00",
+  "feature_order": [
+    "perplexity",
+    "sentence_length_cv",
+    "mattr",
+    "pos_3gram_entropy"
+  ],
+  "model_type": {
+    "scaler": "StandardScaler",
+    "classifier": "LogisticRegression"
+  },
+  "random_seed": 20260814,
+  "configuration": {
+    "classifier": {
+      "random_state": 20260814,
+      "max_iter": 1000
+    },
+    "scaler": "StandardScaler()",
+    "development_split": {
+      "pair_aware": true,
+      "test_size": 0.2,
+      "random_state": 20260814
+    }
+  },
+  "source_experiment": "EXP-006",
+  "feature_definition_source": "EXP-004",
+  "training_source": "D:\\Code\\callushackathon\\project2\\callus-project-2-authorship\\experiments\\EXP-005-feature-distribution\\results\\results.json",
+  "rows_before_feature_filter": 400,
+  "rows_dropped_for_missing_features": 1,
+  "training_pair_count": 160,
+  "training_row_count": 320,
+  "validation_pair_count": 40,
+  "validation_row_count": 79,
+  "reference_validation_metrics": {
+    "accuracy": 0.9746835443037974,
+    "precision": 0.9523809523809523,
+    "recall": 1.0,
+    "f1": 0.975609756097561,
+    "roc_auc": 0.9955128205128205,
+    "confusion_matrix": [
+      [
+        37,
+        2
+      ],
+      [
+        0,
+        40
+      ]
+    ]
+  },
+  "known_validation_row_verification": {
+    "pair_id": "616C3D5795E8",
+    "label": 0,
+    "feature_values": {
+      "perplexity": 128.2297706604004,
+      "sentence_length_cv": 0.4953425063016299,
+      "mattr": 0.8528947368421053,
+      "pos_3gram_entropy": 6.601412118573674
+    },
+    "expected_prediction": 0,
+    "observed_prediction": 0,
+    "expected_ai_probability": 0.024013524463487097,
+    "observed_ai_probability": 0.024013524463487118,
+    "absolute_probability_delta": 2.0816681711721685e-17,
+    "matches_exp010_row": true
+  },
+  "sklearn_version": "1.9.0",
+  "interpretation_guardrail": "Classifier probabilities are model scores for machine association within the EXP-005/EXP-006 distribution, not calibrated authorship certainty."
+}
