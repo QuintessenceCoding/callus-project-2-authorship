@@ -739,38 +739,152 @@ Perfect separation may indicate:
 
 **---**
 
-**# EXP-007 — Perplexity Baseline**
+**# EXP-007 — Hybrid Local-Anomaly Feasibility**
 
-**## Question**
+**## Status**
 
-How well does perplexity alone classify the available data?
+Completed
 
-**## Hypothesis**
+**## Objective**
 
-Perplexity should provide meaningful signal but will not reliably distinguish all human and machine-generated examples.
+Test whether a known two-sentence AI passage inserted into an otherwise human essay becomes locally anomalous relative to the rest of that same hybrid essay.
 
-**## Procedure**
+This is a feasibility experiment only. It does not implement a production local-anomaly scorer, train a classifier, create thresholds, or process the full DAIGT dataset.
 
-Train/select a threshold using training/validation data.
+**## Dataset / Source**
 
-Evaluate on the appropriate held-out set.
+- Raw dataset: `data/raw/daigt_external/daigt_external_dataset.csv`
+- Dataset semantics: `text` = human/student-written text; `source_text` = AI-generated text; `instructions` = shared task/generation context
+- Raw CSV SHA-256 before and after run: `3a1ba6c2ba557b83a13022efadb3239185cda05b50a9d31017fcf7967f33bb18`
+- Results artifact: `experiments/EXP-007-local-anomaly/results/results.json`
 
-Record:
+**## 20-Pair Selection Method**
 
-\* accuracy
-\* precision
-\* recall
-\* F1
-\* FPR
-\* FNR
+EXP-007 used exactly the first 20 `pair_results` from `experiments/EXP-005-feature-distribution/results/results.json`.
 
-**## Result**
+No resampling and no new random seed were used.
 
-**\*\*TBD\*\***
+Selected pair IDs:
+
+```text
+616C3D5795E8, 61E85C09E36D, 62E5030D1A59, 638D7F913AAB,
+63E2278271E4, 642CB997325C, 653620381DB3, 65B7FDE783F2,
+674F5DA988D2, 67D58F9FA53C, 68004683BC3C, 69241D10E69A,
+694C96A1E9A0, 6AB122D640E1, 6B3B3CB54EB9, 6CD1B8B6BEA8,
+6D6E937C3A67, 6E90DC70B7A9, 6F30733E6B4B, 6FEF6D46714D
+```
+
+**## Hybrid Construction**
+
+For each selected pair:
+
+1. Segment human `text` with the EXP-004 spaCy pipeline.
+2. Segment AI `source_text` with the same pipeline.
+3. Require at least 2 human sentences and at least 3 AI sentences.
+4. Select exactly 2 contiguous AI sentences from the middle of the AI text.
+5. Insert the AI block at human sentence boundary `floor(human_sentence_count / 2)`.
+6. Record the inserted AI sentence indices as zero-based hybrid sentence indices.
+
+No human or AI sentence rewriting was performed.
+
+**## Features**
+
+EXP-007 reused the existing EXP-004 / EXP-001 implementations:
+
+- sentence segmentation: spaCy `en_core_web_sm`
+- perplexity: EXP-001 `calculate_perplexity`, loaded through EXP-004
+- lexical tokenization: EXP-004 `tokenize_for_lexical_features`
+- MATTR: EXP-004 `mattr`, window size `25`
+- POS 3-gram entropy: EXP-004 `pos_trigram_entropy`
+
+Per hybrid sentence:
+
+- sentence perplexity
+- sentence token count / sentence length
+- local MATTR
+- local POS 3-gram entropy
+
+Local windows used a centered 3-sentence window where possible. Edge behavior: first sentence uses `[0, 1]`; last sentence uses `[n-2, n-1]`; interior sentences use `[i-1, i, i+1]`.
+
+**## Robust Anomaly Definition**
+
+For each feature:
+
+```text
+robust_z = 0.6745 * (value - median(reference_values)) / MAD(reference_values)
+```
+
+The reference distribution is the other sentence/window values in the same hybrid essay, excluding the current sentence/window.
+
+If `MAD == 0`, the component z-score is unavailable and no value is fabricated.
+
+The experimental local anomaly score is:
+
+```text
+mean(abs(available component z-scores))
+```
+
+This is only an experimental ranking score.
+
+**## Measured Results**
+
+Construction:
+
+| Measure | Value |
+| --- | ---: |
+| Selected pairs | 20 |
+| Eligible pairs | 20 |
+| Successful hybrids | 20 |
+| Rejected pairs | 0 |
+| Total inserted AI sentences | 40 |
+
+Aggregate capture:
+
+| Capture band | Rate | Count |
+| --- | ---: | ---: |
+| Top 50% | 0.550 | 22 / 40 |
+| Top 25% | 0.150 | 6 / 40 |
+| Top 10% | 0.025 | 1 / 40 |
+
+AI-vs-human anomaly summary:
+
+| Class | Count | Mean | Median | Stdev | IQR | Min | Max |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Inserted AI sentences | 40 | 1.032682 | 0.977125 | 0.461367 | 0.614979 | 0.312276 | 2.184944 |
+| Human sentences | 383 | 3.422957 | 0.869977 | 44.140034 | 0.719832 | 0.154095 | 864.776786 |
+
+Median difference, AI minus human: `0.107147`.
+
+**## Limitations**
+
+- The hybrids are synthetic and insert a contiguous two-sentence AI block; this does not model every form of real AI-assisted writing.
+- Results are from DAIGT External student-writing pairs, not admissions essays.
+- The high human mean and maximum show that retained human outliers can be more anomalous than inserted AI sentences.
+- The experiment does not establish production thresholds, detection accuracy, or final local-anomaly behavior.
+
+**## Validation**
+
+All validation checks passed:
+
+- no duplicate pair IDs
+- raw dataset unchanged
+- every hybrid has exactly 2 inserted AI sentences
+- inserted AI text matches selected source-text sentence strings
+- ground-truth indices are valid
+- human sentence sequence is preserved
+- finite anomaly values are finite
+- unavailable features have explicit reasons
+- result counts are internally consistent
 
 **## Decision**
 
-**\*\*TBD\*\***
+`PROCEED WITH REVISION`
+
+The within-document robust anomaly approach is feasible to compute and sometimes ranks inserted AI sentences relatively high, but this exact experimental score is not sufficient as a standalone detector because overlap is substantial and human outliers can dominate.
+
+**## Follow-up**
+
+Run a local-window sensitivity experiment comparing window sizes and component feature contributions on the same synthetic hybrids before considering any production scoring design.
 
 **---**
 
