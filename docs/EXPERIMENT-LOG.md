@@ -889,6 +889,71 @@ Close the feasibility experiment loop and begin the production detection pipelin
 
 ---
 
+## EXP-011 — Passage Attribution Feasibility
+
+**Status:** Completed  
+**Decision:** REJECT FOR PRODUCTION
+
+### Goal
+
+Test whether leave-one-sentence-out contribution using the production
+four-feature Logistic Regression could identify passages that drove the
+machine-associated document score.
+
+### Method
+
+Used the 20 synthetic hybrids from EXP-007.
+
+For each hybrid:
+
+1. Compute the full-document AI-associated model score.
+2. Remove each sentence one at a time.
+3. Recompute the four production features.
+4. Re-score the reduced document using the same production model.
+5. Define sentence contribution as:
+
+   `full_score - score_without_sentence`
+
+Positive values indicate that removing the sentence lowers the
+machine-associated score.
+
+### Results
+
+- Hybrids evaluated: 20
+- Usable hybrids: 20
+- Top-10% capture of known AI-inserted sentences: 22.5%
+- Top-25% capture of known AI-inserted sentences: 42.5%
+- Median AI-sentence contribution: approximately -0.000195
+- Median human-sentence contribution: approximately -0.001177
+- Median AI-minus-human contribution: approximately 0.000982
+
+### Decision
+
+**REJECT FOR PRODUCTION**
+
+Leave-one-sentence-out contribution does not reliably localize the known
+AI-inserted sentences. Human sentences frequently ranked above the known
+AI-inserted sentences, and the aggregate separation was weak.
+
+The approach is therefore not used to label individual sentences as
+AI-generated.
+
+### Product Implication
+
+The production detector remains a document-level classifier.
+
+The UI may expose directly measured sentence-level evidence, such as
+per-sentence perplexity, but such observations must not be presented as
+proof that a specific sentence was written by AI.
+
+### Limitation
+
+This experiment evaluates attribution on the bounded synthetic hybrid
+set from EXP-007. It does not establish general sentence-level
+localization performance on arbitrary essays.
+
+---
+
 # 6. Experiment Promotion Rules**
 
 An experimental finding may influence the production system when:
