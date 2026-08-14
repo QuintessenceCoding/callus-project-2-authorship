@@ -23,11 +23,20 @@ export interface TextStatistics {
   language_model_token_count: number | null;
 }
 
+export interface SentenceEvidence {
+  sentence_id: number;
+  text: string;
+  perplexity: number | null;
+  available: boolean;
+  reason: string | null;
+}
+
 export interface AnalyzeResponse {
   state: AnalysisState;
   label: AnalysisLabel | null;
   ai_probability: number | null;
   features: FeatureEvidence[];
+  sentence_evidence: SentenceEvidence[];
   text_statistics: TextStatistics;
   model_metadata: Record<string, unknown>;
 }

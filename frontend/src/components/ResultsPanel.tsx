@@ -8,6 +8,7 @@ import {
 } from "../lib/analysisCopy";
 import { FeatureGrid } from "./FeatureGrid";
 import { MethodologyPanel } from "./MethodologyPanel";
+import { EvidenceInspector } from "./EvidenceInspector";
 
 interface ResultsPanelProps {
   result: AnalyzeResponse | null;
@@ -81,6 +82,7 @@ export function ResultsPanel({ result, error, loading }: ResultsPanelProps) {
         )}
       </section>
 
+      {result ? <EvidenceInspector result={result} /> : null}
       {result ? <FeatureGrid features={result.features} /> : null}
       <MethodologyPanel />
     </aside>
