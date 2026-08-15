@@ -9,7 +9,7 @@ export function MethodologyPanel() {
   ];
 
   return (
-    <details className="methodology-panel">
+    <details className="methodology-panel" open>
       <summary>How this analysis works</summary>
       <ol>
         {steps.map((step, index) => (
