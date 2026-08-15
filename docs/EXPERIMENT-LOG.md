@@ -954,117 +954,15 @@ localization performance on arbitrary essays.
 
 ---
 
-# 6. Experiment Promotion Rules**
 
-An experimental finding may influence the production system when:
 
-1\. The experiment is reproducible.
-2\. The result is recorded.
-3\. The interpretation is supported by the result.
-4\. The change does not compromise test-set integrity.
-5\. The resulting decision is documented.
+# 11. Current Experiment / Evaluation Queue
 
-A feature should not be promoted simply because it produces the highest score on one run.
+The core feasibility loop is complete through EXP-011.
 
-**---**
+Experiments that remain useful are now treated as **post-implementation evaluation or refinement**, not prerequisites for the working detector.
 
-**# 7. Rejected Hypotheses**
-
-Rejected ideas remain documented.
-
-Example:
-
-\`\`\`markdown
-**## EXP-XXX**
-
-Hypothesis:
-POS entropy improves classification.
-
-Result:
-No meaningful improvement and increased ESL false positives.
-
-Decision:
-Rejected.
-
-Reason:
-The feature did not provide sufficient value relative to its
-computational and bias cost.
-\`\`\`
-
-This is useful engineering evidence.
-
-**---**
-
-**# 8. Experiment Naming Convention**
-
-Use:
-
-\`\`\`text
-EXP-XXX-short-description
-\`\`\`
-
-Examples:
-
-\`\`\`text
-EXP-001-perplexity-feasibility
-EXP-002-perplexity-length-stability
-EXP-007-local-baseline-stability
-EXP-011-feature-ablation
-\`\`\`
-
-Experiment outputs should use the same identifier.
-
-**---**
-
-**# 9. Experiment Reproducibility**
-
-Every experiment should record enough information to rerun it.
-
-At minimum:
-
-\* experiment ID
-\* code version / commit
-\* dataset version
-\* model
-\* model version
-\* feature configuration
-\* parameters
-\* random seed where applicable
-\* hardware
-\* runtime
-\* result artifacts
-
-**---**
-
-**# 10. Experiment Artifacts**
-
-A possible structure:
-
-\`\`\`text
-experiments/
-├── EXP-001-perplexity-feasibility/
-│   ├── README.md
-│   ├── config.json
-│   ├── results.json
-│   └── output/
-│
-├── EXP-002-perplexity-length-stability/
-│   ├── README.md
-│   ├── config.json
-│   └── output/
-│
-└── ...
-\`\`\`
-
-The exact structure may change.
-
-Experiments should remain separable from production application code.
-
-**---**
-
-**# 11. Current Experiment Queue
-
-| ID | Experiment | Status |
+| ID | Experiment / Evaluation | Status |
 | --- | --- | --- |
 | EXP-001 | Local perplexity feasibility | Completed |
 | EXP-002 | Perplexity stability by text length | Completed |
@@ -1072,43 +970,95 @@ Experiments should remain separable from production application code.
 | EXP-004 | Feature extraction laboratory | Completed |
 | EXP-005 | Feature distribution sanity check | Completed |
 | EXP-006 | Baseline classification | Completed |
-| EXP-007 | Hybrid local-anomaly feasibility | Completed |
-| EXP-008 | Local window & feature sensitivity | Completed |
-| EXP-009 | Boundary discontinuity feasibility | Completed |
+| EXP-007 | Hybrid local-anomaly feasibility | Completed — rejected for production attribution |
+| EXP-008 | Local window & feature sensitivity | Completed — rejected for production attribution |
+| EXP-009 | Boundary discontinuity feasibility | Completed — rejected for production attribution |
 | EXP-010 | Evidence sufficiency & empirical abstention | Completed |
-| EXP-011 | Logistic Regression vs Random Forest | Planned |
-| EXP-012 | Feature ablation | Planned |
-| EXP-013 | Hybrid detection | Planned |
-| EXP-014 | Global vs local signal | Planned |
-| EXP-015 | Topic generalization | Planned |
-| EXP-016 | Unseen model generalization | Planned |
-| EXP-017 | ESL bias audit | Planned |
-| EXP-018 | Confident failure analysis | Planned |
-
-The order may change based on feasibility results.
+| EXP-011 | Passage attribution feasibility | Completed — rejected for production attribution |
+| Final evaluation | Unseen-model / topic generalization where feasible | Deferred / evaluation |
+| Final evaluation | ESL / non-native-English bias audit | Deferred / evaluation |
+| Final evaluation | Three confident failure cases | Required / evaluation |
+| Final evaluation | Final submission regression and demo checks | Required / finalization |
 
 ---
 
 # 12. Current Status
 
-**Phase:** 1 — Research & Feasibility
+**Phase:** Production Integration / Final Evaluation
 
-**Status:** EXP-001 through EXP-010 completed.
+**Status:** EXP-001 through EXP-011 completed; core detection methodology is locked and the production prototype is implemented.
 
-Current evidence supports:
+Current empirical evidence supports:
 
-- local perplexity extraction is technically feasible;
+- local `distilgpt2` perplexity extraction is technically feasible and reproducible;
 - very short prefixes produce less stable perplexity measurements than longer prefixes;
-- the four candidate features show measurable paired signal on the controlled DAIGT sample;
-- the four-feature Logistic Regression baseline substantially outperformed the perplexity-only baseline on the bounded pair-aware validation split;
-- the initial within-document local anomaly score is not reliable enough to serve as the primary localization mechanism;
-- local window and feature sensitivity did not consistently rescue the anomaly score;
-- boundary discontinuity shows some signal but does not provide sufficiently strong separation for a standalone production local detector;
-- feature measurement failures should result in abstention rather than fabricated values;
-- the bounded validation data do not justify a universal numeric minimum-word or confidence dead-zone threshold.
+- the four production features show measurable paired signal on the bounded DAIGT sample;
+- the four-feature StandardScaler + Logistic Regression model substantially outperformed the perplexity-only baseline on the bounded pair-aware validation split;
+- the initial within-document local anomaly score is not reliable enough for production localization;
+- local-window and feature-sensitivity experiments did not consistently rescue the local anomaly approach;
+- boundary discontinuity shows some signal but does not justify a production boundary detector;
+- leave-one-sentence-out attribution in EXP-011 does not reliably identify known AI-inserted sentences;
+- feature measurement failures should produce insufficient evidence rather than fabricated values;
+- the bounded validation data do not justify a universal minimum-word threshold or confidence dead-zone.
 
-The research phase is now complete for the purposes of beginning implementation.
+The core production direction is therefore:
 
-> **Next: build the production detection pipeline using the four-feature Logistic Regression as the primary global signal, with conservative insufficient-evidence handling.**
+```text
+Essay
+  ↓
+Validated feature extraction
+  ↓
+Four-feature Logistic Regression
+  ↓
+Document-level classification / abstention
+  ↓
+Structured feature evidence
+  ↓
+Evidence Inspector
+```
 
-Further experiments should be treated as post-implementation evaluation/refinement rather than prerequisites for the first working detector.
+The production UI may expose directly measured sentence-level perplexity as an evidence observation, but it must not present that observation as proof of sentence-level AI authorship.
+
+The research phase is complete for the purposes of the working prototype. Remaining experiments are evaluation/refinement tasks rather than prerequisites for the detector.
+
+---
+
+# Final Product Direction
+
+Following EXP-011, sentence-level authorship attribution was abandoned for production.
+
+The production interface instead surfaces **feature-driven evidence exemplars**:
+
+- document-level feature measurements explain the overall classification;
+- sentence-level perplexity measurements show where a validated local statistical pattern appears;
+- the UI labels these as evidence observations, not AI-authorship predictions.
+
+The production implementation therefore answers the Callus "where and why" requirement conservatively:
+
+> **Where:** where directly measured statistical evidence appears in the essay.
+
+> **Why:** which measured feature and value make that location noteworthy.
+
+The system does not claim:
+
+> "This sentence was written by AI."
+
+---
+
+# Production Promotion Summary
+
+| Experiment | Production consequence |
+| --- | --- |
+| EXP-001 | Accepted local causal perplexity as a measurement instrument |
+| EXP-002 | Treat short-text perplexity as potentially unstable |
+| EXP-003 | Established local generation feasibility |
+| EXP-004 | Accepted validated feature definitions |
+| EXP-005 | Established paired feature signal worth modeling |
+| EXP-006 | Selected four-feature Logistic Regression as the production classifier |
+| EXP-007 | Rejected initial local anomaly score |
+| EXP-008 | Rejected local-window rescue of anomaly scoring |
+| EXP-009 | Rejected boundary discontinuity as a production detector |
+| EXP-010 | Adopt conservative evidence sufficiency / abstention |
+| EXP-011 | Rejected leave-one-out passage attribution; use direct measured evidence instead |
+
+The experiment log is now both a historical research record and the traceability layer between experiments and the production implementation.

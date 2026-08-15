@@ -4,18 +4,20 @@
 
 Callus Project 2 requires a working application that analyzes college admissions essays for characteristics associated with machine-generated text.
 
-The application must provide:
+The project is implemented as an evidence-first statistical analysis system rather than an LLM-as-judge application.
 
-* sentence-level analysis
-* passage-level analysis
-* visible evidence supporting classifications
-* uncertainty when evidence is weak or conflicting
-* a real user interface
-* honest evaluation and documented failure cases
+The current application provides:
+
+* document-level classification using an experimentally validated four-feature model
+* visible feature evidence supporting the classification
+* sentence-level perplexity measurements exposed as evidence exemplars
+* evidence-sufficiency abstention when the complete production feature vector cannot be computed reliably
+* a real web interface
+* honest evaluation and explicit failure/limitation reporting
 
 The system must not simply send an essay to a chat model and relay the model's judgment.
 
-This project therefore treats AI detection as an **evidence-based statistical analysis problem**, rather than a definitive authorship-classification problem.
+The production classifier is the four-feature Logistic Regression model validated in EXP-006. A local `distilgpt2` model is used as an instrument for perplexity extraction; it does not make the final classification decision.
 
 ---
 
@@ -23,13 +25,15 @@ This project therefore treats AI detection as an **evidence-based statistical an
 
 The system cannot directly observe who authored a piece of text.
 
-Instead, it estimates whether individual sentences and passages exhibit **measurable characteristics associated with machine-generated text**, while also identifying stylistic anomalies and communicating uncertainty.
+Instead, it estimates whether the submitted document exhibits measurable characteristics associated with machine-generated writing within the project's training and evaluation distributions.
 
-The system therefore makes no definitive claim that a person or model authored a passage.
+The production assessment is made at the **document level**. Sentence-level measurements are retained for evidence presentation, but they are not treated as sentence-level authorship judgments.
+
+The system therefore makes no definitive claim that a person or model authored the text.
 
 ### Core system claim
 
-> The system estimates whether individual sentences and passages exhibit measurable characteristics associated with machine-generated text, while identifying stylistic anomalies and communicating uncertainty rather than claiming definitive authorship.
+> The system estimates whether a document exhibits measurable characteristics associated with machine-generated writing in the evaluated distribution, then exposes the underlying feature evidence and uncertainty without claiming definitive authorship.
 
 This distinction is fundamental to the architecture, UI, evaluation methodology, and documentation.
 
@@ -41,9 +45,9 @@ The target domain is:
 
 **College admissions essays**
 
-The expected characteristics of this domain include:
+The intended target characteristics include:
 
-* approximately 500–1000 words
+* approximately 500–1000 words in the normal use case
 * narrative or reflective writing
 * highly edited prose
 * personal experiences and anecdotes
@@ -57,7 +61,9 @@ The detector is not intended to automatically generalize to unrelated domains su
 * news articles
 * short-form responses
 
-Domain limitations will be documented and evaluated explicitly.
+Domain limitations must remain visible in the evaluation and final presentation.
+
+The production classifier was developed on a controlled external student-writing / AI-writing dataset rather than a large representative admissions corpus. Admissions-domain generalization is therefore a stated limitation rather than an assumption.
 
 ---
 
@@ -67,61 +73,59 @@ Domain limitations will be documented and evaluated explicitly.
 
 The system should show measurable evidence rather than provide an unexplained AI verdict.
 
-A classification must be traceable to observable features.
+A classification must be traceable to observable feature values and the validated classifier.
 
 ---
 
 ### 4.2 Uncertainty Over False Precision
 
-The system must not manufacture precise-looking probabilities when the underlying evidence is weak.
+The system must not manufacture precise-looking probabilities when the underlying evidence is weak or unavailable.
 
-If evidence is:
+The production API therefore supports an explicit `insufficient_evidence` state.
 
-* insufficient
-* internally conflicting
-* statistically unstable
-* based on too little text
+A classification is produced only when the complete four-feature vector required by the production Logistic Regression model is available.
 
-the system should be able to abstain or report an uncertain result.
+The displayed classifier probability is treated as a **model signal for machine association within the evaluated distribution**, not as calibrated authorship certainty.
 
 ---
 
-### 4.3 Global + Local Analysis
+### 4.3 Document Classification + Evidence Presentation
 
-The detector evaluates two different questions.
+The project deliberately separates two questions:
 
-**Machine Association**
+**Document-level machine association**
 
-> How closely does this passage's measured behavior resemble machine-associated writing in the training distribution?
+> How closely does the document's measured feature vector resemble the machine-associated distribution learned by the classifier?
 
-**Stylistic Anomaly**
+**Evidence presentation**
 
-> How strongly does this passage differ from the surrounding writing in the same essay?
+> Where are the directly measurable sentence-level patterns that a user can inspect when interpreting the document-level result?
 
-These signals must remain conceptually separate.
+The production system does **not** claim that a highlighted sentence was written by AI.
 
-A passage can resemble machine-generated writing without being unusual relative to the rest of the essay, and a passage can be stylistically unusual without resembling machine-generated text.
+The current Evidence Inspector exposes sentence-level perplexity exemplars because perplexity is currently available as a validated sentence-level measurement. The other three production features are document-level statistics and are not artificially converted into sentence-level scores.
 
 ---
 
 ### 4.4 Experiment Before Promotion
 
-Candidate features are hypotheses, not assumptions.
+Candidate features and localization methods are hypotheses, not assumptions.
 
-A feature should not enter the final detection system merely because it appears in existing AI-detection literature.
+A feature or analytical method enters production only after empirical evaluation demonstrates that its behavior is useful and defensible.
 
-Candidate features must be experimentally evaluated for incremental value.
-
-Evaluation should consider more than aggregate F1, including where relevant:
+Evaluation considers more than aggregate F1, including where relevant:
 
 * precision
 * recall
-* calibration
-* hybrid-writing detection
+* F1
+* ROC-AUC
+* reproducibility
+* hybrid-writing behavior
 * false-positive behavior
 * ESL/non-native-English behavior
-* robustness to unseen topics
-* robustness to unseen generation models
+* domain/model generalization
+* evidence sufficiency
+* computational cost
 
 ---
 
@@ -129,15 +133,16 @@ Evaluation should consider more than aggregate F1, including where relevant:
 
 The core project must be reproducible without paid services.
 
-Experiments should record:
+Experiments and production artifacts record, where applicable:
 
-* dataset version
+* dataset/version provenance
 * feature configuration
 * model configuration
-* random seeds where applicable
-* train/validation/test split
+* random seeds
+* train/validation split
 * evaluation configuration
-* relevant software/model versions
+* software/model versions
+* model artifact metadata
 
 ---
 
@@ -145,16 +150,17 @@ Experiments should record:
 
 Failure is an expected property of this problem.
 
-The project will deliberately identify and document:
+The final evaluation will explicitly identify and document:
 
 * confidently incorrect predictions
 * false positives
 * false negatives
 * hybrid-writing failures
-* domain/model generalization failures
+* domain/model generalization limitations
 * potential ESL bias
+* cases where evidence is insufficient
 
-The final evaluation must include at least three confidently incorrect essays as required by Callus.
+The final submission must include at least three confidently incorrect essays and an explanation of why they failed, as required by Callus.
 
 ---
 
@@ -165,23 +171,25 @@ The final project must satisfy the following requirements from the challenge bri
 ### Functional
 
 * Accept a college admissions essay through a real interface.
-* Analyze text at sentence and passage levels.
-* Highlight passages exhibiting machine-associated characteristics.
-* Show measurable evidence for highlighted passages.
-* Communicate uncertainty.
-* Provide passage-level and overall assessment.
+* Perform document-level classification using experimentally validated statistical features.
+* Provide visible evidence supporting the document-level classification.
+* Provide sentence-level evidence exemplars where a validated local measurement exists.
+* Show why the classifier can reach its document-level result through measurable feature evidence.
+* Communicate uncertainty and abstain when required measurements are unavailable.
+* Avoid claiming definitive sentence-level AI authorship.
 
 ### Research / ML
 
 * Do not use an LLM as the final judge.
-* Build the detection methodology from measurable signals.
-* Construct and document a dataset.
-* Evaluate the detector honestly.
+* Use measurable linguistic/statistical signals.
+* Build and document dataset provenance and limitations.
+* Evaluate the detector honestly on held-out data and specialized audit sets.
+* Report three confident failures.
 * Investigate ESL/non-native-English false positives.
 
 ### Engineering
 
-* Maintain clean project structure.
+* Maintain clean separation between feature extraction, detection, API, and presentation.
 * Document architectural and methodological decisions.
 * Provide reproducible setup and execution instructions.
 * Keep implementation understandable and defensible.
@@ -198,7 +206,9 @@ The project does not attempt to:
 * guarantee a specific accuracy percentage
 * detect every existing or future language model
 * identify the exact model that generated text
-* detect every possible adversarial evasion technique
+* assign definitive authorship to individual sentences
+* create a sentence-level AI probability that has not been experimentally validated
+* use an LLM to make or override the final detector decision
 * replace human review
 * become a production-scale cloud service
 
@@ -210,25 +220,15 @@ The target is a technically credible, transparent research prototype.
 
 ### Zero-Cost Requirement
 
-The complete project must be buildable, runnable, evaluated, and demonstrated at **₹0**.
+The complete core project must be buildable, runnable, evaluated, and demonstrated at **₹0**.
 
-No paid service may be required by the core system.
+No paid API or proprietary detection service is required by the core system.
 
-This includes:
-
-* LLM APIs
-* embedding APIs
-* proprietary detection APIs
-* paid datasets
-* paid inference services
-* paid hosting
-* paid observability services
-
-The project should rely on locally runnable software and publicly accessible data with appropriate usage rights.
+The production detector uses local inference and local model artifacts.
 
 ### Model and Dataset Licensing
 
-"Free" does not automatically mean "open source" or unrestricted.
+"Free" does not automatically mean unrestricted.
 
 For every external model or dataset used, documentation should record:
 
@@ -236,218 +236,284 @@ For every external model or dataset used, documentation should record:
 * license or usage terms
 * intended use
 * whether redistribution is permitted
-* any relevant restrictions
+* relevant restrictions
 
 ---
 
 ## 8. Compute Constraint
 
-The detection pipeline must be capable of running locally on consumer hardware.
+The detection pipeline must run locally on consumer hardware.
 
-Small language models should be preferred for token-probability/perplexity extraction.
+The production perplexity instrument is:
 
-Potential candidates include:
+* model: `distilgpt2`
+* runtime: Hugging Face Transformers
+* device: CPU
 
-* DistilGPT-2
-* GPT-2
-* other small locally runnable causal language models
+The production classifier is:
 
-The final model will be selected through a feasibility experiment rather than assumed in advance.
+* preprocessing: `StandardScaler`
+* classifier: `LogisticRegression`
+* source experiment: EXP-006
 
-AI-text generation for dataset construction may use locally runnable quantized open-weight models through a local inference interface such as Ollama or another equivalent mechanism.
+For dataset generation, the project used a separate locally runnable generation pipeline. The current generation protocol records `Qwen/Qwen2.5-0.5B-Instruct` as the selected generation candidate after EXP-003 feasibility testing.
 
-The generation interface must remain replaceable; the project should not depend architecturally on one local inference application.
-
-If local generation limits dataset size, experimental quality and controlled paired design take priority over arbitrary dataset volume.
+The generation model and detection model remain conceptually separate: the generation model produces controlled synthetic variants for research, while `distilgpt2` supplies the perplexity instrument used by the detector.
 
 ---
 
-## 9. Conceptual Architecture
+## 9. Production Architecture
+
+The implemented production architecture is:
 
 ```text
-                         ESSAY
-                           │
-                           ▼
-                 Sentence / Passage
-                    Segmentation
-                           │
-                           ▼
-                  Feature Extraction
-                           │
-              ┌────────────┴────────────┐
-              ▼                         ▼
-      Machine Association        Stylistic Anomaly
-          Analysis                    Analysis
-              │                         │
-              ▼                         ▼
-       Global Signal             Local Signal
-              │                         │
-              └────────────┬────────────┘
-                           ▼
-                  Evidence Sufficiency
-                           │
-                    ┌──────┴──────┐
-                    ▼             ▼
-              Classification    Abstention
-                    │             │
-                    └──────┬──────┘
-                           ▼
-                     Evidence Layer
-                           │
-                           ▼
-                       Web UI
+                           ESSAY
+                             │
+                             ▼
+                    Sentence Segmentation
+                             │
+                             ▼
+                     Feature Extraction
+                             │
+          ┌──────────────────┼──────────────────┐
+          │                  │                  │
+          ▼                  ▼                  ▼
+      Perplexity       Sentence Length       MATTR
+          │                  CV                  │
+          └──────────────────┬──────────────────┘
+                             │
+                         POS 3-gram
+                           Entropy
+                             │
+                             ▼
+                   Complete Feature Vector?
+                        │              │
+                       No             Yes
+                        │              │
+                        ▼              ▼
+                 Insufficient      StandardScaler
+                   Evidence            │
+                                        ▼
+                               Logistic Regression
+                                        │
+                                        ▼
+                              Document Classification
+                                        │
+                                        ▼
+                               Structured Evidence
+                                        │
+                              ┌─────────┴─────────┐
+                              ▼                   ▼
+                       FastAPI Response     Evidence Inspector
+                                                  │
+                                                  ▼
+                                             React / Vite UI
 ```
 
-The architecture is conceptual at this stage.
+The frontend is implemented with React + Vite + TypeScript. The backend is implemented with FastAPI.
 
-Implementation details may change as feasibility experiments provide evidence.
+The API route is:
 
----
+```text
+POST /api/analyze
+```
 
-## 10. Machine Association Analysis
-
-The global analysis estimates how closely a passage resembles the machine-associated writing distribution learned from training data.
-
-Candidate signals include:
-
-### Predictability
-
-* sentence/passsage perplexity
-* mean token log probability
-* perplexity variation
-
-### Rhythm
-
-* sentence length
-* sentence length coefficient of variation
-* punctuation distribution
-* clause-related statistics
-
-### Lexical characteristics
-
-* MATTR
-* rare-word proportion
-* repetition
-* repeated n-grams or constructions
-
-### Structural characteristics
-
-* POS n-gram entropy
-* dependency-based statistics
-* syntactic variation
-
-These are candidate features only.
-
-No feature is guaranteed to appear in the final model.
+The route remains thin; feature extraction and classification are handled by the detector layer.
 
 ---
 
-## 11. Stylistic Anomaly Analysis
+## 10. Production Feature Set
 
-The local analysis measures how unusual a sentence or passage is relative to the surrounding essay.
+The final production feature vector is fixed to the four features validated through the experiment sequence:
 
-The initial statistical direction is:
+1. **Perplexity** — language-model predictability.
+2. **Sentence-length coefficient of variation** — document-level sentence rhythm variability.
+3. **MATTR** — moving-average lexical diversity.
+4. **POS 3-gram entropy** — variation in grammatical-tag sequences.
 
-* robust statistics
-* Median / Median Absolute Deviation
-* leave-one-out baselines
-* local passage windows
+The four-feature order is fixed and recorded in the model artifact metadata.
 
-The system should avoid allowing the passage being evaluated to substantially distort its own baseline.
+The production extractor reuses the validated EXP-001 / EXP-004 feature mathematics rather than introducing new formulas during integration.
 
-For sentence-level analysis, a leave-one-out strategy may be used where sufficient surrounding observations exist.
+### 10.1 Perplexity
 
-For passage-level analysis, surrounding sentences or passages may be used as the reference window.
+Perplexity is calculated sentence-by-sentence using the locally run causal language model and aggregated for the document using the median of valid sentence perplexities.
 
-Exact statistical formulation and thresholds remain experimental questions.
+Lower perplexity indicates greater predictability under the language model.
 
-No fixed anomaly threshold will be assumed without validation.
+However:
+
+> **Low perplexity does not imply AI authorship.**
+
+The sentence-level values are retained for evidence inspection, while the document-level aggregate is used as one input to the classifier.
+
+### 10.2 Sentence-Length CV
+
+Sentence-length CV is calculated across the document's sentence lengths.
+
+It is a document-level rhythm statistic. The production implementation does not treat it as an independent per-sentence AI score.
+
+### 10.3 MATTR
+
+MATTR measures lexical diversity using a fixed moving window.
+
+The production model uses MATTR as a document-level feature.
+
+### 10.4 POS 3-Gram Entropy
+
+POS 3-gram entropy measures variation in part-of-speech tag sequences.
+
+The production model uses it as a document-level structural feature.
 
 ---
 
-## 12. Evidence Sufficiency
+## 11. Rejected Local Attribution Approaches
 
-Not every text segment contains enough information to support a meaningful analysis.
+The original project plan included explicit stylistic-anomaly and local attribution methods.
 
-The system must therefore evaluate whether sufficient evidence exists before producing a strong classification.
+These were investigated rather than assumed to work.
 
-Potential causes of insufficient evidence include:
+### EXP-007 — Local Anomaly
 
-* very short sentences
-* very short passages
-* insufficient neighboring text
-* unstable variance estimates
-* conflicting feature signals
-* missing feature values
+Initial local anomaly scoring was tested for sentence/passage localization.
 
-Possible outputs include:
+### EXP-008 — Local Sensitivity
 
-* sufficient evidence
-* limited evidence
-* uncertain
-* insufficient evidence
+Feature and window sensitivity were tested to determine whether local anomaly behavior could be made more stable.
 
-The exact thresholds will be determined experimentally.
+### EXP-009 — Boundary Discontinuity
+
+Boundary-based comparisons were evaluated around known hybrid insertion boundaries.
+
+### EXP-011 — Leave-One-Sentence-Out Attribution
+
+The production four-feature model was used in a leave-one-sentence-out contribution analysis on 20 controlled hybrids.
+
+The experiment achieved:
+
+* top-10% capture of known AI sentences: `22.5%`
+* top-25% capture: `42.5%`
+* median AI-vs-human sentence contribution difference: approximately `0.000982`
+
+The result was judged insufficient for reliable sentence-level authorship attribution.
+
+### Decision
+
+These local attribution methods are **not used as production sentence-level verdicts**.
+
+The final interface instead uses the validated global classifier plus evidence presentation based on directly measured sentence-level perplexity.
+
+This prevents the UI from displaying a scientifically unsupported "AI sentence" heatmap.
+
+---
+
+## 12. Evidence Sufficiency and Abstention
+
+Not every input supports all four production measurements.
+
+The detector therefore checks whether the complete four-feature vector is available before classification.
+
+Examples of insufficient evidence include:
+
+* too few sentences for sentence-length CV
+* too few lexical tokens for the MATTR window
+* unavailable perplexity measurements
+* language-model context violations
+* other missing required feature values
+
+### Short input
+
+For example, `I like school.` does not provide enough evidence for all four production features and therefore produces:
+
+```text
+state: insufficient_evidence
+```
+
+### Long single-sentence input
+
+The production language model has a 1024-token context limit.
+
+A single sentence that exceeds that context is not truncated silently. Perplexity is marked unavailable with:
+
+```text
+sentence_exceeds_language_model_context
+```
+
+The detector then abstains rather than crashing or inventing a substitute measurement.
+
+### Production rule
+
+The current abstention behavior is intentionally simple:
+
+> **No complete four-feature vector → no document classification.**
+
+This preserves the validated feature definitions and follows the conclusions of EXP-010.
+
+No unsupported universal word-count threshold is claimed.
 
 ---
 
 ## 13. Dataset Strategy
 
-The dataset will be organized around **Essay Families**.
+The project uses a controlled, provenance-aware dataset strategy with family relationships preserved for hybrid experiments and leakage prevention.
 
-An Essay Family represents a source essay and controlled variants derived from it.
+The project distinguishes between:
 
-Conceptually:
+* controlled development/training data
+* external validation data
+* hybrid-writing experiments
+* target-domain proxy/evaluation data
+* ESL/non-native-English audit data
+
+The production Logistic Regression artifact used for the current application was trained from the feature-distribution results associated with the DAIGT External dataset and EXP-005 / EXP-006.
+
+PERSUADE and other human-writing sources are used as documented evaluation/proxy material where applicable; they are not treated as interchangeable with the target admissions domain.
+
+### Essay Families
+
+An Essay Family represents a human source essay and controlled variants derived from it.
 
 ```text
 Essay Family
 ├── Human original
-├── AI-generated variant(s)
-├── AI-polished variant(s)
-└── AI-spliced variant(s)
+├── AI-generated variant
+├── AI-polished variant
+└── AI-spliced variant
 ```
 
-The purpose is to control topic and narrative content while allowing writing characteristics to vary.
-
-### Why paired data?
-
-If all human essays discuss one set of topics and all AI essays discuss another, the classifier may learn topic differences rather than authorship-related characteristics.
-
-Paired construction reduces this risk by keeping the underlying prompt/topic/narrative more comparable.
+The family relationship is retained in metadata so related variants are not split across training and evaluation boundaries.
 
 ---
 
 ## 14. Dataset Categories
 
-The planned dataset categories are:
-
 ### Human
 
-Original human-authored admissions/student essays.
+Original human-authored essays used as the human baseline and evaluation material.
 
 ### AI
 
-AI-generated variants based on controlled prompts or source-essay constraints.
+Machine-generated essays used as the machine-associated baseline.
 
 ### Hybrid — Polished
 
-Human-written essays in which selected passages are substantially revised or polished by a local language model.
+Human essays in which selected passages are transformed by a local generation model while preserving the underlying ideas, facts, and narrative.
 
 ### Hybrid — Spliced
 
-Human essays in which selected passages are replaced with newly generated machine text.
+Human essays containing selected machine-generated replacement passages with known ground-truth locations.
 
 ### ESL / Non-Native-English Control
 
-Human-written essays used to investigate whether the detector disproportionately flags writing associated with English-learning backgrounds.
+Human writing reserved for the explicit false-positive/bias audit.
 
-The exact dataset size will be determined after source availability and local-generation feasibility are established.
+These categories are analytical labels. They do not imply that the detector will distinguish them perfectly.
 
 ---
 
 ## 15. Essay-Family Leakage Prevention
 
-Dataset splitting must occur at the **Essay Family level**, never at the individual-document level.
+Dataset splitting must occur at the **Essay Family level**, not the individual-document level.
 
 For example:
 
@@ -459,7 +525,7 @@ Family A → TRAIN
   ├── AI
   └── Hybrid
 
-Family B → TEST
+Family B → VALIDATION / TEST
   ├── Human
   ├── AI
   └── Hybrid
@@ -474,98 +540,99 @@ Human Family A → TRAIN
 AI Family A    → TEST
 ```
 
-because variants derived from the same source essay can leak topic, vocabulary, narrative structure, and stylistic information across splits.
+because variants derived from the same source essay can leak topic, vocabulary, narrative structure, and other information across splits.
 
 ---
 
 ## 16. Evaluation Strategy
 
-Evaluation will contain multiple experiments rather than relying on one aggregate accuracy value.
+Evaluation is treated as a separate phase from production implementation.
 
-### Baseline 1 — Majority / Always-Human
+The experiment sequence has already established the production baseline and feature set.
 
-A deliberately simple baseline used to establish a lower bound.
+### Completed core evaluation
 
-### Baseline 2 — Perplexity Threshold
+EXP-006 established the production four-feature Logistic Regression baseline:
 
-A simple detector based primarily on language-model predictability.
+```text
+Accuracy   0.974684
+Precision  0.952381
+Recall     1.000000
+F1         0.975610
+ROC-AUC    0.995513
+```
 
-### Experimental Model
+These metrics are specific to the recorded held-out evaluation setup and must not be presented as universal admissions-domain accuracy.
 
-A classifier combining selected linguistic/statistical features.
+### Completed methodology evaluation
 
-### Ablation
+The completed experiment sequence includes:
 
-Candidate features will be added or removed to determine their incremental value.
+* local perplexity feasibility
+* perplexity stability
+* candidate feature validation
+* feature distribution analysis
+* four-feature baseline classification
+* local anomaly testing
+* local sensitivity testing
+* boundary discontinuity testing
+* evidence-sufficiency analysis
+* passage-attribution feasibility testing
 
-### Topic Holdout
+### Remaining final evaluation
 
-Evaluate performance on a topic distribution not represented in training.
+Before submission, the project still needs:
 
-### Model Holdout
+* three confidently incorrect essays with explanations
+* an explicit ESL/non-native-English bias audit
+* final evaluation summary tied to the actual test/evaluation sets
+* final limitation reporting
 
-Evaluate performance on machine-generated text from a generation model not represented in training, where feasible.
-
-### Hybrid Evaluation
-
-Measure performance on:
-
-* AI-polished passages
-* AI-spliced passages
-* potentially human-edited AI text if time permits
-
-### Bias Evaluation
-
-Evaluate false-positive behavior on the ESL/non-native-English control set.
+These remaining evaluations must not be hidden merely because the production prototype is already functional.
 
 ---
 
 ## 17. Evaluation Leakage Prevention
 
-Final test data must not be used to tune:
-
-* feature selection
-* thresholds
-* classifier hyperparameters
-* evidence-sufficiency rules
-* interpretation boundaries
+Final test data must not be used to repeatedly tune the classifier after the evaluation is locked.
 
 The intended workflow is:
 
 ```text
 TRAIN
   ↓
-VALIDATION
+VALIDATION / EXPERIMENTS
   ↓
-Model / feature / threshold decisions
+Model and feature decisions
   ↓
-LOCK
+LOCK PRODUCTION ARTIFACT
   ↓
-FINAL TEST
+FINAL EVALUATION
   ↓
 Report
 ```
 
-The final test set should represent an evaluation of the completed methodology rather than an additional tuning set.
+Exploratory debugging performed after a test result must be documented and should not be presented as an untouched final estimate.
 
 ---
 
 ## 18. Failure Analysis
 
-The final project will include at least three essays that the detector confidently classifies incorrectly.
+The final project must include at least three confidently incorrect essays.
 
 For each failure, document:
 
 * input category
 * predicted category
-* confidence/evidence strength
-* relevant feature values
-* why the prediction may have occurred
-* whether the failure represents a known limitation
+* model signal
+* feature values
+* evidence availability
+* likely reason for the failure
+* whether the failure reflects domain shift, model dependence, or feature overlap
 * potential mitigation
 * whether mitigation was implemented or intentionally left unresolved
 
-The goal is understanding, not hiding failure.
+The goal is understanding rather than hiding failure.
 
 ---
 
@@ -573,18 +640,15 @@ The goal is understanding, not hiding failure.
 
 The project will explicitly investigate potential false positives associated with ESL/non-native-English writing.
 
-The analysis will avoid assuming that ESL writing necessarily has particular characteristics.
-
-Instead, the project will formulate this as an empirical hypothesis:
-
-> Some features used by the detector may correlate with English-learning background and therefore increase false-positive rates.
+The analysis must remain empirical and must not assume that ESL writing has a single statistical style.
 
 Where data permits, compare:
 
-* overall human false-positive rate
-* ESL/control false-positive rate
-* feature-level differences
-* evidence-strength distributions
+* general-human false-positive behavior
+* ESL/control false-positive behavior
+* model-signal distributions
+* feature distributions
+* representative failure cases
 
 Any observed limitation will be documented rather than concealed.
 
@@ -592,52 +656,96 @@ Any observed limitation will be documented rather than concealed.
 
 ## 20. UI Requirements
 
-The essay itself should be the primary interface.
+The essay itself is the primary interface.
 
 The UI should avoid presenting an unexplained overall percentage as the central result.
 
-The interface should provide:
+### Essay View
 
-### Essay view
+The interface provides:
 
 * original essay text
-* sentence/passage highlighting
-* clear distinction between normal, machine-associated, and uncertain regions
+* readable document view
+* input statistics
+* classification state
+* evidence-linked sentence exemplars where available
 
-### Evidence view
+### Evidence Inspector
 
-When a passage is selected:
+The current Evidence Inspector exposes **sentence-level perplexity evidence**.
 
-* machine-association signal
-* stylistic anomaly signal
-* evidence sufficiency
-* driving feature values
-* concise explanation of the interpretation
+It should communicate:
+
+* which sentence is being shown
+* its measured perplexity
+* why that measurement is relevant
+* that the sentence is an evidence exemplar, not an authorship verdict
+
+Preferred wording:
+
+> **These passages show the strongest predictability measurements in this document.**
+
+Avoid wording such as:
+
+> "This sentence was written by AI."
+
+### Document-Level Feature Evidence
+
+The UI also exposes all four production features:
+
+* Perplexity
+* Sentence-length CV
+* MATTR
+* POS 3-gram entropy
+
+The three document-level features are explained as document-level statistics rather than being forced into unsupported sentence-level highlights.
 
 ### Uncertainty
 
-The UI must clearly communicate when:
+The UI clearly communicates:
 
-* evidence is insufficient
-* signals conflict
-* the passage is too short
-* the result is uncertain
-
-The UI should explicitly distinguish:
-
-> **Evidence of machine-associated characteristics**
-
-from:
-
-> **Proof of AI authorship**
+* insufficient evidence
+* unavailable feature measurements
+* model signal not evaluated when the classifier abstains
+* the difference between evidence and authorship proof
 
 ---
 
-## 21. Documentation Strategy
+## 21. API and Evidence Contract
+
+The production API is:
+
+```text
+POST /api/analyze
+```
+
+The structured response contains:
+
+* `state`
+* `label` when classified
+* `ai_probability` as a model signal when classified
+* four feature measurements
+* `sentence_evidence`
+* text statistics
+* model metadata
+
+`sentence_evidence` currently contains:
+
+* `sentence_id`
+* sentence text
+* sentence perplexity when available
+* availability state
+* unavailable-measurement reason
+
+This field is intended for evidence presentation and does not imply sentence-level classification.
+
+---
+
+## 22. Documentation Strategy
 
 Documentation is part of the engineering process, not a final submission task.
 
-The repository will maintain source-of-truth documents covering:
+The repository maintains source-of-truth documents covering:
 
 ```text
 docs/
@@ -647,44 +755,25 @@ docs/
 ├── DECISIONS.md
 ├── DATASET.md
 ├── EVALUATION.md
-├── BIAS-ANALYSIS.md
-└── FAILURE-ANALYSIS.md
+├── EXPERIMENT-LOG.md
+├── GENERATION-PROTOCOL.md
+└── PRODUCTION-MILESTONE.md
 ```
 
-Additional experiment documentation may be created as needed.
+Additional documents may be added for final failure analysis, bias analysis, setup instructions, or submission materials.
 
-Documents should evolve alongside implementation.
-
-Decisions should be recorded before or during implementation rather than reconstructed after the fact.
+Documents should describe the implemented system and record important rejected approaches rather than preserving obsolete design claims as if they were production behavior.
 
 ---
 
-## 22. Codex Development Process
+## 23. AI-Assisted Development Process
 
-AI coding tools are explicitly permitted by Callus.
+AI coding tools were used for bounded implementation tasks and were reviewed against the project's source-of-truth documentation and tests.
 
-However, the project will use AI-assisted development through bounded, reviewable tasks.
-
-Codex should receive:
-
-1. Context
-2. Current project state
-3. Relevant source-of-truth documentation
-4. Specific objective
-5. Requirements
-6. Constraints
-7. Acceptance criteria
-8. Verification instructions
-9. Documentation-update requirements
-
-Large "build the entire application" prompts should be avoided.
-
-Each implementation slice should be:
+Each implementation slice follows:
 
 ```text
 Plan
-  ↓
-Document
   ↓
 Implement
   ↓
@@ -697,13 +786,17 @@ Document result
 Next slice
 ```
 
-AI-generated implementation must be reviewed and understood before being retained.
+AI-generated implementation must be understood and verified before being retained.
+
+The project does not depend on an AI coding tool being available at runtime.
 
 ---
 
-## 23. Execution Phases
+## 24. Execution Phases
 
 ### Phase 0 — Project Foundation
+
+**Status: Completed**
 
 * repository setup
 * documentation foundation
@@ -712,173 +805,199 @@ AI-generated implementation must be reviewed and understood before being retaine
 
 ### Phase 1 — Research & Feasibility
 
-Validate:
+**Status: Completed**
+
+Validated through EXP-001 through EXP-011:
 
 * local perplexity extraction
-* candidate language-model performance
 * feature extraction
-* LOO robust anomaly behavior
-* minimum evidence requirements
+* feature distribution behavior
+* four-feature classification
+* local anomaly feasibility
+* boundary/local sensitivity behavior
+* evidence sufficiency
+* passage-attribution feasibility
 
 ### Phase 2 — Dataset Construction
 
-* source human data
-* document provenance and usage rights
-* create essay families
-* generate controlled AI variants locally
-* construct hybrid variants
-* create control sets
-* perform family-level splitting
+**Status: Substantially completed for the current production baseline**
+
+* source and provenance documentation
+* controlled human/AI data
+* feature-distribution dataset
+* pair-aware splitting
+* hybrid experiment material
+* supporting evaluation/proxy sources
+
+Specialized ESL and final failure-analysis datasets remain part of the final evaluation phase.
 
 ### Phase 3 — Detection Engine
 
-* feature extraction
-* baseline models
-* classifier
-* local anomaly analysis
-* evidence aggregation
-* uncertainty handling
+**Status: Completed**
+
+* four-feature extraction
+* production Logistic Regression artifact
+* model loading
+* evidence sufficiency behavior
+* context-limit robustness
+* sentence-level perplexity evidence extraction
 
 ### Phase 4 — API
 
+**Status: Completed**
+
 * FastAPI service
-* analysis endpoint
-* validation
-* response schema
-* error handling
+* `/api/analyze`
+* request validation
+* typed response schema
+* sentence evidence contract
+* backend test coverage
 
 ### Phase 5 — UI
 
+**Status: Core implementation completed; final polish pending**
+
 * essay input
-* passage highlighting
-* evidence display
+* analysis state
+* feature evidence
+* Evidence Inspector
+* document view
 * uncertainty states
-* global/local visualization
+* editorial/brutalist visual direction
 
-### Phase 6 — Evaluation
+Final copy/interaction polish may still be performed.
 
-* baseline comparison
-* ablation
-* OOD testing
-* hybrid evaluation
-* ESL bias audit
-* final test evaluation
+### Phase 6 — Final Evaluation
 
-### Phase 7 — Failure Analysis & Polish
+**Status: Pending**
 
+* final evaluation summary
 * three confident failures
-* limitations
-* bias findings
-* methodology refinement
-* README
-* screenshots/demo
-* AI-tool disclosure
-* final repository review
+* ESL bias audit
+* final limitations
+
+### Phase 7 — Submission / Demo Polish
+
+**Status: Pending**
+
+* documentation synchronization
+* final screenshots/demo flow
+* README/setup instructions
+* AI-tool disclosure where required
+* repository cleanup
+* final end-to-end verification
+* presentation/viva preparation
 
 ---
 
-## 24. Known Risks
+## 25. Known Risks and Current Disposition
 
 ### Dataset Leakage
 
-Paired variants may leak information across splits.
+Paired variants can leak source-specific information if split incorrectly.
 
-**Mitigation:** family-level splitting and explicit provenance metadata.
+**Mitigation:** family-level splitting and provenance metadata.
 
 ### Model Overfitting
 
-The classifier may learn the statistical fingerprint of specific generation models rather than machine-associated characteristics generally.
+The classifier may learn the statistical fingerprint of the evaluated generation/data distribution.
 
-**Mitigation:** model holdouts and cross-model evaluation.
+**Mitigation:** document the evaluated distribution, avoid universal accuracy claims, and perform specialized evaluations where feasible.
 
-### Topic Overfitting
+### Topic / Domain Overfitting
 
-The classifier may learn topic-specific vocabulary.
+The detector may rely partly on topic or writing-domain characteristics.
 
-**Mitigation:** paired data and topic holdouts.
+**Mitigation:** paired data, external/proxy evaluation, and explicit admissions-domain limitation reporting.
 
 ### Short-Text Instability
 
-Sentence-level statistics may become unreliable for short sentences.
+Very short text can make required features unavailable or unstable.
 
-**Mitigation:** evidence-sufficiency rules and passage-level analysis.
+**Mitigation:** evidence-sufficiency abstention and feature-availability reporting.
 
-### Local Anomaly Instability
+### Language-Model Context Limit
 
-Robust statistics may become unstable when too few observations are available.
+A single sentence can exceed the context supported by the perplexity model.
 
-**Mitigation:** minimum observation requirements, fallback behavior, and feasibility testing.
+**Mitigation:** detect context overflow before inference and abstain rather than truncate or crash.
+
+### Local Attribution Instability
+
+The experimental local anomaly and leave-one-out approaches were not sufficiently reliable for production sentence-level authorship claims.
+
+**Disposition:** rejected for production. The UI uses measured evidence exemplars instead.
 
 ### ESL False Positives
 
-Some features may correlate with English-learning background.
+Some detector features may correlate with English-learning background.
 
-**Mitigation:** explicit bias evaluation and feature-level investigation.
+**Disposition:** explicit audit required before final submission.
 
 ### Computational Cost
 
-Local language-model inference and repeated feature extraction may be too slow for interactive use.
+Repeated local language-model inference can be expensive on CPU.
 
-**Mitigation:** small models, caching, batching, and simplified fallback analysis where appropriate.
-
-### Generation Cost in Time
-
-Local AI generation may limit dataset size.
-
-**Mitigation:** prioritize controlled paired families and experimental coverage over arbitrary dataset volume.
+**Mitigation:** small local model, sentence-level inference, structured feature reuse, and avoidance of unnecessary repeated attribution passes in production.
 
 ---
 
-## 25. Open Questions
+## 26. Remaining Questions Before Submission
 
-These questions must be resolved through research or feasibility experiments rather than assumed.
+The original research-loop questions have been narrowed to the remaining submission requirements.
 
-1. Which local language model provides the best perplexity/speed tradeoff?
-2. What minimum text length provides sufficient evidence?
-3. Which candidate linguistic features provide meaningful incremental value?
-4. How stable is LOO Median/MAD across essay lengths?
-5. Should local anomaly use sentence neighborhoods, passage windows, or both?
-6. What normalization is appropriate for feature distributions?
-7. How should global and local signals interact?
-8. Should classification probabilities be calibrated?
-9. What threshold should trigger abstention?
-10. How well does the methodology generalize to an unseen generation model?
-11. How does the detector behave on hybrid writing?
-12. Which features contribute most to ESL false positives?
+1. What are the three most informative confident failures, and why did they fail?
+2. Does the bounded ESL audit reveal elevated false-positive behavior?
+3. What final evaluation metrics should be reported for each evaluated distribution?
+4. Is the Evidence Inspector wording sufficiently clear that users understand it as evidence rather than authorship attribution?
+5. Are the repository setup instructions sufficient for another engineer to reproduce the application?
 
-Open questions must remain visibly marked until resolved.
+No new feature-selection or localization research should be started unless a concrete blocker appears in final evaluation or integration testing.
 
 ---
 
-## 26. Success Criteria
+## 27. Success Criteria
 
 The project is successful if it produces a working application that:
 
-* performs sentence and passage-level analysis
-* provides measurable evidence
-* distinguishes machine association from stylistic anomaly
-* communicates uncertainty
-* handles hybrid writing as a first-class case
-* is built entirely with free/local resources
-* uses a documented and reproducible dataset
-* demonstrates meaningful evaluation beyond a single accuracy number
+* accepts college admissions-style essay text through a real interface
+* performs document-level classification using validated measurable features
+* provides transparent feature evidence
+* provides sentence-level perplexity exemplars without claiming sentence-level authorship
+* communicates uncertainty and abstains when the required evidence is unavailable
+* uses a local language model as an instrument rather than as the final judge
+* uses a documented and reproducible model artifact
+* has documented dataset provenance and limitations
+* reports evaluation results with the conditions under which they were measured
 * documents at least three confident failures
-* investigates ESL/non-native-English bias
+* investigates ESL/non-native-English false positives
 * has clean, understandable engineering structure
 * provides documentation that allows another engineer to understand and reproduce the system
 
 The project does **not** require perfect AI detection.
 
-The quality of the methodology, engineering decisions, evidence, documentation, and honesty about limitations are part of the deliverable.
+The quality of the methodology, engineering decisions, evidence presentation, documentation, and honesty about limitations are part of the deliverable.
 
 ---
 
-## 27. Current Status
+## 28. Current Status
 
-**Phase:** 0 — Project Foundation
+**Production milestone:** Completed
 
-**Status:** Planning complete; feasibility experiments pending.
+**Core detector:** Completed
 
-The next phase begins with small, isolated experiments designed to validate the technical assumptions behind the proposed architecture.
+**Backend/API:** Completed and tested
 
-No final feature set, classifier, threshold, or local language model is considered permanently locked until supported by experimental evidence.
+**Frontend:** Core Evidence Inspector implementation completed; final UI polish pending
+
+**Experiments:** EXP-001 through EXP-011 completed
+
+**Remaining work:**
+
+1. Synchronize the remaining documentation with the implemented production architecture.
+2. Run and document the final confident-failure analysis.
+3. Run and document the ESL/non-native-English audit.
+4. Perform final end-to-end testing and submission polish.
+5. Prepare demo/viva materials and repository setup instructions.
+
+The production architecture and four-feature model are now locked unless final evaluation exposes a concrete correctness issue. Further work should focus on evaluation, robustness, transparency, and presentation rather than reopening the feature-selection research loop.

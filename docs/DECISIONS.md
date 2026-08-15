@@ -4,16 +4,16 @@ This document records significant decisions made during the development of Proje
 
 The purpose is not to document every implementation detail. It records decisions that materially affect:
 
-* architecture
-* methodology
-* dataset design
-* evaluation
-* reproducibility
-* engineering trade-offs
+- architecture
+- methodology
+- dataset design
+- evaluation
+- reproducibility
+- engineering trade-offs
 
-Each decision should explain **why** it was made.
+Each decision explains **why** it was made.
 
-Decisions may be revised when new experimental evidence contradicts an earlier assumption. When that happens, the original decision should remain in the history and a new decision should supersede it.
+When new experimental evidence contradicts an earlier assumption, the original decision remains in the history and a later decision supersedes it where appropriate.
 
 ---
 
@@ -21,12 +21,12 @@ Decisions may be revised when new experimental evidence contradicts an earlier a
 
 Each decision uses one of the following statuses:
 
-* **Accepted** — currently adopted.
-* **Proposed** — preferred direction, not yet validated.
-* **Experimental** — actively being tested.
-* **Rejected** — considered and intentionally not adopted.
-* **Superseded** — previously accepted but replaced by a later decision.
-* **Deferred** — intentionally postponed.
+- **Accepted** — currently adopted in the project.
+- **Proposed** — preferred direction, not yet validated.
+- **Experimental** — actively being tested.
+- **Rejected** — intentionally not adopted.
+- **Superseded** — previously accepted or proposed, but replaced by later evidence.
+- **Deferred** — intentionally postponed.
 
 ---
 
@@ -44,7 +44,7 @@ A conventional "AI percentage" also provides little actionable evidence and can 
 
 The system will not claim to determine definitive authorship.
 
-Instead, it will estimate whether text exhibits **measurable characteristics associated with machine-generated writing**, while identifying stylistic anomalies and communicating uncertainty.
+Instead, it estimates whether text exhibits **measurable characteristics associated with machine-generated writing**, while exposing the underlying evidence and communicating uncertainty.
 
 ## Rationale
 
@@ -52,13 +52,11 @@ Authorship is not directly observable from text alone.
 
 An evidence-first framing allows the system to:
 
-* expose measurable signals
-* explain classifications
-* acknowledge uncertainty
-* analyze hybrid writing
-* document failure modes honestly
-
-It also aligns directly with Callus's requirement to show where and why text was flagged.
+- expose measurable signals
+- explain classifications
+- acknowledge uncertainty
+- evaluate hybrid writing
+- document failure modes honestly
 
 ## Consequences
 
@@ -68,11 +66,13 @@ The wording used throughout the project should avoid claims such as:
 
 Preferred language includes:
 
-> "This passage exhibits machine-associated characteristics."
+> "This document exhibits machine-associated characteristics."
 
 and:
 
-> "This passage differs significantly from the surrounding writing."
+> "This passage contains a strong measured predictability signal."
+
+The project does not use sentence-level evidence as proof of authorship.
 
 ---
 
@@ -88,23 +88,22 @@ Callus explicitly states that an application which sends an essay to a chat mode
 
 A language model may be used as an **instrument** for extracting measurable information, such as token probabilities, but it must not make the final classification decision.
 
-The final decision must be produced by the project's own statistical/ML analysis.
+The final decision is produced by the project's own statistical/ML analysis.
 
 ## Rationale
 
 This provides:
 
-* measurable evidence
-* reproducibility
-* controllable experiments
-* explainability
-* separation between instrumentation and judgment
+- measurable evidence
+- reproducibility
+- controllable experiments
+- separation between instrumentation and judgment
 
 ## Consequences
 
-A local causal language model may be used for perplexity/token-probability extraction.
+The production pipeline uses a local causal language model for perplexity extraction.
 
-The classifier and decision layer remain under our control.
+The persisted Logistic Regression classifier and decision layer remain under project control.
 
 ---
 
@@ -116,54 +115,37 @@ The classifier and decision layer remain under our control.
 
 The project must be completed within the available resources and should not depend on paid APIs.
 
-Paid generation APIs would also introduce a dependency that makes reproducing the dataset more difficult.
-
 ## Decision
 
 The complete core project must be buildable, runnable, evaluated, and demonstrated at **₹0**.
 
-No paid API or proprietary detection service may be required.
-
-## Rationale
-
-A local-first pipeline provides:
-
-* reproducibility
-* independence from API credits
-* predictable runtime behavior
-* stronger systems engineering value
-
-It also prevents the project from becoming dependent on access to paid model APIs.
+No paid API or proprietary detection service is required.
 
 ## Consequences
 
-The project will prefer:
+The project prefers:
 
-* locally runnable models
-* open-source/free software
-* public datasets with appropriate usage rights
-* local inference
-* local training
-
-Dataset size may be reduced if local generation becomes the bottleneck.
+- locally runnable models
+- open/free software
+- public datasets with appropriate usage rights
+- local inference
+- local training
 
 ---
 
 # DEC-004 — Local Model Generation for Synthetic Data
 
-**Status:** Proposed
+**Status:** Accepted
 
 ## Context
 
-The dataset requires machine-generated and hybrid examples.
-
-Using paid APIs would violate the zero-cost core-system constraint.
+The dataset requires machine-generated and hybrid examples while maintaining the zero-cost constraint.
 
 ## Decision
 
-Machine-generated dataset variants should be produced using locally runnable quantized language models.
+Machine-generated dataset variants should be produced using locally runnable language models.
 
-A local inference interface such as Ollama may be used, but the dataset-generation architecture must not depend on Ollama specifically.
+The generation interface must remain replaceable and must not depend architecturally on one specific runtime.
 
 ## Rationale
 
@@ -175,73 +157,39 @@ rather than:
 
 > dependence on a specific inference application.
 
-This keeps the generation pipeline replaceable.
-
-## Alternatives Considered
-
-### Paid OpenAI/Anthropic APIs
-
-Rejected because they violate the project's zero-cost requirement.
-
-### One fixed local model
-
-Possible, but limits model-family diversity.
-
-### Multiple local models
-
-Preferred if hardware and time permit.
-
-## Consequences
-
-Generation speed may constrain dataset size.
-
-Controlled paired design takes priority over arbitrary dataset volume.
+This allows the dataset-generation implementation to change without redesigning the project.
 
 ---
 
-# DEC-005 — Perplexity as the Initial Baseline
+# DEC-005 — Perplexity as a Validated Measurement Instrument
 
-**Status:** Proposed
+**Status:** Accepted
 
 ## Context
 
-Language-model predictability is one of the strongest practical candidate signals for machine-associated writing.
+Perplexity was initially treated as a baseline candidate feature.
 
-However, relying on perplexity alone is insufficient for the intended system.
+EXP-001 established that local sentence-level causal perplexity could be measured reproducibly with `distilgpt2`.
 
 ## Decision
 
-A perplexity-based detector will serve as an initial baseline against which additional features are evaluated.
+Perplexity is used as one of the four production features and as the only currently exposed sentence-level evidence measurement.
 
-A small locally runnable causal language model will provide token probabilities.
+Production configuration:
+
+```text
+Model: distilgpt2
+Runtime: Hugging Face Transformers
+Device: CPU
+```
 
 ## Rationale
 
-This gives us a measurable and relatively simple baseline before introducing additional linguistic features.
-
-It allows the project to answer:
-
-> Do our additional features actually improve on a simple predictability-based detector?
-
-## Alternatives Considered
-
-### LLM-as-judge
-
-Rejected.
-
-### Large local model
-
-Deferred because of compute cost and uncertain incremental value.
-
-### Small causal model
-
-Preferred for the initial feasibility experiment.
+Perplexity provides a measurable, locally reproducible signal and integrates cleanly into the feature-based classifier.
 
 ## Consequences
 
-The exact model remains pending experimentation.
-
-Candidates may include small GPT-2-family or other locally runnable causal models.
+Perplexity is never treated as proof of AI authorship.
 
 ---
 
@@ -251,174 +199,164 @@ Candidates may include small GPT-2-family or other locally runnable causal model
 
 ## Context
 
-Many linguistic characteristics have been proposed as possible indicators of machine-generated writing.
-
-Not all will provide useful signal in the target domain.
+Many linguistic characteristics have been proposed as indicators of machine-generated writing.
 
 ## Decision
 
-Candidate features will be treated as experimental hypotheses.
-
-Features will only enter the final system after empirical evaluation demonstrates useful incremental value.
+Candidate features are treated as experimental hypotheses and only promoted after empirical evaluation.
 
 ## Rationale
 
 This prevents the project from becoming a collection of theoretically plausible metrics with no evidence that they work together.
 
-It also creates a defensible feature-selection narrative.
+Evaluation considers more than aggregate F1, including:
 
-## Evaluation Dimensions
-
-Feature usefulness may be measured through:
-
-* discrimination
-* precision/recall
-* F1
-* calibration
-* hybrid detection
-* OOD performance
-* ESL false-positive behavior
-* computational cost
-
-A feature does not need to improve overall F1 to be useful if it provides meaningful value in another required dimension.
+- discrimination
+- precision/recall
+- F1
+- generalization
+- hybrid behavior
+- ESL/non-native-English behavior
+- computational cost
+- interpretability
 
 ---
 
-# DEC-007 — Separate Global Machine Association from Local Stylistic Anomaly
+# DEC-007 — Separate Document-Level Machine Association from Local Evidence
 
 **Status:** Accepted
 
 ## Context
 
-A passage can exhibit machine-associated characteristics without being unusual within an essay.
+A document can exhibit machine-associated characteristics without any individual sentence being reliably attributable to AI.
 
-Conversely, a passage can be stylistically unusual without resembling machine-generated writing.
-
-These represent different phenomena.
+The local-attribution experiments also showed that sentence-level anomaly and contribution signals were not sufficiently reliable for production use.
 
 ## Decision
 
-The detector will maintain two distinct analytical signals:
+The production system separates:
 
-### Global / Machine Association
+### Document-level machine association
 
-How closely the passage resembles the machine-associated training distribution.
+The four-feature Logistic Regression estimates whether the complete essay exhibits characteristics associated with the machine-generated training distribution.
 
-### Local / Stylistic Anomaly
+### Sentence-level evidence observation
 
-How strongly the passage deviates from the surrounding writing.
+Where validated sentence-level measurements exist, the system shows where those measurements occur.
+
+The current implementation uses sentence-level perplexity observations.
 
 ## Rationale
 
-This distinction is particularly important for hybrid essays.
+This preserves the distinction between:
 
-A polished AI paragraph may not be extreme enough on absolute machine-association features to trigger a global detector, but it may still represent a sharp local shift.
+> "The document has a machine-associated feature profile"
 
-Likewise, a naturally formal human writer may score relatively machine-associated while remaining stylistically consistent throughout the essay.
+and:
+
+> "This exact sentence was written by AI."
+
+The first is supported by the production model.
+
+The second is not.
 
 ## Consequences
 
-The final system should preserve both signals through the analysis pipeline and API response.
+The API and UI must not describe sentence evidence as sentence-level authorship classification.
 
 ---
 
-# DEC-008 — Robust Statistics for Local Anomaly Detection
+# DEC-008 — Robust Local Anomaly Detection Was an Experimental Direction
 
-**Status:** Proposed
+**Status:** Superseded
 
 ## Context
 
-A naive local baseline using mean and standard deviation is vulnerable to outliers.
+The original methodology proposed Median/MAD, leave-one-out baselines, and local windows for sentence-level anomaly detection.
 
-The passage being detected could itself distort the baseline.
+## Original Decision
 
-## Decision
+The project would investigate robust local anomaly scores as a production evidence signal.
 
-The initial local-anomaly approach will investigate:
+## Superseding Evidence
 
-* median
-* Median Absolute Deviation (MAD)
-* leave-one-out baselines
-* local passage windows
+EXP-007, EXP-008, and EXP-009 found the resulting local signals too noisy for reliable production localization.
 
-## Rationale
+EXP-011 further tested leave-one-sentence-out contribution and did not provide sufficient separation or capture.
 
-Robust statistics reduce sensitivity to extreme observations.
+## New Decision
 
-Leave-one-out analysis prevents the target passage from substantially influencing the baseline against which it is evaluated.
+These local-attribution methods are retained as experimental history but are not production features.
 
 ## Consequences
 
-The approach requires feasibility testing.
+The final production detector does not expose:
 
-Minimum observation counts and zero-MAD handling must be established experimentally.
+- local anomaly scores
+- local anomaly labels
+- leave-one-out authorship heatmaps
+- definitive sentence attribution
 
 ---
 
-# DEC-009 — Leave-One-Out Baselines
+# DEC-009 — Leave-One-Out Attribution Rejected for Production
 
-**Status:** Proposed
+**Status:** Rejected
 
 ## Context
 
-When measuring whether a sentence is anomalous relative to an essay, including the sentence itself in the reference distribution can reduce the apparent magnitude of its deviation.
+Leave-one-out contribution was investigated as a direct way to estimate how much each sentence affected the document-level classifier.
 
-## Decision
+## Experiment
 
-Where sufficient observations exist, the target sentence/passage should be excluded from the baseline used to evaluate it.
+EXP-011 evaluated 20 controlled hybrids.
 
-## Rationale
-
-This reduces self-contamination.
-
-Example:
+Results:
 
 ```text
-S1 S2 S3 S4 S5 S6 S7
+Top-10% AI-sentence capture: 22.5%
+Top-25% AI-sentence capture: 42.5%
 
-Target: S4
-
-Baseline:
-S1 S2 S3 S5 S6 S7
+Median AI-sentence contribution:   -0.0001953670
+Median human-sentence contribution: -0.0011773087
+Median difference:                  0.0009819416
 ```
-
-## Limitation
-
-LOO does not solve the problem of insufficient observations.
-
-Very short essays may require:
-
-* passage-level analysis
-* larger local windows
-* reduced evidence strength
-* abstention
-
----
-
-# DEC-010 — Passage-Level Analysis Is a First-Class Requirement
-
-**Status:** Accepted
-
-## Context
-
-Sentence-level analysis is valuable for highlighting, but individual sentences may be too short for stable statistical analysis.
-
-Hybrid writing also frequently occurs at paragraph or passage level.
 
 ## Decision
 
-The system will support both sentence-level and passage-level analysis.
+Leave-one-sentence-out attribution is not used as a production sentence-level authorship mechanism.
 
 ## Rationale
 
-Passage-level analysis provides:
+The observed localization performance was too weak to support an authoritative sentence-level claim.
 
-* more stable statistics
-* stronger contextual baselines
-* better hybrid detection
-* more reliable evidence for short sentences
+## Consequences
 
-Sentence-level analysis remains important for UI precision.
+The feature remains documented as a rejected experiment rather than being disguised as a production capability.
+
+---
+
+# DEC-010 — Passage-Level AI Attribution Is Not a Production Classifier
+
+**Status:** Superseded
+
+## Context
+
+Passage-level analysis was originally considered a first-class runtime capability because it could provide more stable statistics than individual sentences.
+
+## Original Decision
+
+The system would support sentence-level and passage-level classification.
+
+## New Evidence
+
+The local attribution experiments did not establish reliable passage boundaries or passage-level authorship labels.
+
+## New Decision
+
+Passages remain important for dataset construction and experimental evaluation, but the production system does not assign AI/human labels to arbitrary passages.
+
+The production UI instead shows validated sentence-level evidence observations.
 
 ---
 
@@ -428,32 +366,32 @@ Sentence-level analysis remains important for UI precision.
 
 ## Context
 
-Statistical measurements can become unreliable when there is too little text or context.
-
-Returning a numerical score regardless of evidence availability would create false precision.
+Statistical measurements can become unreliable when there is too little text or when one or more required features are unavailable.
 
 ## Decision
 
-The detection system must explicitly evaluate evidence sufficiency and support abstention.
+The detector must explicitly support insufficient evidence.
+
+A production classification is produced only when the complete four-feature vector required by the trained model is available and numerically valid.
+
+Otherwise:
+
+```text
+state = insufficient_evidence
+```
 
 ## Rationale
 
-A detector that says:
-
-> "Insufficient evidence"
-
-is preferable to one that produces a mathematically unstable score and presents it as authoritative.
+It is preferable to abstain than to fabricate a feature value or present an unstable score as authoritative.
 
 ## Consequences
 
-The system must define minimum requirements for:
+Examples include:
 
-* text length
-* token count
-* neighboring observations
-* feature stability
-
-These thresholds remain experimental.
+- insufficient sentences for sentence-length CV
+- insufficient lexical tokens for MATTR
+- unavailable perplexity
+- language-model context overflow
 
 ---
 
@@ -463,24 +401,22 @@ These thresholds remain experimental.
 
 ## Context
 
-A dataset containing a human essay and AI-generated variants creates strong relationships between documents.
-
-Splitting variants independently would leak topic, vocabulary, narrative structure, and other information across train/test boundaries.
+A dataset containing a human essay and AI-derived variants creates strong relationships between documents.
 
 ## Decision
 
-The fundamental dataset unit will be an **Essay Family**.
+The fundamental dataset unit is an **Essay Family**.
 
-An Essay Family contains:
+An Essay Family can contain:
 
-* source human essay
-* AI-generated variants
-* AI-polished variants
-* AI-spliced variants where available
+- source human essay
+- AI-generated variants
+- AI-polished variants
+- AI-spliced variants where available
 
 ## Rationale
 
-The family structure makes the relationship between variants explicit and enables leakage-safe splitting.
+The family structure makes related documents explicit and enables leakage-safe splitting.
 
 ---
 
@@ -496,52 +432,37 @@ Document-level random splitting can place variants of the same source essay in d
 
 All documents belonging to the same Essay Family must remain within the same dataset split.
 
-## Correct
-
 ```text
 Family A → TRAIN
-
 Family B → VALIDATION
-
 Family C → TEST
 ```
 
-## Incorrect
-
-```text
-Family A Human → TRAIN
-Family A AI    → TEST
-```
-
-## Rationale
-
-This prevents related documents from leaking information across evaluation boundaries.
+This prevents related documents from leaking topic, vocabulary, narrative structure, and source-specific characteristics across evaluation boundaries.
 
 ---
 
 # DEC-014 — Hold Out Unseen Generation Models
 
-**Status:** Proposed
+**Status:** Deferred
 
 ## Context
 
-A detector may learn the fingerprint of specific models instead of general machine-associated characteristics.
+A detector may learn the fingerprint of specific generation models rather than general machine-associated writing characteristics.
 
 ## Decision
 
-Where dataset size permits, at least one generation model should be held out from training and validation and used for out-of-distribution evaluation.
+Unseen-model evaluation remains desirable, but its exact configuration is deferred to final evaluation because the current production classifier and submission timeline are already locked.
 
 ## Rationale
 
-This provides a stronger test of generalization.
-
-A significant performance drop is not automatically a failure of the project; it is evidence about the detector's limitations.
+The experiment remains important as a limitation/generalization question, but it is not allowed to reopen the production model without evidence and time to evaluate it properly.
 
 ---
 
 # DEC-015 — Explicit Topic Holdout
 
-**Status:** Proposed
+**Status:** Deferred
 
 ## Context
 
@@ -549,11 +470,7 @@ A classifier may learn vocabulary or subject matter rather than writing characte
 
 ## Decision
 
-Where dataset size permits, a topic cluster should be held out for evaluation.
-
-## Rationale
-
-This tests whether the detector is dependent on topic-specific signals.
+Topic-holdout evaluation remains a useful generalization test, but is treated as final-evaluation work rather than a production architecture dependency.
 
 ---
 
@@ -567,18 +484,18 @@ Real-world AI assistance often involves partial editing rather than completely m
 
 ## Decision
 
-The dataset and evaluation process will explicitly include hybrid writing.
+The dataset and evaluation process explicitly include:
 
-At minimum:
-
-* AI-polished human passages
-* AI-spliced passages
+- AI-polished human passages
+- AI-spliced passages
 
 ## Rationale
 
-This directly tests the project's local-anomaly hypothesis.
+These cases are important for testing whether the document-level detector remains useful under partial machine assistance.
 
-It also represents a more realistic use case than a binary human-vs-completely-AI dataset alone.
+## Consequence
+
+Hybrid ground truth is retained for experimentation even though exact passage attribution is not a production claim.
 
 ---
 
@@ -598,10 +515,6 @@ The project will explicitly evaluate false-positive behavior on an ESL/non-nativ
 
 This is both a known risk in the problem domain and an explicit concern in the Callus brief.
 
-## Consequences
-
-The evaluation must report observed behavior rather than assuming the system is unbiased.
-
 ---
 
 # DEC-018 — No Test-Set Tuning
@@ -616,11 +529,11 @@ Repeatedly examining test results and modifying the model creates an effectively
 
 The final test set must not be used to tune:
 
-* features
-* thresholds
-* classifier hyperparameters
-* evidence-sufficiency rules
-* calibration
+- features
+- thresholds
+- classifier hyperparameters
+- evidence-sufficiency rules
+- calibration
 
 ## Workflow
 
@@ -638,10 +551,6 @@ FINAL TEST
 Report
 ```
 
-## Rationale
-
-This preserves the meaning of the final evaluation.
-
 ---
 
 # DEC-019 — Deterministic Evidence Generation
@@ -650,13 +559,13 @@ This preserves the meaning of the final evaluation.
 
 ## Context
 
-The project must explain why a passage was flagged.
+The project must explain why a document received its classification.
 
-Generating explanations by asking a language model to rationalize a classification would introduce a second opaque model into the evidence pipeline.
+Generating explanations by asking another language model to rationalize the result would introduce an additional opaque model.
 
 ## Decision
 
-Evidence shown to users must be derived from measured features and the actual analytical outputs.
+Evidence shown to users must be derived from measured features and analytical outputs already produced by the detector.
 
 ## Rationale
 
@@ -664,11 +573,11 @@ The explanation should correspond to what the detector actually measured.
 
 For example:
 
-> "This passage has substantially lower perplexity than nearby passages."
+> "This sentence has a comparatively low perplexity measurement."
 
 is preferable to an LLM-generated statement such as:
 
-> "The writing sounds polished and formal."
+> "The prose sounds unusually polished."
 
 ---
 
@@ -682,20 +591,16 @@ Business and analytical logic becomes difficult to test and maintain when embedd
 
 ## Decision
 
-FastAPI routes will remain thin.
+FastAPI routes remain thin.
 
-The API layer will handle:
+The API handles:
 
-* request validation
-* response serialization
-* transport-level errors
-* orchestration
+- request validation
+- response serialization
+- transport-level errors
+- detector orchestration
 
-Detection logic belongs in dedicated analysis services/components.
-
-## Rationale
-
-This keeps the detection engine independently testable and prevents transport code from becoming the architecture.
+Detection logic belongs in dedicated components.
 
 ---
 
@@ -705,24 +610,20 @@ This keeps the detection engine independently testable and prevents transport co
 
 ## Context
 
-Duplicating analytical logic between Python and TypeScript would create inconsistent results and make methodology changes difficult.
+Duplicating analytical logic between Python and TypeScript would create inconsistent results.
 
 ## Decision
 
 The backend/detection engine is the source of truth for analytical results.
 
-The frontend only renders the structured response.
+The frontend only renders the structured response and performs presentation-only operations.
 
-## Consequences
+The frontend must not independently calculate:
 
-The frontend should not calculate:
-
-* perplexity
-* anomaly scores
-* classifier decisions
-* feature thresholds
-
-It may calculate presentation-only values where appropriate.
+- perplexity
+- classifier decisions
+- detection thresholds
+- anomaly scores
 
 ---
 
@@ -733,8 +634,6 @@ It may calculate presentation-only values where appropriate.
 ## Context
 
 Admissions essays can contain sensitive personal information.
-
-External API transmission is unnecessary for the core detection architecture.
 
 ## Decision
 
@@ -758,28 +657,17 @@ Experimental code changes frequently and should not contaminate stable applicati
 
 ## Decision
 
-Experiments will live separately from production detection components.
+Experiments live separately from production detection components.
 
-Experiments may investigate:
+Only validated decisions are promoted into production code.
 
-* feature usefulness
-* model selection
-* anomaly stability
-* thresholds
-* OOD behavior
-* bias
-
-Only validated results should be promoted into the production pipeline.
+Historical experiments remain unchanged so the methodological trail is preserved.
 
 ---
 
 # DEC-024 — Hypothesis → Experiment → Result → Decision Workflow
 
 **Status:** Accepted
-
-## Context
-
-The project contains many uncertain methodological assumptions.
 
 ## Decision
 
@@ -799,9 +687,7 @@ Decision
 
 ## Rationale
 
-This prevents the project from presenting theoretical assumptions as empirical facts.
-
-It also creates an auditable research trail.
+This prevents theoretical assumptions from being presented as empirical facts and creates an auditable research trail.
 
 ---
 
@@ -811,28 +697,25 @@ It also creates an auditable research trail.
 
 ## Context
 
-Callus explicitly evaluates communication and documentation.
-
-Documentation written only after implementation often fails to capture the reasoning behind decisions.
+Callus evaluates communication and documentation as part of the engineering work.
 
 ## Decision
 
-Documentation should evolve alongside the project.
+Documentation evolves alongside the project.
 
-Important decisions should be documented before or during implementation.
+Important decisions are recorded before or during implementation where practical.
 
-## Consequences
+Source-of-truth documents include:
 
-The repository will maintain source-of-truth documents for:
-
-* planning
-* architecture
-* methodology
-* decisions
-* dataset
-* evaluation
-* bias
-* failure analysis
+- project plan
+- architecture
+- methodology
+- decisions
+- dataset
+- evaluation
+- experiment log
+- generation protocol
+- production milestone
 
 ---
 
@@ -842,24 +725,22 @@ The repository will maintain source-of-truth documents for:
 
 ## Context
 
-Callus explicitly permits AI coding tools and expects candidates to use them responsibly.
+Callus permits AI coding tools.
 
 ## Decision
 
 AI tools may be used extensively, but generated code must be reviewed and understood before being retained.
 
-Codex tasks should be bounded by:
+Tasks should be bounded by:
 
-* documented requirements
-* explicit scope
-* acceptance criteria
-* verification instructions
+- documented requirements
+- explicit scope
+- acceptance criteria
+- verification instructions
 
 ## Rationale
 
-The quality of the final repository should not depend on blindly trusting generated code.
-
-The project should remain understandable to its author.
+The final repository must remain understandable to its author rather than depending on blindly trusted generated code.
 
 ---
 
@@ -869,23 +750,21 @@ The project should remain understandable to its author.
 
 ## Context
 
-A feature may improve aggregate performance while harming generalization or increasing false positives for a specific group.
+A feature can improve aggregate performance while harming generalization or increasing false positives for a specific group.
 
 ## Decision
 
-Feature promotion must consider multiple evaluation dimensions.
+Feature promotion considers:
 
-A feature should not be retained solely because it improves aggregate F1.
+- overall discrimination
+- OOD behavior
+- hybrid behavior
+- calibration
+- ESL false positives
+- computational cost
+- interpretability
 
-## Evaluation considerations
-
-* overall discrimination
-* OOD performance
-* hybrid detection
-* calibration
-* ESL false positives
-* computational cost
-* interpretability
+A feature is not retained solely because it improves aggregate F1.
 
 ---
 
@@ -895,27 +774,15 @@ A feature should not be retained solely because it improves aggregate F1.
 
 ## Context
 
-AI detection performance is highly dependent on:
-
-* dataset
-* model family
-* prompting
-* editing
-* topic
-* domain
-* evaluation protocol
+AI detection performance depends on dataset, generation model, prompting, editing, topic, domain, and evaluation protocol.
 
 ## Decision
 
 The project will report performance within clearly defined evaluation conditions.
 
-It will not claim:
+It will not claim universal detection capability.
 
-> "The detector can reliably detect AI-generated text."
-
-without qualification.
-
-## Preferred framing
+Preferred framing:
 
 > "On our documented evaluation set, the system achieved X under Y conditions, with the following observed failure modes and limitations."
 
@@ -927,21 +794,13 @@ without qualification.
 
 ## Context
 
-Local model inference tools such as Ollama are useful for development but should not become architectural dependencies.
+Local model inference tools are useful for development but should not become architectural dependencies.
 
 ## Decision
 
-Dataset generation should interact with a model-generation abstraction rather than directly coupling the dataset pipeline to one application.
+Dataset generation should interact with a model-generation abstraction rather than directly coupling the pipeline to one application.
 
-## Rationale
-
-This allows:
-
-* Ollama
-* direct Transformers inference
-* another local runtime
-
-to be substituted without redesigning dataset construction.
+This keeps the generation architecture replaceable.
 
 ---
 
@@ -949,19 +808,13 @@ to be substituted without redesigning dataset construction.
 
 **Status:** Accepted
 
-## Context
-
-The project is intentionally experiment-driven.
-
-Some proposed ideas will likely be disproven or replaced.
-
 ## Decision
 
 When experimental evidence causes a meaningful architectural change:
 
 1. Record the result.
-2. Mark the old decision as superseded if appropriate.
-3. Add a new decision.
+2. Mark the old decision as superseded or rejected where appropriate.
+3. Add the new decision.
 4. Update `ARCHITECTURE.md`.
 5. Update `DETECTION-METHODOLOGY.md`.
 6. Update affected implementation plans.
@@ -972,63 +825,234 @@ The repository should reflect the actual engineering process rather than pretend
 
 ---
 
+# DEC-031 — Evidence Inspector for "Where and Why"
+
+**Status:** Accepted
+
+## Context
+
+The Callus brief requires the application to show users **where** relevant evidence occurs and **why** the system reached its result.
+
+The project cannot responsibly satisfy this by assigning unsupported AI labels to individual sentences.
+
+## Decision
+
+The product uses an **Evidence Inspector**.
+
+The document receives a document-level classification from the production model.
+
+Where validated sentence-level measurements exist, the UI surfaces the strongest measured exemplars and explains the corresponding property.
+
+Current production implementation:
+
+```text
+Document classification
+        +
+Sentence-level perplexity evidence
+        ↓
+Evidence Inspector
+```
+
+## Rationale
+
+This approach satisfies the need for inspectable evidence without converting weak local-attribution results into false certainty.
+
+## Consequences
+
+The UI may say:
+
+> "This sentence has a strong predictability measurement."
+
+It must not say:
+
+> "This sentence is AI-generated."
+
+---
+
+# DEC-032 — Four-Feature Production Classifier
+
+**Status:** Accepted
+
+## Context
+
+EXP-004 and EXP-006 validated a compact production feature set.
+
+## Decision
+
+The production feature vector is fixed to:
+
+1. Perplexity
+2. Sentence-length coefficient of variation
+3. MATTR
+4. POS 3-gram entropy
+
+The production model is:
+
+```text
+StandardScaler
+      ↓
+LogisticRegression
+```
+
+The saved artifact is:
+
+```text
+backend/artifacts/authorship_detector.joblib
+```
+
+## Rationale
+
+The four-feature model provides a compact, reproducible, classical ML detector with a transparent pipeline.
+
+## Reference Validation Metrics
+
+EXP-006 validation:
+
+```text
+Accuracy   0.9746835443
+Precision  0.9523809524
+Recall     1.0000000000
+F1         0.9756097561
+ROC-AUC    0.9955128205
+```
+
+These are distribution-specific validation results, not universal accuracy claims.
+
+---
+
+# DEC-033 — Long-Sentence Context Guardrail
+
+**Status:** Accepted
+
+## Context
+
+During integration, an 867-word PERSUADE essay was interpreted as one sentence containing 1134 language-model tokens, exceeding the 1024-token context supported by `distilgpt2`.
+
+The initial implementation returned HTTP 500.
+
+## Decision
+
+The production extractor checks the language-model context limit before attempting perplexity.
+
+Oversized sentences receive:
+
+```text
+sentence_exceeds_language_model_context
+```
+
+and perplexity becomes unavailable.
+
+If the complete required feature vector cannot be formed, the detector returns:
+
+```text
+insufficient_evidence
+```
+
+## Rationale
+
+This prevents crashes and avoids silently truncating the text, which would change the validated measurement definition.
+
+---
+
+# DEC-034 — Model Signal Is Not Authorship Certainty
+
+**Status:** Accepted
+
+## Context
+
+The Logistic Regression classifier exposes a numeric probability-like score, but that score is learned within a bounded development distribution.
+
+## Decision
+
+The frontend labels the value:
+
+```text
+MODEL SIGNAL
+```
+
+rather than:
+
+```text
+AI PROBABILITY
+```
+
+or:
+
+```text
+PROBABILITY OF AI AUTHORSIP
+```
+
+The underlying API field may remain `ai_probability` for compatibility with the model interface.
+
+## Rationale
+
+This preserves implementation clarity without suggesting that the value is a calibrated probability that AI authored the essay.
+
+---
+
 # Current Decision Summary
 
 ## Accepted
 
-* Evidence-first detection framing
-* No LLM-as-final-judge
-* ₹0 core system
-* Global machine association + local stylistic anomaly
-* Passage-level analysis
-* Evidence sufficiency and abstention
-* Essay-family dataset structure
-* Family-level dataset splitting
-* Hybrid writing evaluation
-* ESL bias audit
-* No test-set tuning
-* Deterministic evidence generation
-* Thin API
-* Backend as analytical source of truth
-* Local-first privacy model
-* Experiment/production separation
-* Hypothesis → Experiment → Result → Decision workflow
-* Documentation-first development
-* Reviewable AI-assisted development
-* Multi-dimensional feature evaluation
-* No universal accuracy claims
-* Replaceable local generation interface
-* Recorded architecture evolution
+- Evidence-first detection framing
+- No LLM-as-final-judge
+- ₹0 core system
+- Local model generation with replaceable interface
+- Perplexity as a validated production measurement
+- Experiment-before-promotion
+- Document-level machine association
+- Sentence-level perplexity as inspectable evidence
+- Evidence sufficiency and abstention
+- Four-feature StandardScaler + Logistic Regression classifier
+- Essay-family dataset structure
+- Family-level dataset splitting
+- Hybrid writing evaluation
+- ESL bias audit
+- No test-set tuning
+- Deterministic evidence generation
+- Thin API
+- Backend as analytical source of truth
+- Frontend separated from detection logic
+- Local-first privacy model
+- Experiment/production separation
+- Hypothesis → Experiment → Result → Decision workflow
+- Documentation as part of implementation
+- Reviewable AI-assisted development
+- Multi-dimensional feature evaluation
+- No universal accuracy claims
+- Evidence Inspector for "where and why"
+- Long-sentence context guardrail
+- Model signal terminology
+- Recorded architecture evolution
 
-## Proposed / Experimental
+## Superseded / Rejected
 
-* Exact perplexity model
-* Local generation model(s)
-* LOO Median/MAD formulation
-* Local window size
-* Exact feature set
-* Logistic Regression vs Random Forest
-* Probability calibration
-* Minimum text length
-* Evidence-sufficiency thresholds
-* Final decision thresholds
-* Feature attribution method
-* Topic/model holdout configuration
+- Production local stylistic anomaly scoring
+- Production leave-one-out sentence attribution
+- Production passage-level AI attribution
+- Sentence-level AI authorship claims
+
+## Deferred
+
+- Unseen-generation-model evaluation configuration
+- Explicit topic holdout configuration
+- Probability calibration
+- Expanded local evidence beyond currently validated sentence-level perplexity
+- Further passage-level attribution research
 
 ---
 
-# Next Decision Review
+# Current Project State
 
-The next major decisions should be made only after Phase 1 feasibility experiments.
+The production methodology and architecture are now locked for the submission prototype.
 
-Expected decisions include:
+The core detector, API, frontend, Evidence Inspector, and backend tests are implemented.
 
-1. Perplexity model selection.
-2. Feature set promotion/rejection.
-3. Local anomaly formulation.
-4. Minimum evidence requirements.
-5. Classifier selection.
-6. Calibration strategy.
-7. Passage-window strategy.
+Remaining work is primarily:
 
-Until those experiments are complete, the above items remain intentionally unresolved.
+- final evaluation
+- three confident failure cases and explanations
+- ESL/non-native-English audit
+- documentation consistency
+- demo/presentation preparation
+- final repository verification

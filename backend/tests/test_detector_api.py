@@ -243,19 +243,51 @@ def test_api_request_validation_and_response_serialization() -> None:
         model_artifact=FakeArtifact(),
     )
     app.dependency_overrides[get_detector] = lambda: detector
+
     try:
         client = TestClient(app)
+
         invalid = client.post("/api/analyze", json={})
         assert invalid.status_code == 422
 
         response = client.post("/api/analyze", json={"text": "One. Two. Three."})
         assert response.status_code == 200
+
         payload = response.json()
+
         assert payload["state"] == "classified"
         assert payload["label"] == "ai_associated"
         assert payload["ai_probability"] == 0.75
+
         assert [feature["name"] for feature in payload["features"]] == FEATURE_ORDER
+
         assert payload["text_statistics"]["sentence_count"] == 3
         assert payload["model_metadata"]["feature_order"] == FEATURE_ORDER
+
+        # Evidence Inspector payload
+        assert "sentence_evidence" in payload
+        assert len(payload["sentence_evidence"]) == 3
+
+        assert [
+            item["sentence_id"]
+            for item in payload["sentence_evidence"]
+        ] == [1, 2, 3]
+
+        assert [
+            item["text"]
+            for item in payload["sentence_evidence"]
+        ] == [
+            "One.",
+            "Two.",
+            "Three.",
+        ]
+
+        assert all(
+            "perplexity" in item
+            and "available" in item
+            and "reason" in item
+            for item in payload["sentence_evidence"]
+        )
+
     finally:
         app.dependency_overrides.clear()

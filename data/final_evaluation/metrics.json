@@ -1,0 +1,30 @@
+{
+  "evaluation_name": "final-heldout-evaluation-v1",
+  "manifest": "data\\final_evaluation_manifest.json",
+  "dataset_sha256": "3a1ba6c2ba557b83a13022efadb3239185cda05b50a9d31017fcf7967f33bb18",
+  "final_pair_count": 200,
+  "total_inputs": 400,
+  "classified_inputs": 398,
+  "abstained_inputs": 2,
+  "coverage": 0.995,
+  "accuracy": 0.9849246231155779,
+  "precision": 0.98989898989899,
+  "recall": 0.98,
+  "f1": 0.9849246231155779,
+  "false_positive_rate": 0.010101010101010102,
+  "false_negative_rate": 0.02,
+  "confusion_matrix": [
+    [
+      196,
+      2
+    ],
+    [
+      4,
+      196
+    ]
+  ],
+  "probability_samples": 398,
+  "roc_auc": 0.9982575757575758,
+  "model_artifact_version": "production-four-feature-logreg-v1",
+  "source_experiment": "EXP-006"
+}

@@ -2,260 +2,266 @@
 
 ## 1. Purpose
 
-This document defines the technical architecture of the Callus Project 2 AI admissions-essay analysis system.
+This document defines the current technical architecture of Callus Project 2, an AI admissions-essay analysis application.
 
-The architecture is designed around five requirements:
+The architecture is built around five principles:
 
-1. Analyze text at sentence and passage levels.
-2. Produce measurable evidence rather than an unexplained AI verdict.
-3. Separate machine-associated characteristics from essay-relative stylistic anomalies.
-4. Represent uncertainty explicitly.
-5. Keep the detection pipeline reproducible, locally runnable, and independent of paid AI services.
+1. Produce measurable evidence rather than an unexplained AI verdict.
+2. Keep the actual classification decision inside the project's own statistical model.
+3. Treat uncertainty and insufficient evidence as first-class outcomes.
+4. Keep analytical logic in the backend and presentation logic in the frontend.
+5. Keep the core pipeline locally runnable and independent of paid AI services.
 
-This document describes the **system boundaries and responsibilities**.
-
-Specific model choices, feature sets, thresholds, and statistical formulations remain experimental unless explicitly marked as accepted decisions.
+The architecture has been updated from the original experimental proposal to reflect the validated production system.
 
 ---
 
-# 2. Architectural Principles
+# 2. Current Architectural Position
 
-## 2.1 Detection Is an Analysis Pipeline
+The production system performs **document-level classification**.
 
-The system should not be structured as:
+It does not claim that an individual sentence was written by AI.
 
-```text
-Essay → AI model → Verdict
-```
+Sentence-level measurements are retained where the validated feature pipeline already provides them. The current Evidence Inspector uses these measurements to show **where relevant statistical evidence appears**, not to assign sentence-level authorship.
 
-Instead:
+This distinction follows the results of EXP-007 through EXP-011, which did not justify reliable sentence-level attribution.
+
+The current architecture is therefore:
 
 ```text
 Essay
   ↓
-Segmentation
+Sentence Segmentation
   ↓
-Feature Extraction
+Validated Feature Extraction
   ↓
-Machine Association Analysis
+Four-Feature Vector
   ↓
-Stylistic Anomaly Analysis
+StandardScaler + Logistic Regression
   ↓
-Evidence Sufficiency
+Document Classification / Abstention
   ↓
-Classification / Abstention
+Structured Evidence Response
   ↓
-Evidence Aggregation
-  ↓
-API Response
-  ↓
-UI
+Evidence Inspector UI
 ```
 
-Each stage has a defined responsibility.
-
 ---
 
-## 2.2 The Detector Does Not Establish Authorship
+# 3. Architectural Principles
 
-The detection engine estimates measurable characteristics associated with machine-generated writing.
+## 3.1 No LLM-as-Judge
 
-It does not establish:
-
-* who wrote the text
-* whether an AI system was actually used
-* which model generated the text
-* whether the writer intentionally used AI
-
-The architecture therefore uses terminology such as:
-
-* machine association
-* stylistic anomaly
-* evidence sufficiency
-* uncertain
-* insufficient evidence
-
-rather than treating a model score as proof of authorship.
-
----
-
-## 2.3 Evidence Must Flow With the Classification
-
-A classification without its supporting measurements is incomplete.
-
-The internal representation should therefore preserve:
+The system is not structured as:
 
 ```text
-classification
-+
-machine association signal
-+
-stylistic anomaly signal
-+
-evidence sufficiency
-+
-driving features
+Essay → Chat Model → Verdict
 ```
 
-This allows the UI to explain a result without asking another language model to generate an explanation.
+A local causal language model is used as an **instrument** for perplexity measurement.
+
+The final machine-associated / human-associated decision is produced by the project's persisted Logistic Regression model.
+
+The frontend does not ask an LLM to explain or override the detector.
 
 ---
 
-## 2.4 Analysis and Presentation Must Be Separated
+## 3.2 Evidence Over Verdict
 
-The detection engine should produce structured analytical results.
+A classification is accompanied by observable measurements:
 
-The frontend should be responsible for:
+- four feature values
+- feature availability and reasons
+- text statistics
+- sentence-level perplexity evidence where available
+- model metadata
 
-* rendering text
-* highlighting passages
-* displaying evidence
-* presenting uncertainty
-* visualizing scores
-
-The frontend must not independently reproduce detection logic.
+The UI uses this information to explain what was measured rather than presenting an unexplained percentage.
 
 ---
 
-## 2.5 Experimental Components Must Remain Replaceable
+## 3.3 Document Classification vs. Sentence Evidence
 
-The following components are expected to change during experimentation:
-
-* perplexity model
-* candidate feature set
-* classifier
-* local anomaly formulation
-* thresholds
-* calibration method
-
-Therefore, these components should have clear interfaces rather than being tightly coupled throughout the application.
-
----
-
-# 3. High-Level System
-
-The proposed system consists of four primary layers:
+The production classifier operates on a four-feature **document-level vector**:
 
 ```text
-┌──────────────────────────────────────────────────────────┐
-│                        FRONTEND                          │
-│                    Next.js / React                       │
-│                                                          │
-│  Essay Input → Highlighted Analysis → Evidence Panel    │
-└──────────────────────────┬───────────────────────────────┘
+perplexity
+sentence_length_cv
+mattr
+pos_3gram_entropy
+```
+
+Sentence-level perplexity measurements are also retained.
+
+These sentence measurements support the Evidence Inspector, but they do not constitute an independently trained sentence classifier.
+
+The product therefore distinguishes:
+
+```text
+Document-level classification
+        +
+Sentence-level evidence observations
+```
+
+from:
+
+```text
+Sentence-level AI authorship prediction
+```
+
+The latter is not part of the production system.
+
+---
+
+## 3.4 Evidence Sufficiency and Abstention
+
+The detector does not fabricate missing feature values.
+
+If one or more required features are unavailable, the four-feature classifier is not invoked and the API returns:
+
+```text
+insufficient_evidence
+```
+
+Examples include:
+
+- too few sentences for sentence-length CV
+- too few lexical tokens for MATTR
+- unavailable perplexity
+- a sentence exceeding the supported language-model context
+
+This behavior follows EXP-010 and the production robustness work.
+
+---
+
+## 3.5 Analysis and Presentation Are Separate
+
+The backend produces structured analytical results.
+
+The frontend is responsible for:
+
+- rendering the essay
+- rendering the result state
+- presenting feature evidence
+- showing sentence-level evidence observations
+- applying visual highlighting
+- communicating limitations
+
+The frontend must not independently reproduce classifier mathematics.
+
+---
+
+# 4. System Layers
+
+The current application has four practical layers:
+
+```text
+┌──────────────────────────────────────────────────────┐
+│                    FRONTEND                          │
+│             Vite + React + TypeScript                │
+│                                                      │
+│ Essay Input → Results → Feature Grid → Evidence      │
+│ Inspector                                           │
+└──────────────────────────┬───────────────────────────┘
                            │ HTTP
                            ▼
-┌──────────────────────────────────────────────────────────┐
-│                          API                             │
-│                       FastAPI                            │
-│                                                          │
-│  Request Validation → Analysis Orchestration → Response │
-└──────────────────────────┬───────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│                       API                            │
+│                     FastAPI                          │
+│                                                      │
+│ POST /api/analyze                                    │
+│ Request Validation → Detector → Response Schema      │
+└──────────────────────────┬───────────────────────────┘
                            │
                            ▼
-┌──────────────────────────────────────────────────────────┐
-│                    DETECTION ENGINE                      │
-│                                                          │
-│  Segmentation                                           │
-│       ↓                                                  │
-│  Feature Extraction                                      │
-│       ↓                                                  │
-│  ┌────────────────────┬──────────────────────┐           │
-│  │ Machine Association│ Stylistic Anomaly   │           │
-│  │ Analysis           │ Analysis             │           │
-│  └──────────┬─────────┴──────────┬───────────┘           │
-│             ▼                    ▼                       │
-│          Evidence Sufficiency + Decision Layer          │
-│                           ↓                              │
-│                     Evidence Model                       │
-└──────────────────────────┬───────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│                 DETECTION ENGINE                     │
+│                                                      │
+│ Sentence Segmentation                                │
+│        ↓                                             │
+│ Feature Extraction                                   │
+│        ↓                                             │
+│ Four-Feature Vector → Model Artifact                 │
+│        │                                             │
+│        └──────────→ Sentence Evidence                 │
+│                                                      │
+│        ↓                                             │
+│ Classification / Abstention                          │
+└──────────────────────────┬───────────────────────────┘
                            │
                            ▼
-┌──────────────────────────────────────────────────────────┐
-│                     MODELS / DATA                        │
-│                                                          │
-│ Local Language Model │ Classifier │ Feature Config      │
-│ Dataset │ Model Artifacts │ Evaluation Artifacts        │
-└──────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│                 LOCAL ARTIFACTS                      │
+│                                                      │
+│ distilgpt2 / tokenizer                                │
+│ StandardScaler + LogisticRegression artifact         │
+│ experiment and dataset artifacts                     │
+└──────────────────────────────────────────────────────┘
 ```
 
 ---
 
-# 4. Frontend Layer
+# 5. Frontend Layer
 
-## Technology
+## 5.1 Technology
 
-* Next.js
-* React
-* TypeScript
-* Tailwind CSS
-* Recharts or equivalent open-source visualization library
+The current frontend uses:
 
-The frontend is responsible for presentation, not statistical computation.
+- Vite
+- React
+- TypeScript
+- CSS
+- Vitest for frontend tests
 
----
+It is intentionally lightweight and does not depend on a dashboard framework.
 
-## 4.1 Primary Responsibilities
-
-The frontend should:
-
-* accept essay text
-* submit analysis requests
-* render the returned essay
-* highlight analyzed passages
-* show passage-level assessments
-* display evidence
-* communicate uncertainty
-* display document-level assessment
-* visualize machine association vs stylistic anomaly where useful
-* explain limitations to the user
+The visual direction is an editorial/brutalist research interface rather than a generic AI dashboard.
 
 ---
 
-## 4.2 Essay-Centered Interface
+## 5.2 Primary Responsibilities
 
-The essay itself is the primary interface.
+The frontend:
 
-The user should not need to interpret a dashboard before understanding the result.
+- accepts essay text
+- submits the essay to `POST /api/analyze`
+- displays document-level assessment
+- displays model signal as a model signal, not calibrated authorship certainty
+- displays available feature measurements
+- displays insufficient-evidence states
+- renders sentence-level evidence observations
+- provides the Evidence Inspector
+- highlights selected evidence sentences
+- communicates methodological limitations
 
-Conceptually:
+The frontend does not calculate the Logistic Regression result.
+
+---
+
+## 5.3 Current UI Flow
 
 ```text
-┌─────────────────────────────────────────────────────────┐
-│ Analysis: Mixed Evidence                                │
-│ Evidence strength: Moderate                             │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  Essay text                                             │
-│                                                         │
-│  Normal passage...                                      │
-│                                                         │
-│  [Machine-associated passage]                           │
-│                                                         │
-│  [Uncertain passage]                                    │
-│                                                         │
-└───────────────────────────┬─────────────────────────────┘
-                            │
-                            ▼
-                   Selected Passage
-                   ─────────────────
-                   Machine association: High
-                   Stylistic anomaly: High
-                   Evidence: High
-
-                   Why?
-                   • unusually predictable
-                   • low sentence variation
-                   • differs from nearby writing
+Essay Input
+    ↓
+Analyze
+    ↓
+Analysis Result
+    ├── Document assessment
+    ├── Model signal
+    ├── Evidence count
+    ├── Text statistics
+    ├── Evidence Inspector
+    ├── Feature Grid
+    └── Methodology explanation
 ```
 
-The UI should avoid making a single overall percentage the primary result.
+The essay remains the primary document view.
 
 ---
 
-# 5. API Layer
+# 6. API Layer
 
-## Technology
+## 6.1 Technology
 
 Python + FastAPI.
 
@@ -263,831 +269,750 @@ The API is the boundary between the frontend and the detection engine.
 
 ---
 
-## 5.1 Responsibilities
-
-The API should:
-
-* validate incoming requests
-* enforce input limits
-* invoke the analysis pipeline
-* return structured results
-* expose predictable errors
-* avoid embedding statistical logic directly in route handlers
-
-Routes should remain thin.
-
-Conceptually:
+## 6.2 Current Route
 
 ```text
 POST /api/analyze
-        │
-        ▼
-Request validation
-        │
-        ▼
-Analysis service
-        │
-        ▼
-Detection engine
-        │
-        ▼
-Response schema
 ```
 
-The API should not contain:
-
-```text
-if perplexity > X:
-    return "AI"
-```
-
-or other detection logic directly inside transport code.
-
----
-
-# 6. Detection Engine
-
-The detection engine is the core of the project.
-
-It should be implemented as a collection of independently testable components.
-
-Conceptually:
-
-```text
-Analysis Engine
-│
-├── Segmentation
-│
-├── Feature Extraction
-│   ├── Predictability
-│   ├── Rhythm
-│   ├── Lexical
-│   ├── Repetition
-│   └── Syntax
-│
-├── Machine Association
-│   └── Classifier
-│
-├── Stylistic Anomaly
-│   └── Robust local analysis
-│
-├── Evidence Sufficiency
-│
-├── Decision / Abstention
-│
-└── Evidence Aggregation
-```
-
----
-
-# 7. Segmentation Component
-
-## Responsibility
-
-Convert the raw essay into analyzable units.
-
-The initial hierarchy is:
-
-```text
-Document
-  │
-  ├── Passage
-  │     ├── Sentence
-  │     ├── Sentence
-  │     └── ...
-  │
-  ├── Passage
-  │     └── ...
-  │
-  └── ...
-```
-
-Sentence segmentation will initially use spaCy or another deterministic NLP segmentation method.
-
-Passage boundaries may be derived from:
-
-* paragraphs
-* sentence windows
-* adjacent sentence groups
-
-The exact passage-window strategy is an experimental decision.
-
----
-
-## 7.1 Segmentation Requirements
-
-Segmentation should preserve:
-
-* original text
-* character offsets
-* sentence ordering
-* paragraph relationships
-* sentence IDs
-* passage IDs
-
-This is required so the frontend can map analytical results back onto the original essay.
-
----
-
-# 8. Feature Extraction Layer
-
-Feature extraction converts each analysis unit into structured numerical measurements.
-
-Conceptually:
-
-```text
-Sentence / Passage
-        │
-        ▼
-Feature Extractor
-        │
-        ▼
-Feature Vector
-```
-
-A feature vector may contain:
-
-```text
-{
-    perplexity: ...,
-    sentence_length: ...,
-    lexical_diversity: ...,
-    repetition: ...,
-    syntactic_entropy: ...
-}
-```
-
-The exact feature set is not permanently locked.
-
----
-
-# 9. Feature Categories
-
-Candidate features are organized into five major groups.
-
-## 9.1 Predictability
-
-Potential signals:
-
-* mean token log probability
-* perplexity
-* perplexity variation
-
-A small locally runnable causal language model will be used for token-probability extraction.
-
-The model choice is determined through Phase 1 feasibility experiments.
-
----
-
-## 9.2 Rhythm
-
-Potential signals:
-
-* sentence length
-* sentence length variance
-* sentence length coefficient of variation
-* punctuation distribution
-* clause-related statistics
-
-These attempt to capture writing rhythm and pacing.
-
----
-
-## 9.3 Lexical Characteristics
-
-Potential signals:
-
-* MATTR
-* rare-word proportion
-* lexical repetition
-* repeated n-grams
-
-These describe vocabulary diversity and reuse.
-
----
-
-## 9.4 Structural Characteristics
-
-Potential signals:
-
-* POS n-gram entropy
-* dependency statistics
-* syntactic variation
-* structural repetition
-
-These measure patterns in grammatical construction.
-
----
-
-## 9.5 Local Consistency Characteristics
-
-Potential signals:
-
-* deviation from local feature distribution
-* deviation from essay-level robust baseline
-* neighboring passage feature shifts
-* changes in predictability or rhythm
-
-These are particularly relevant to hybrid-writing detection.
-
----
-
-# 10. Machine Association Analysis
-
-The machine-association component estimates how strongly a passage's feature vector resembles machine-associated examples in the training distribution.
-
-Conceptually:
-
-```text
-Feature Vector
-      │
-      ▼
-Normalization / preprocessing
-      │
-      ▼
-Trained classifier
-      │
-      ▼
-Machine Association Signal
-```
-
-Potential classifiers include:
-
-* Logistic Regression
-* Random Forest
-* other classical models if experimentally justified
-
-The classifier will not be selected solely by theoretical preference.
-
-It will be benchmarked against baselines.
-
----
-
-## 10.1 Baseline
-
-The first meaningful baseline is:
-
-```text
-Perplexity
-    ↓
-Simple threshold
-    ↓
-Human / Machine-associated
-```
-
-The purpose is to determine whether the multi-feature detector provides useful improvement over a simple predictability-based approach.
-
----
-
-# 11. Stylistic Anomaly Analysis
-
-The stylistic anomaly component answers a different question:
-
-> How unusual is this passage relative to the writing surrounding it?
-
-It does not directly estimate AI authorship.
-
----
-
-## 11.1 Robust Statistics
-
-The initial approach is based on robust statistics rather than ordinary mean/std estimation.
-
-Potential components include:
-
-* median
-* Median Absolute Deviation (MAD)
-* leave-one-out baselines
-* local passage windows
-
-Conceptually:
-
-```text
-Essay
-│
-├── surrounding observations
-│
-│      establish baseline
-│
-└── target passage
-       │
-       ▼
-  deviation from baseline
-       │
-       ▼
- Stylistic Anomaly Signal
-```
-
-The exact statistical formulation remains a feasibility question.
-
----
-
-## 11.2 Leave-One-Out Principle
-
-When calculating the anomaly of a unit, that unit should not substantially determine its own baseline.
-
-Conceptually:
-
-```text
-S1 S2 S3 S4 S5 S6 S7 S8
-
-Analyze S4
-
-Baseline:
-S1 S2 S3    S5 S6 S7 S8
-```
-
-This reduces self-contamination of the reference distribution.
-
----
-
-# 12. Local vs Global Analysis
-
-The two analytical signals are deliberately separate.
-
-```text
-                     MACHINE ASSOCIATION
-                            HIGH
-                              │
-                              │
-          Stylistic           │       Machine-associated
-          shift               │       anomaly
-                              │
-──────────────────────────────┼──────────────────────────────
-                              │
-          Consistent          │       Consistently
-          human-like          │       machine-associated
-                              │
-                              │
-                            LOW
-                              │
-                         MACHINE ASSOCIATION
-```
-
-The four regions are interpretive categories, not hard-coded ground truth.
-
-For example:
-
-### Low machine association + low anomaly
-
-> Consistent with the human-writing distribution and internally consistent.
-
-### High machine association + low anomaly
-
-> Machine-associated characteristics appear consistently across the analyzed text.
-
-### High machine association + high anomaly
-
-> Machine-associated characteristics coincide with a localized stylistic deviation.
-
-### Low machine association + high anomaly
-
-> The passage differs from surrounding writing but does not strongly resemble the machine-associated distribution.
-
-This last case should generally produce an uncertain or stylistic-shift interpretation rather than an AI accusation.
-
----
-
-# 13. Evidence Sufficiency Layer
-
-The evidence-sufficiency layer prevents unstable statistics from becoming authoritative classifications.
-
-```text
-Raw Analysis
-     │
-     ▼
-Are sufficient observations available?
-     │
- ┌───┴────┐
- │        │
- YES      NO
- │        │
- ▼        ▼
-Continue  Limited /
-analysis  insufficient
-          evidence
-```
-
-Potential reasons for insufficient evidence:
-
-* sentence too short
-* passage too short
-* insufficient neighboring observations
-* unstable variance/MAD
-* unavailable feature
-* conflicting signals
-
-The system should degrade gracefully rather than invent a score.
-
----
-
-# 14. Decision and Abstention Layer
-
-This component converts analytical signals into a user-facing assessment.
-
-It is deliberately separate from feature extraction and model inference.
-
-Possible states include:
-
-```text
-machine_associated
-human_consistent
-uncertain
-insufficient_evidence
-```
-
-The exact vocabulary may change during UI design.
-
-The decision layer may consider:
-
-* machine association
-* stylistic anomaly
-* evidence sufficiency
-* model confidence/calibration
-* signal agreement
-* passage length
-
-No final thresholds are locked yet.
-
----
-
-# 15. Evidence Aggregation Layer
-
-The evidence layer converts raw numerical outputs into structured, explainable evidence.
-
-It must not ask an LLM:
-
-> "Why was this sentence classified as AI?"
-
-Instead, explanations are generated deterministically from the features that contributed to the analysis.
-
-Conceptually:
-
-```text
-Classifier Output
-+
-Feature Values
-+
-Local Anomaly
-+
-Evidence Sufficiency
-        │
-        ▼
-Evidence Record
-```
-
-Example:
+Request:
 
 ```json
 {
-  "feature": "perplexity",
-  "value": 12.4,
-  "relative_interpretation": "high_predictability",
-  "contribution": "machine_associated"
+  "text": "essay text..."
 }
 ```
 
-The exact contribution calculation depends on the final classifier.
-
----
-
-# 16. Analysis Result Model
-
-The internal result should preserve enough information for both the API and UI.
+The route remains thin.
 
 Conceptually:
 
 ```text
-AnalysisResult
-│
-├── document_assessment
-├── evidence_strength
-├── passages[]
-│
-└── metadata
+HTTP Request
+    ↓
+Pydantic validation
+    ↓
+AuthorshipDetector.analyze()
+    ↓
+Pydantic response validation
+    ↓
+HTTP Response
 ```
 
-Each passage may contain:
+Detection logic does not live directly inside the route handler.
+
+---
+
+## 6.3 Current Response Shape
+
+The response includes:
 
 ```text
-PassageResult
-│
-├── passage_id
-├── text
-├── start_offset
-├── end_offset
-├── machine_association
-├── stylistic_anomaly
-├── evidence_sufficiency
-├── assessment
-└── evidence[]
+state
+label
+ai_probability
+features[]
+sentence_evidence[]
+text_statistics
+model_metadata
 ```
 
-Each evidence item may contain:
+The frontend consumes the response through a typed TypeScript API client.
+
+---
+
+# 7. Detection Engine
+
+## 7.1 Responsibility
+
+`AuthorshipDetector` is the production orchestration layer.
+
+Current responsibilities:
+
+1. Validate empty/whitespace-only input.
+2. Run the production feature extractor.
+3. Build the ordered four-feature vector.
+4. Abstain if required features are unavailable.
+5. Score the vector with the saved model artifact.
+6. Convert sentence-level perplexity measurements into API-safe sentence evidence.
+7. Return structured metadata for the API/UI.
+
+---
+
+## 7.2 Current Production Structure
+
+```text
+backend/app/
+├── api/
+│   └── analyze.py
+├── detector/
+│   ├── engine.py
+│   └── model_artifact.py
+├── features/
+│   ├── extraction.py
+│   ├── experiment_reuse.py
+│   └── resources.py
+├── schemas/
+│   └── analysis.py
+├── training/
+│   └── train_production_model.py
+└── main.py
+```
+
+Production artifacts:
+
+```text
+backend/artifacts/
+├── authorship_detector.joblib
+└── authorship_detector.metadata.json
+```
+
+---
+
+# 8. Segmentation
+
+The production extractor uses spaCy sentence segmentation.
+
+The segmentation layer preserves:
+
+- sentence order
+- sentence text
+- sentence IDs
+- sentence-level boundaries needed for evidence presentation
+
+The production classifier does not use a separate passage classifier.
+
+Sentence segmentation is required both for feature computation and for the Evidence Inspector.
+
+---
+
+# 9. Feature Extraction Layer
+
+## 9.1 Production Feature Order
+
+The production feature vector is fixed to:
+
+```text
+1. perplexity
+2. sentence_length_cv
+3. mattr
+4. pos_3gram_entropy
+```
+
+The ordering is part of the saved model contract.
+
+---
+
+## 9.2 Perplexity
+
+Perplexity is measured using a local causal language model.
+
+The production implementation uses:
+
+```text
+Model: distilgpt2
+Runtime: Hugging Face Transformers
+Device: CPU
+```
+
+The perplexity calculation follows the validated causal-shift alignment established in EXP-001:
+
+```text
+input_ids[:, 1:]
+labels scored by logits[:, :-1, :]
+```
+
+At the document level, valid sentence perplexities are aggregated using the median.
+
+---
+
+## 9.3 Sentence-Level Perplexity Evidence
+
+The production extractor retains per-sentence measurements such as:
+
+```text
+sentence_id
+token_count
+usable_prediction_token_count
+perplexity
+perplexity_status
+reason when unavailable
+warnings
+language_model_context_limit
+```
+
+These measurements are exposed through:
+
+```text
+sentence_evidence[]
+```
+
+in the API response.
+
+They are used by the Evidence Inspector as **measurement-level evidence**.
+
+They are not used to produce a separate sentence-level classifier.
+
+---
+
+## 9.4 Sentence-Length CV
+
+Sentence-length coefficient of variation is calculated across the document:
+
+```text
+CV = standard deviation / mean
+```
+
+The current implementation uses the validated EXP-004 definition.
+
+It is a document-level feature.
+
+The production Evidence Inspector therefore does not pretend that an individual sentence has its own sentence-length CV score.
+
+---
+
+## 9.5 MATTR
+
+MATTR is calculated using the validated EXP-004 moving-window definition.
+
+The current window size is:
+
+```text
+25 lexical tokens
+```
+
+MATTR is a document-level lexical-diversity measurement.
+
+---
+
+## 9.6 POS 3-Gram Entropy
+
+POS 3-gram entropy measures the entropy of three-tag grammatical sequences produced by the validated POS processing pipeline.
+
+It is a document-level structural feature.
+
+---
+
+# 10. Production Model
+
+## 10.1 Model
+
+The production classifier is:
+
+```text
+StandardScaler
+      ↓
+LogisticRegression
+```
+
+The saved artifact is:
+
+```text
+backend/artifacts/authorship_detector.joblib
+```
+
+Metadata is stored in:
+
+```text
+backend/artifacts/authorship_detector.metadata.json
+```
+
+---
+
+## 10.2 Model Source
+
+The production classifier is derived from EXP-006.
+
+Its four input features are defined by the validated EXP-004 feature implementations.
+
+The saved artifact records:
+
+- feature order
+- model type
+- random seed
+- training row counts
+- validation row counts
+- source experiment
+- reference validation metrics
+- known validation-row verification
+
+---
+
+## 10.3 Model Signal
+
+The API may expose:
+
+```text
+ai_probability
+```
+
+but the frontend labels it:
+
+```text
+MODEL SIGNAL
+```
+
+The value is not presented as calibrated authorship certainty.
+
+The model metadata explicitly guards this interpretation:
+
+```text
+Classifier probabilities are model scores for machine association
+within the EXP-005/EXP-006 distribution, not calibrated authorship certainty.
+```
+
+---
+
+# 11. Evidence Sufficiency and Abstention
+
+The production decision flow is:
+
+```text
+Raw Essay
+   ↓
+Feature Extraction
+   ↓
+Are all four required features available?
+   │
+   ├── NO → insufficient_evidence
+   │
+   └── YES
+          ↓
+     Logistic Regression
+          ↓
+       classified
+```
+
+There is no fabricated fallback value for missing features.
+
+---
+
+## 11.1 Short Text
+
+Very short input may lack sufficient observations for:
+
+- sentence-length CV
+- MATTR
+- POS 3-gram entropy
+
+The detector abstains when required features are unavailable.
+
+---
+
+## 11.2 Oversized Language-Model Input
+
+`distilgpt2` supports a 1024-token context.
+
+During integration testing, an 867-word PERSUADE essay was treated as a single sentence containing 1134 language-model tokens.
+
+The original implementation attempted inference and produced HTTP 500.
+
+The production extractor now detects the context limit before invoking perplexity.
+
+The result is:
+
+```text
+perplexity unavailable
+reason = sentence_exceeds_language_model_context
+```
+
+If this prevents the required four-feature vector from being complete, the detector returns:
+
+```text
+insufficient_evidence
+```
+
+No silent truncation is performed.
+
+---
+
+# 12. Evidence Inspector
+
+## 12.1 Purpose
+
+The Evidence Inspector exists to satisfy the product requirement to show **where and why** without making unsupported sentence-level authorship claims.
+
+The system does not display:
+
+```text
+Sentence 12 = AI
+```
+
+Instead it displays:
 
 ```text
 Evidence
-├── feature
-├── raw_value
-├── normalized_value
-├── direction
-└── interpretation
+↓
+Measured local pattern
+↓
+Where it appears
+↓
+Why that measurement matters
 ```
-
-This structure is conceptual and will be finalized during API/schema design.
 
 ---
 
-# 17. Data and Model Layer
+## 12.2 Current Evidence Source
 
-The core system depends on several local artifacts.
+The current production Evidence Inspector uses sentence-level perplexity measurements.
+
+The strongest available sentence-level exemplars can be surfaced by ranking valid sentence perplexities.
+
+The UI describes these as:
 
 ```text
-models/
-├── language-model/
-├── classifier/
-└── preprocessing/
-
-data/
-├── raw/
-├── processed/
-├── manifests/
-└── splits/
-
-experiments/
-├── baselines/
-├── ablations/
-├── ood/
-└── bias/
+Predictability Evidence
 ```
 
-Exact repository organization may change after implementation begins.
+or equivalent evidence-oriented language.
+
+A highlighted sentence means:
+
+> This sentence exhibits a strong measured predictability pattern within this document.
+
+It does not mean:
+
+> This sentence was written by AI.
 
 ---
 
-# 18. Dataset Boundary
+## 12.3 Why Only Perplexity Is Localized
 
-Dataset construction is separate from runtime inference.
+The other three production features are document-level measurements:
 
-The training/evaluation pipeline should be able to:
+- sentence-length CV
+- MATTR
+- POS 3-gram entropy
 
-```text
-Raw data
-   ↓
-Normalization
-   ↓
-Essay-family construction
-   ↓
-Feature extraction
-   ↓
-Family-level split
-   ↓
-Training
-   ↓
-Model artifact
-```
+They do not currently have independently validated per-sentence values in the production classifier.
 
-Runtime analysis should only need:
+Therefore the UI must not invent sentence-level values for those features.
 
-```text
-Essay
-  ↓
-Segmentation
-  ↓
-Feature extraction
-  ↓
-Stored model/artifacts
-  ↓
-Analysis
-```
-
-The application should not retrain the classifier every time a user submits an essay.
+The Feature Grid can explain all four document-level measurements, while sentence highlighting currently focuses on the validated sentence-level perplexity evidence.
 
 ---
 
-# 19. Experimentation Boundary
+# 13. Rejected Local Attribution
 
-Experiments should remain separate from production application code.
+Experiments EXP-007, EXP-008, and EXP-009 tested local anomaly and boundary-based approaches.
 
-Experimental code may answer questions such as:
+EXP-011 subsequently tested leave-one-sentence-out contribution using the production classifier on 20 synthetic hybrids.
 
-* Which features help?
-* Which classifier performs best?
-* Which perplexity model is practical?
-* How stable is LOO/MAD?
-* What minimum text length is sufficient?
-* How does performance change on unseen models?
-* Which features contribute to ESL false positives?
+Results:
 
-Once an experimental result justifies a production decision, the decision should be documented and the relevant implementation moved into the detection engine.
+```text
+Top-10% capture: 22.5%
+Top-25% capture: 42.5%
+
+Median AI-sentence contribution:
+-0.0001953670
+
+Median human-sentence contribution:
+-0.0011773087
+
+AI − human median difference:
+0.0009819416
+```
+
+These results were not strong enough to support production sentence-level authorship attribution.
+
+Therefore:
+
+```text
+No sentence-level AI classifier
+No leave-one-out AI heatmap
+No local anomaly score in production
+No definitive sentence attribution
+```
+
+The Evidence Inspector is deliberately more conservative.
 
 ---
 
-# 20. Training Pipeline vs Inference Pipeline
+# 14. Evidence Response Model
 
-These are separate concerns.
+The API response preserves both document-level and sentence-level information.
 
-## Training
+Conceptually:
 
 ```text
-Dataset
-  ↓
-Feature extraction
-  ↓
-Training split
-  ↓
-Preprocessing/scaling
-  ↓
-Classifier training
-  ↓
+AnalyzeResponse
+│
+├── state
+├── label
+├── ai_probability
+├── features[]
+│
+├── sentence_evidence[]
+│   ├── sentence_id
+│   ├── text
+│   ├── perplexity
+│   ├── available
+│   └── reason
+│
+├── text_statistics
+└── model_metadata
+```
+
+This structure keeps analysis in the backend while allowing the frontend to render evidence without reproducing statistical logic.
+
+---
+
+# 15. API / Frontend Boundary
+
+The frontend does not know:
+
+- how distilgpt2 calculates perplexity
+- how the Logistic Regression was trained
+- how StandardScaler was fitted
+- how MATTR is calculated
+- how POS entropy is calculated
+- how evidence sufficiency is determined
+
+The API exposes the resulting measurements and states.
+
+Likewise, the detector does not know:
+
+- how the Evidence Inspector is visually styled
+- how sentence highlighting is rendered
+- which React component displays the evidence
+- which CSS treatment is used
+
+This separation keeps the analytical contract independent of the presentation layer.
+
+---
+
+# 16. Data and Training Boundary
+
+Dataset construction and production inference remain separate.
+
+Training/development:
+
+```text
+Raw / processed dataset
+        ↓
+Family-aware split
+        ↓
+Validated feature extraction
+        ↓
+StandardScaler fitting
+        ↓
+Logistic Regression fitting
+        ↓
 Validation
-  ↓
-Calibration / threshold selection
-  ↓
-Model artifact
+        ↓
+Saved model artifact
 ```
 
-## Inference
+Production inference:
 
 ```text
 Essay
   ↓
-Segmentation
+Sentence segmentation
   ↓
 Feature extraction
   ↓
-Saved preprocessing
+Saved preprocessing + classifier
   ↓
-Saved classifier
+Classification / abstention
   ↓
-Machine association
-  ↓
-Local anomaly
-  ↓
-Evidence sufficiency
-  ↓
-Decision
+Evidence response
 ```
 
-The inference pipeline must use the same preprocessing assumptions as the trained model.
+The application does not retrain the classifier on user submissions.
 
 ---
 
-# 21. API Boundary
+# 17. Dataset Boundary
 
-The frontend should not know:
+The main controlled development corpus is treated as a student-writing proxy rather than a perfect admissions corpus.
 
-* which language model is used
-* how perplexity is calculated
-* how MAD is calculated
-* which classifier is used
-* how feature normalization works
+The dataset strategy is documented separately in:
 
-The API exposes analysis results, not internal implementation details.
+```text
+docs/DATASET.md
+```
 
-Likewise, the detection engine should not know:
+The important architectural property is that:
 
-* how text is visually highlighted
-* which chart library is used
-* which frontend component displays evidence
+- source provenance is tracked
+- essay-family relationships are preserved
+- related variants are split by family
+- training and inference remain separate
 
-This separation allows each layer to evolve independently.
-
----
-
-# 22. Error Handling
-
-Errors should be classified into meaningful categories.
-
-Potential categories:
-
-### Invalid input
-
-Examples:
-
-* empty essay
-* unsupported request format
-* input exceeds configured limits
-
-### Analysis limitations
-
-Examples:
-
-* insufficient text
-* unavailable feature
-* model unavailable
-
-### Infrastructure errors
-
-Examples:
-
-* model loading failure
-* unexpected internal exception
-
-The API should return structured errors.
-
-The frontend should distinguish:
-
-> **The system could not analyze this input**
-
-from:
-
-> **The system analyzed it but did not have sufficient evidence.**
-
-These are not the same condition.
+The target-domain limitation is explicit rather than hidden.
 
 ---
 
-# 23. Performance Considerations
+# 18. Experimentation Boundary
+
+Experimental code remains under:
+
+```text
+experiments/
+```
+
+Experiments answer questions such as:
+
+- whether a measurement is stable
+- whether a feature discriminates
+- whether a local-analysis idea is reliable
+- whether an abstention rule is justified
+- whether a candidate method should enter production
+
+Once a decision is made, the production implementation is updated and the decision is documented.
+
+The experiments remain unchanged as historical evidence.
+
+---
+
+# 19. Production Tests
+
+The backend has a dedicated test suite covering:
+
+- empty input abstention
+- whitespace-only input
+- very short input
+- complete-feature classification
+- feature ordering
+- EXP-004 feature reuse
+- model artifact loading
+- deterministic inference
+- known validation-row verification
+- API request validation and response serialization
+- sentence evidence serialization
+
+Current backend verification:
+
+```text
+10 passed
+```
+
+The test suite also verifies that `sentence_evidence` is present and ordered correctly in the API response.
+
+---
+
+# 20. Error Handling
+
+The system distinguishes between:
+
+### Insufficient evidence
+
+The system successfully analyzed the request but did not have enough reliable measurements for a full classification.
+
+Example:
+
+```text
+state = insufficient_evidence
+```
+
+### API / infrastructure failure
+
+The system could not complete analysis because of an application or infrastructure error.
+
+These should not be represented as the same user-facing state.
+
+---
+
+# 21. Performance Considerations
 
 The project prioritizes correctness and explainability over maximum throughput.
 
-However, the runtime should remain practical for interactive essay analysis.
+Current runtime characteristics:
 
-Potential optimizations include:
+- local CPU inference
+- small causal language model
+- model loading through a reusable resource layer
+- sentence-level perplexity measurements
+- no LLM explanation call
+- no external detection API
 
-* loading models once at process startup
-* batching tokenization
-* caching repeated computations
-* avoiding unnecessary model calls
-* reusing feature calculations between sentence and passage analysis
-* using small local models
-* limiting expensive experimental features in production inference
+Experimental approaches that require repeated full-document inference, such as EXP-011, are not part of production inference.
 
-No optimization should obscure the detection methodology.
+The production pipeline therefore avoids the cost of leave-one-out attribution.
 
 ---
 
-# 24. Security and Privacy Considerations
+# 22. Security and Privacy
 
 Essays may contain sensitive personal information.
 
-The local-first architecture is therefore beneficial because the default system does not need to transmit essay text to external paid AI services.
+The local-first design reduces unnecessary transmission of essay text to external services.
 
-The application should avoid unnecessary persistence of submitted essays.
+The default architecture does not require a paid external AI API for detection or explanation.
 
-Unless persistence is explicitly required, analysis should be treated as ephemeral runtime data.
+Unless persistence is explicitly required, essay text should be treated as ephemeral runtime data.
 
-Any logging must avoid accidentally storing complete user essays.
-
----
-
-# 25. Reproducibility
-
-The architecture should support reproduction of:
-
-* feature extraction
-* classifier training
-* evaluation
-* dataset splits
-* model artifacts
-* experiment results
-
-Relevant configuration should be explicit rather than hidden inside application code.
-
-Where randomness exists, seeds should be recorded where practical.
+Logging should avoid storing complete user essays unnecessarily.
 
 ---
 
-# 26. Architecture Decision Boundaries
+# 23. Reproducibility
 
-The following are **not permanently locked**:
+The architecture supports reproduction of:
 
-* exact local language model
-* exact feature set
-* final classifier
-* feature scaling strategy
-* anomaly-distance formulation
-* minimum text length
-* passage-window size
-* probability calibration method
-* decision thresholds
-* exact API response schema
+- validated feature extraction
+- classifier training
+- model artifact generation
+- experiment results
+- evaluation results
+- API behavior
+- sentence evidence generation
 
-These will be finalized through research and feasibility experiments.
+Relevant model and experiment metadata are retained with artifacts.
 
-The following are currently architectural principles:
-
-* local/free core pipeline
-* evidence-first analysis
-* separation of global and local signals
-* explicit evidence sufficiency
-* deterministic evidence generation
-* family-level dataset splitting
-* replaceable experimental components
-* thin API layer
-* frontend separated from detection logic
+Random seeds and relevant software versions are recorded where applicable.
 
 ---
 
-# 27. Expected Repository Architecture
+# 24. Current Locked Decisions
 
-The final repository is expected to evolve toward a structure similar to:
+The following are now production decisions:
+
+- `distilgpt2` is the local language model for perplexity extraction.
+- The production feature vector contains four features:
+  - perplexity
+  - sentence-length CV
+  - MATTR
+  - POS 3-gram entropy
+- StandardScaler + Logistic Regression is the production classifier.
+- The classifier is document-level.
+- Missing required features cause abstention.
+- Model probability is presented as a model signal, not calibrated authorship certainty.
+- Local anomaly / boundary-discontinuity methods are not in production.
+- Leave-one-sentence-out attribution is not in production.
+- Sentence-level perplexity measurements are surfaced as evidence observations.
+- The Evidence Inspector does not make sentence-level authorship claims.
+- The API remains thin.
+- The frontend remains separate from detection logic.
+- The core pipeline remains locally runnable.
+
+---
+
+# 25. Known Limitations
+
+The architecture currently has several explicit limitations:
+
+1. The production classifier is trained and validated within a bounded dataset distribution and should not be presented as universally accurate.
+2. The primary development corpus is not a perfect admissions-essay corpus.
+3. Sentence-level authorship attribution is not supported.
+4. Only perplexity currently provides validated sentence-level evidence in the production pipeline.
+5. Local anomaly methods tested in EXP-007 through EXP-011 were not reliable enough for production.
+6. The classifier signal is not calibrated authorship certainty.
+7. ELL/ESL bias requires explicit final evaluation.
+8. Three confident failure cases still need to be documented for the final submission.
+
+These limitations are part of the system design, not hidden failure states.
+
+---
+
+# 26. Repository Architecture
+
+The implemented production repository currently follows this practical structure:
 
 ```text
 project-2/
-│
-├── README.md
 │
 ├── docs/
 │   ├── PROJECT-2-PLAN.md
@@ -1096,96 +1021,117 @@ project-2/
 │   ├── DECISIONS.md
 │   ├── DATASET.md
 │   ├── EVALUATION.md
-│   ├── BIAS-ANALYSIS.md
-│   └── FAILURE-ANALYSIS.md
+│   ├── EXPERIMENT-LOG.md
+│   ├── GENERATION-PROTOCOL.md
+│   └── PRODUCTION-MILESTONE.md
 │
 ├── backend/
 │   ├── app/
 │   │   ├── api/
-│   │   ├── analysis/
+│   │   ├── detector/
 │   │   ├── features/
-│   │   ├── models/
 │   │   ├── schemas/
-│   │   └── services/
-│   └── tests/
+│   │   ├── training/
+│   │   └── main.py
+│   ├── artifacts/
+│   ├── tests/
+│   └── requirements.txt
 │
 ├── frontend/
-│   ├── app/
-│   ├── components/
-│   ├── lib/
-│   └── ...
-│
-├── data/
-│   ├── raw/
-│   ├── processed/
-│   ├── manifests/
-│   └── splits/
+│   ├── src/
+│   │   ├── api/
+│   │   ├── components/
+│   │   ├── lib/
+│   │   └── test/
+│   ├── package.json
+│   └── vite.config.ts
 │
 ├── experiments/
-│   ├── feasibility/
-│   ├── baselines/
-│   ├── ablations/
-│   ├── ood/
-│   └── bias/
+│   ├── EXP-001-...
+│   ├── ...
+│   └── EXP-011-passage-attribution/
 │
-├── models/
-│   └── ...
-│
-└── scripts/
-    └── ...
+├── pytest.ini
+└── ...
 ```
 
-This is an **initial target**, not a command to create every directory immediately.
+The exact repository may contain additional experiment artifacts and dataset files.
 
-Folders should be introduced when their responsibilities become concrete.
-
----
-
-# 28. Architectural Evolution
-
-Architecture changes are expected during the project.
-
-When a feasibility experiment invalidates an architectural assumption:
-
-1. Record the result.
-2. Explain why the original approach was insufficient.
-3. Update `DECISIONS.md`.
-4. Update this document if the architectural boundary changes.
-5. Update implementation plans.
-6. Verify that dependent components remain consistent.
-
-Architecture should reflect what we learn rather than forcing experiments to conform to the original plan.
+Production code and experimental code remain separated.
 
 ---
 
-# 29. Current Architecture Status
+# 27. Architectural Evolution
 
-**Phase:** 0 — Project Foundation
+The project deliberately evolved from its original architecture.
 
-**Status:** Conceptually defined; implementation details pending feasibility experiments.
+### Original proposal
 
-### Locked architectural principles
+The initial architecture included:
 
-* Evidence-first detection
-* Machine association separated from stylistic anomaly
-* Evidence sufficiency and abstention
-* Local/free core pipeline
-* Replaceable ML components
-* Thin API
-* Essay-centered UI
-* Deterministic evidence generation
-* Family-level dataset isolation
-* Experiment-driven feature selection
+```text
+Global machine association
++
+Local stylistic anomaly
++
+Passage-level attribution
+```
 
-### Pending decisions
+### Experimental findings
 
-* local language model
-* exact feature set
-* classifier
-* anomaly formulation
-* evidence thresholds
-* calibration
-* passage-window strategy
-* final API schemas
+EXP-007 through EXP-009 showed that local anomaly / boundary signals were too noisy for reliable production localization.
 
-The next implementation work should begin with **Phase 1 feasibility experiments**, not with construction of the complete production pipeline.
+EXP-010 established evidence-sufficiency behavior.
+
+EXP-011 tested leave-one-sentence-out attribution and found insufficient capture/separation for production sentence-level attribution.
+
+### Current architecture
+
+The production system therefore uses:
+
+```text
+Document-level machine association
+        +
+Evidence sufficiency
+        +
+Validated sentence-level perplexity observations
+        +
+Evidence Inspector presentation
+```
+
+The architecture changed because the evidence changed.
+
+That is an intentional design property of the project.
+
+---
+
+# 28. Current Architecture Status
+
+**Phase:** Production prototype / final integration.
+
+**Status:** Core detector, API, frontend, Evidence Inspector, and backend tests are implemented.
+
+Current verified capabilities:
+
+- working essay input
+- document-level classification
+- four-feature evidence
+- insufficient-evidence abstention
+- long-context robustness
+- sentence-level perplexity evidence
+- Evidence Inspector
+- structured API response
+- human-associated demo case
+- AI-associated demo case
+- insufficient-evidence demo case
+
+Remaining submission work:
+
+- final evaluation set
+- three confident failure cases and explanations
+- ESL/non-native-English audit
+- final documentation consistency pass
+- final demo/presentation preparation
+- final repository verification
+
+The architecture is considered stable for submission unless final evaluation reveals a blocking issue.

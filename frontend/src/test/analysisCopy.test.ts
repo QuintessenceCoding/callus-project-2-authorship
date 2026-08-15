@@ -19,6 +19,7 @@ const baseResult: AnalyzeResponse = {
     { name: "mattr", value: 0.905, available: true, reason: null, metadata: {} },
     { name: "pos_3gram_entropy", value: 6.67, available: true, reason: null, metadata: {} }
   ],
+  sentence_evidence: [],
   text_statistics: {
     char_count: 100,
     word_count: 20,

@@ -26,6 +26,14 @@ class TextStatistics(BaseModel):
     language_model_token_count: int | None
 
 
+class SentenceEvidence(BaseModel):
+    sentence_id: int
+    text: str
+    perplexity: float | None
+    available: bool
+    reason: str | None
+    
+
 class AnalyzeResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
@@ -33,5 +41,8 @@ class AnalyzeResponse(BaseModel):
     label: Literal["human_associated", "ai_associated"] | None
     ai_probability: float | None
     features: list[FeatureEvidence]
+    sentence_evidence: list[SentenceEvidence]
     text_statistics: TextStatistics
     model_metadata: dict[str, Any]
+
+

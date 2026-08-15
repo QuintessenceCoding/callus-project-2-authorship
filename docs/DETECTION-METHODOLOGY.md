@@ -2,1230 +2,974 @@
 
 ## 1. Purpose
 
-This document defines the proposed statistical and machine-learning methodology for detecting measurable characteristics associated with machine-generated text in college admissions essays.
+This document defines the **validated production methodology** used by Callus Project 2 to detect measurable characteristics associated with machine-generated writing in admissions-style essays.
 
-It serves three purposes:
+The methodology is intentionally experiment-driven. Candidate features and localization methods were tested through EXP-001 through EXP-011 before being promoted, rejected, or deferred.
 
-1. Define the analytical concepts used by the system.
-2. Separate established assumptions from experimental hypotheses.
-3. Provide implementation guidance once feasibility experiments validate the approach.
+The production system does **not** attempt to prove authorship.
 
-The methodology is intentionally experiment-driven.
-
-A candidate feature, model, threshold, or statistical formulation must not become part of the final system solely because it appears theoretically plausible.
+Instead, it estimates whether a document exhibits measurable characteristics associated with machine-generated writing within the project's development and validation distribution, while communicating evidence limitations explicitly.
 
 ---
 
 # 2. Methodological Position
 
-The system does not attempt to determine authorship with certainty.
+The system draws an important distinction between:
 
-Instead, it estimates whether text exhibits characteristics that are statistically associated with machine-generated writing within the project's training and evaluation distributions.
-
-The system also measures whether individual passages deviate from the surrounding writing.
-
-Therefore, the detector produces evidence along two separate dimensions:
-
-```text id="f7w9qn"
-                Passage
-                   │
-          ┌────────┴────────┐
-          ▼                 ▼
- Machine Association   Stylistic Anomaly
-    "Does this            "Does this
-     resemble             differ from
-     machine text?"       its context?"
+```text
+Document-level machine association
+            +
+Sentence-level evidence observations
 ```
 
-Neither signal alone constitutes proof of AI authorship.
+and:
+
+```text
+Sentence-level AI authorship attribution
+```
+
+The production classifier performs the first.
+
+It does **not** perform the second.
+
+This distinction was strengthened by EXP-007, EXP-008, EXP-009, and EXP-011, which showed that the tested local-attribution approaches were not reliable enough to justify sentence-level authorship claims.
+
+The final product therefore asks:
+
+> Does the document exhibit measurable characteristics associated with machine-generated writing?
+
+and, where validated sentence-level measurements exist:
+
+> Where in the document do these measurable patterns appear?
+
+It does not claim:
+
+> This sentence was written by AI.
 
 ---
 
 # 3. Core Analytical Questions
 
-The methodology attempts to answer four questions.
+The completed methodology addresses four questions.
 
 ### Q1 — Machine Association
 
-Does this passage exhibit measurable characteristics that resemble machine-generated examples?
+Does the complete essay exhibit a measurable feature profile associated with machine-generated examples in the development distribution?
 
-### Q2 — Stylistic Consistency
+### Q2 — Evidence Location
 
-Does this passage behave similarly to the surrounding writing?
+Where do directly measurable local signals appear in the essay?
+
+The current production answer is sentence-level perplexity evidence.
 
 ### Q3 — Evidence Sufficiency
 
-Is there enough reliable text and context to support an interpretation?
+Are all four features required by the trained classifier available and numerically valid?
 
-### Q4 — Generalization
+If not, the system abstains.
 
-Does the detector continue to behave reasonably when the topic, generation model, or writing style changes?
+### Q4 — Generalization and Limitations
 
-The final system should expose these distinctions rather than collapse them into a single unexplained percentage.
+How should the result be interpreted outside the development distribution, across writing styles, and under hybrid or ESL conditions?
+
+These questions prevent the system from collapsing everything into an unexplained AI percentage.
 
 ---
 
 # 4. Analytical Units
 
-The system operates at multiple granularities.
-
 ## 4.1 Document
 
 The complete submitted essay.
 
-Used for:
+The document is the primary unit for production classification.
 
-* overall assessment
-* essay-level feature distributions
-* contextual baselines
-* aggregate evidence
+The four-feature classifier operates on:
+
+```text
+perplexity
+sentence_length_cv
+mattr
+pos_3gram_entropy
+```
+
+The resulting vector is normalized and passed to the persisted Logistic Regression classifier.
 
 ---
 
 ## 4.2 Sentence
 
-The smallest primary analytical unit.
+Sentences are extracted using deterministic spaCy sentence segmentation.
 
-Used for:
+Sentence-level data is retained for measurements that are genuinely computed at sentence level.
 
-* sentence-level features
-* local anomaly analysis
-* highlighting
-* fine-grained evidence
+In the production system, sentence-level perplexity is preserved as structured evidence.
 
-Very short sentences may not contain enough information for reliable analysis.
+Sentence evidence is a measurement observation, not a sentence-level classification.
 
 ---
 
 ## 4.3 Passage
 
-A group of adjacent sentences.
+Passage-level AI attribution is **not a production classifier**.
 
-Used for:
+Passages were important during the experimental phase because hybrid writing and local discontinuity were research questions.
 
-* more stable feature estimation
-* local stylistic comparison
-* hybrid-writing detection
-* stronger evidence when individual sentences are too short
+However, EXP-007 through EXP-011 did not establish sufficiently reliable local attribution for production use.
 
-Passages may correspond to paragraphs or dynamically constructed sentence windows.
-
-The exact passage construction strategy remains experimental.
+The current UI therefore uses measured sentence evidence rather than assigning machine/human labels to arbitrary passage windows.
 
 ---
 
-# 5. Methodology Pipeline
+# 5. Production Methodology Pipeline
 
-The proposed analytical pipeline is:
+The current runtime pipeline is:
 
-```text id="wjh7uo"
+```text
 Raw Essay
     │
     ▼
-Normalization
+spaCy Sentence Segmentation
     │
     ▼
-Sentence / Passage Segmentation
+Validated Feature Extraction
+    │
+    ├── Document Perplexity
+    ├── Sentence-Length CV
+    ├── MATTR
+    └── POS 3-Gram Entropy
     │
     ▼
-Feature Extraction
+Required-Feature Availability Check
     │
-    ├──────────────────────────────┐
-    ▼                              ▼
-Machine Association          Stylistic Anomaly
-Features                     Features
-    │                              │
-    ▼                              ▼
-Global Classifier             Robust Local Analysis
-    │                              │
-    └──────────────┬───────────────┘
-                   ▼
-           Evidence Sufficiency
-                   │
-                   ▼
-          Decision / Abstention
-                   │
-                   ▼
-           Evidence Aggregation
-                   │
-                   ▼
-                UI Result
+    ├── Missing feature → insufficient_evidence
+    │
+    └── Complete vector
+            │
+            ▼
+       StandardScaler
+            │
+            ▼
+      LogisticRegression
+            │
+            ▼
+    Document Classification
+            │
+            ▼
+    Structured Evidence Response
+            │
+            └── sentence-level perplexity observations
 ```
 
----
-
-# 6. Feature Laboratory
-
-The project will initially maintain a broad candidate feature pool.
-
-Features are organized into categories.
-
-The purpose of the laboratory is to experimentally determine:
-
-* which features contain useful signal
-* which features are redundant
-* which features improve generalization
-* which features introduce undesirable bias
-* which features are computationally practical
-
-No candidate feature is guaranteed to reach the final model.
+The frontend consumes this structured response through the FastAPI endpoint.
 
 ---
 
-# 7. Predictability Features
+# 6. Evidence-First Principles
 
-## 7.1 Perplexity
+## 6.1 No LLM as Final Judge
 
-Perplexity measures how predictable a sequence is according to a language model.
+The system never sends an essay to a chat model and asks for an authorship verdict.
 
-For tokens with log probabilities:
+A local causal language model is used as a measurement instrument for token probabilities and perplexity.
 
-[
-PPL = \exp\left(-\frac{1}{N}\sum_{i=1}^{N}\log P(x_i|x_{<i})\right)
-]
+The final classification is produced by the project's own saved statistical model.
+
+---
+
+## 6.2 Evidence Over Verdict
+
+A result is accompanied by:
+
+- the document-level feature values
+- feature availability and reasons
+- sentence-level perplexity observations where available
+- text statistics
+- model metadata
+- evidence-sufficiency state
+
+The UI therefore presents measurable evidence rather than a bare percentage.
+
+---
+
+## 6.3 No False Precision
+
+The classifier output field is named `ai_probability` in the API for compatibility with the saved model interface, but the frontend presents it as:
+
+```text
+MODEL SIGNAL
+```
+
+It is not presented as a calibrated probability that a human or AI actually authored the essay.
+
+The production model metadata explicitly states that its probabilities are model scores for machine association within the EXP-005/EXP-006 distribution.
+
+---
+
+# 7. Perplexity Methodology
+
+## 7.1 Definition
+
+For token probabilities:
+
+```text
+PPL = exp(
+    -(1/N) * Σ log P(x_i | x_<i)
+)
+```
 
 Lower perplexity indicates that the language model considers the text more predictable.
 
-Perplexity is useful as a candidate signal because generated text can exhibit different predictability distributions from human text.
+This is a statistical measurement, not an authorship proof.
 
-However:
-
-> **Low perplexity does not imply AI authorship.**
-
-Human writing can also be highly predictable, especially when formal, edited, or produced by experienced writers.
-
-This is particularly relevant to ESL/non-native-English bias.
+Human writing can also have low perplexity, particularly when it is formal, conventional, or heavily edited.
 
 ---
 
-## 7.2 Sentence-Level Perplexity
+## 7.2 Local Model
 
-Perplexity should initially be calculated at sentence or passage level rather than only for the complete document.
+The production perplexity measurement uses:
 
-This enables:
-
-* localized highlighting
-* local comparison
-* passage-level anomaly detection
-
-The language model used for this calculation must be locally runnable.
-
-Candidate models will be evaluated during Phase 1.
-
----
-
-## 7.3 Perplexity Variation
-
-In addition to absolute perplexity, the system may calculate:
-
-* mean perplexity
-* median perplexity
-* variance
-* coefficient of variation
-* neighboring-sentence changes
-
-These features attempt to capture whether predictability is relatively uniform or varies throughout the essay.
-
----
-
-# 8. Rhythm and Pacing Features
-
-Human writing often varies sentence structure and pacing.
-
-Candidate features include:
-
-## 8.1 Sentence Length
-
-Measured using:
-
-* tokens
-* words
-* characters where useful
-
----
-
-## 8.2 Sentence Length Coefficient of Variation
-
-Instead of using raw variance:
-
-[
-CV = \frac{\sigma}{\mu}
-]
-
-This normalizes variation relative to the average sentence length.
-
-The feature may be calculated:
-
-* across a passage
-* across the document
-* within local windows
-
-depending on experimental results.
-
----
-
-## 8.3 Punctuation Distribution
-
-Potential measurements include:
-
-* commas per sentence
-* semicolons
-* colons
-* dashes
-* parentheses
-* quotation marks
-* terminal punctuation
-
-The goal is not to assume that a particular punctuation pattern is inherently AI-like.
-
-Instead, punctuation features are candidate indicators of stylistic regularity.
-
----
-
-# 9. Lexical Features
-
-## 9.1 MATTR
-
-Type-Token Ratio (TTR) is strongly affected by document length.
-
-Therefore, the initial candidate metric is:
-
-**Moving-Average Type-Token Ratio (MATTR).**
-
-MATTR calculates lexical diversity over fixed-size moving windows and averages the resulting values.
-
-This reduces the direct dependence of lexical diversity on total essay length.
-
----
-
-## 9.2 Rare-Word Proportion
-
-Potentially measure the proportion of words outside a reference frequency list.
-
-This feature must be handled carefully because:
-
-* frequency lists vary
-* vocabulary depends on topic
-* domain-specific terminology can appear rare
-* ESL writing may be affected differently
-
-Therefore, this feature will require validation before being retained.
-
----
-
-## 9.3 Repetition
-
-Potential measurements include:
-
-* repeated words
-* repeated n-grams
-* repeated phrase structures
-* distance between repeated constructions
-
-Repetition should be measured relative to an appropriate baseline rather than automatically treated as evidence of machine generation.
-
----
-
-# 10. Structural and Syntactic Features
-
-## 10.1 POS N-Gram Entropy
-
-Part-of-speech sequences can be represented as n-grams.
-
-For example:
-
-```text id="3l5xg4"
-DET → ADJ → NOUN → VERB
+```text
+Model: distilgpt2
+Runtime: Hugging Face Transformers
+Device: CPU
 ```
 
-The distribution of POS n-grams can be measured using entropy:
-
-[
-H(X) = -\sum_i p(x_i)\log p(x_i)
-]
-
-Lower entropy may indicate more repetitive structural patterns.
-
-However, entropy alone is not interpreted as an AI score.
-
-It is a candidate feature whose usefulness must be experimentally established.
+EXP-001 established the feasibility and reproducibility of sentence-level causal perplexity on the available hardware.
 
 ---
 
-## 10.2 Dependency Statistics
+## 7.3 Causal Alignment
 
-Potential features include:
+The validated scoring alignment is:
 
-* dependency tree depth
-* number of dependency relations
-* clause-related measurements
-* structural variation between sentences
-
-These are candidate features.
-
-They will only be retained if they provide measurable value without creating unnecessary computational or bias costs.
-
----
-
-# 11. Local Consistency Features
-
-This is a major component of the methodology.
-
-Traditional detection asks:
-
-> Does this text look machine-generated?
-
-Our system additionally asks:
-
-> Does this passage look unusually different from the writing around it?
-
-This is particularly relevant to:
-
-* AI polishing
-* AI-assisted rewriting
-* AI-spliced passages
-
----
-
-# 12. Stylistic Anomaly Score
-
-Let an essay consist of analytical units:
-
-[
-E = (s_1, s_2, ..., s_n)
-]
-
-Each unit has a feature vector:
-
-[
-x_i \in \mathbb{R}^k
-]
-
-For the target unit (s_i), construct a reference distribution using surrounding or remaining observations.
-
-The initial candidate approach is robust statistics.
-
----
-
-# 13. Robust Baseline
-
-Ordinary mean and standard deviation are vulnerable to outliers.
-
-That is particularly problematic because the outlier may be the exact passage we are attempting to identify.
-
-Therefore, the initial approach is:
-
-* median
-* Median Absolute Deviation (MAD)
-
-For a feature (j):
-
-[
-MAD_j = median(|x_j - median(x_j)|)
-]
-
-A robust standardized deviation may be represented as:
-
-[
-z_{robust} =
-\frac{0.6745(x - median(x))}
-{MAD + \epsilon}
-]
-
-The constant and exact formulation are subject to validation.
-
-The system must handle the case where MAD is zero or extremely small.
-
----
-
-# 14. Leave-One-Out Baseline
-
-When evaluating a target sentence or passage, that unit should not substantially influence the baseline against which it is evaluated.
-
-For target (s_i):
-
-[
-B_i = E \setminus {s_i}
-]
-
-The baseline statistics are therefore calculated without the target observation where sufficient data exists.
-
-Conceptually:
-
-```text id="qfd3z6"
-Essay units:
-
-S1 S2 S3 S4 S5 S6 S7 S8
-
-Target:
-          S4
-
-Baseline:
-S1 S2 S3    S5 S6 S7 S8
+```text
+input_ids[:, 1:]
+labels scored by logits[:, :-1, :]
 ```
 
-This reduces self-contamination.
+This avoids the off-by-one ambiguity that would otherwise make the perplexity calculation methodologically unclear.
 
 ---
 
-# 15. Local Windows
+## 7.4 Document Aggregation
 
-A full-document baseline may hide local discontinuities.
+Per-sentence perplexity is calculated first.
 
-Therefore, local windows are a candidate approach.
+The document-level perplexity feature is the:
 
-For target sentence (s_i), a local neighborhood might include:
+```text
+median of valid sentence perplexities
+```
 
-[
-W_i = {s_{i-m}, ..., s_{i-1}, s_{i+1}, ..., s_{i+m}}
-]
-
-where (m) is experimentally determined.
-
-Potential values may include:
-
-* 2 neighboring sentences
-* 3 neighboring sentences
-* paragraph-level neighbors
-* adaptive windows
-
-The window size must be large enough to produce stable statistics without becoming equivalent to the entire essay.
+This reduces sensitivity to an individual unusually high or low sentence.
 
 ---
 
-# 16. Local Anomaly Aggregation
+## 7.5 Sentence-Level Perplexity Evidence
 
-For each feature, calculate a robust standardized deviation.
+The extractor preserves sentence-level measurements including:
 
-A candidate aggregate anomaly score is:
+```text
+sentence_id
+token_count
+usable_prediction_token_count
+perplexity
+perplexity_status
+perplexity_reason_unavailable
+perplexity_warnings
+language_model_context_limit
+```
 
-[
-S_{local}(s_i)
-==============
+The API exposes these through `sentence_evidence`.
 
-\sqrt{
-\sum_{j=1}^{k}
-w_j z_{i,j}^{2}
-}
-]
+The Evidence Inspector uses the measured sentence perplexities to identify strong predictability exemplars.
+
+The wording is intentionally evidence-oriented:
+
+> These sentences exhibit strong predictability measurements.
+
+It does not say:
+
+> These sentences were written by AI.
+
+---
+
+# 8. Context Limit Handling
+
+`distilgpt2` supports a 1024-token context.
+
+During production integration, an 867-word PERSUADE essay was treated as one sentence and produced 1134 language-model tokens.
+
+The original implementation attempted to score that sentence and returned HTTP 500.
+
+The production extractor was changed to check the model context limit before invoking perplexity.
+
+When a sentence exceeds the supported context, perplexity becomes unavailable with:
+
+```text
+sentence_exceeds_language_model_context
+```
+
+If this makes the required four-feature vector incomplete, the detector returns:
+
+```text
+insufficient_evidence
+```
+
+The system does not silently truncate the user's sentence.
+
+This preserves the validated perplexity definition.
+
+---
+
+# 9. Rhythm Feature — Sentence-Length CV
+
+Sentence-length coefficient of variation is defined as:
+
+```text
+CV = σ / μ
+```
 
 where:
 
-* (z_{i,j}) is the robust standardized deviation
-* (w_j) is an optional feature weight
+- `σ` = standard deviation of sentence lengths
+- `μ` = mean sentence length
 
-However, this exact aggregation is **not locked**.
+The production implementation uses the validated EXP-004 definition.
 
-Alternatives include:
+This feature is calculated at document level.
 
-* mean absolute standardized deviation
-* maximum standardized deviation
-* robust multivariate distance
-* learned anomaly scoring
-* feature-specific aggregation
-
-The simplest stable method should be preferred unless experimentation justifies greater complexity.
+The Evidence Inspector therefore does not invent a separate sentence-level CV value.
 
 ---
 
-# 17. Machine Association Score
+# 10. Lexical Feature — MATTR
 
-The global detector learns a relationship between feature vectors and training labels.
+The production lexical-diversity feature is:
 
-Conceptually:
-
-[
-S_{global}(x) =
-P(machine \mid x)
-]
-
-when the chosen classifier provides a calibrated probability interpretation.
-
-However, a raw classifier probability must not automatically be described as a statistically valid confidence interval.
-
-Probability calibration will be investigated separately.
-
-The final UI terminology may therefore use:
-
-* machine association
-* evidence strength
-* uncertain
-
-rather than presenting uncalibrated probabilities as objective truth.
-
----
-
-# 18. Classifier Candidates
-
-The initial candidate classifiers are:
-
-### Logistic Regression
-
-Advantages:
-
-* simple
-* fast
-* interpretable
-* works well with normalized numerical features
-* suitable as a transparent baseline
-
-### Random Forest
-
-Advantages:
-
-* handles nonlinear relationships
-* minimal assumptions about feature distributions
-* useful for comparing against a linear baseline
-* provides feature importance mechanisms
-
-Additional models may be tested if justified.
-
-The final classifier will be selected based on:
-
-* held-out performance
-* generalization
-* calibration
-* computational cost
-* interpretability
-* hybrid performance
-* bias behavior
-
----
-
-# 19. Baselines
-
-The project will establish progressively stronger baselines.
-
-## Baseline 0 — Always Human
-
-Predict the majority class.
-
-Purpose:
-
-* sanity check
-* establish a trivial lower bound
-
----
-
-## Baseline 1 — Perplexity Threshold
-
-Use a simple threshold on perplexity.
-
-Purpose:
-
-* measure the standalone value of predictability
-* establish whether the feature-engineered detector adds value
-
----
-
-## Model 2 — Multi-Feature Classifier
-
-Combine validated linguistic features.
-
-Purpose:
-
-* determine whether multiple signals provide useful incremental information
-
----
-
-# 20. Ablation Study
-
-The feature laboratory will use controlled ablation.
-
-Example progression:
-
-```text id="h5v94x"
-Baseline
-   ↓
-+ Rhythm
-   ↓
-+ Lexical
-   ↓
-+ Syntax
-   ↓
-+ Repetition
-   ↓
-+ Local consistency
+```text
+Moving-Average Type-Token Ratio (MATTR)
 ```
 
-Each configuration should be evaluated on the same validation protocol.
+The validated implementation uses a fixed window of:
 
-The purpose is to determine:
-
-* which features improve discrimination
-* which features are redundant
-* which features hurt generalization
-* which features disproportionately affect bias
-* which features improve hybrid detection
-
-A feature may be retained even without a large overall F1 improvement if it provides meaningful value in another required dimension.
-
----
-
-# 21. Hybrid Writing Methodology
-
-Hybrid writing is a first-class evaluation case.
-
-The project will distinguish at least:
-
-### AI Polishing
-
-Human text remains intact in meaning and structure while selected passages are substantially edited by a local language model.
-
-Expected challenge:
-
-> The machine-associated signal may be subtle.
-
----
-
-### AI Splicing
-
-One or more passages are replaced with newly generated text while the surrounding essay remains human-written.
-
-Expected challenge:
-
-> The inserted passage may create a local statistical discontinuity.
-
----
-
-### Potential Additional Case
-
-If time permits:
-
-**Human-edited AI**
-
-AI-generated text is subsequently substantially edited by a human.
-
-This tests whether the detector can survive partial removal of machine-associated characteristics.
-
-This case is optional and should not compromise the core experiments.
-
----
-
-# 22. Global + Local Interpretation
-
-The system maintains two distinct signals.
-
-```text id="s5c0uy"
-                Stylistic Anomaly
-                      HIGH
-                        │
-                        │
-       Human-style      │      Local machine-
-       shift            │      associated anomaly
-                        │
-────────────────────────┼────────────────────────
-                        │
-       Consistent       │      Consistently
-       human-like       │      machine-associated
-                        │
-                        │
-                      LOW
-                        │
-                  Machine Association
+```text
+25 lexical tokens
 ```
 
-The quadrants are interpretive aids, not ground-truth labels.
+MATTR is a document-level feature and requires enough lexical tokens for the windowed calculation.
 
-For example:
-
-### Low Global + Low Local
-
-Consistent with human-writing distribution and internally consistent.
-
-### High Global + Low Local
-
-Machine-associated characteristics appear relatively consistently.
-
-### High Global + High Local
-
-Machine-associated characteristics coincide with a localized stylistic anomaly.
-
-### Low Global + High Local
-
-A stylistic shift exists, but evidence for machine association is weak.
-
-This should generally produce uncertainty rather than a machine attribution.
+When the required number of tokens is unavailable, the feature is marked unavailable and the classifier abstains if the complete four-feature vector cannot be formed.
 
 ---
 
-# 23. Evidence Sufficiency
+# 11. Structural Feature — POS 3-Gram Entropy
 
-Evidence sufficiency determines whether an analytical result should be surfaced strongly.
+The production structural feature is:
 
-Potential requirements include:
-
-### Text quantity
-
-Enough tokens to calculate stable language-model statistics.
-
-### Context quantity
-
-Enough neighboring observations to establish a local baseline.
-
-### Feature availability
-
-Required features must be computable.
-
-### Statistical stability
-
-Variance/MAD must not be degenerate.
-
-### Signal agreement
-
-If major signals strongly conflict, the system should reduce evidence strength or abstain.
-
-The exact thresholds are experimental.
-
----
-
-# 24. Uncertainty and Abstention
-
-The detector should be capable of declining to make a strong classification.
-
-Potential states:
-
-```text id="1v7xoe"
-HIGH EVIDENCE
-    ↓
-Strong interpretation
-
-MODERATE EVIDENCE
-    ↓
-Qualified interpretation
-
-LOW / CONFLICTING EVIDENCE
-    ↓
-Uncertain
-
-INSUFFICIENT EVIDENCE
-    ↓
-No meaningful classification
+```text
+POS 3-gram entropy
 ```
 
-The system should not convert uncertainty into an arbitrary percentage.
+Part-of-speech tags are converted into sequences of three tags, and the empirical distribution of those trigrams is measured using entropy:
 
----
-
-# 25. Calibration
-
-Classifier probabilities and user-facing confidence are separate concepts.
-
-A value returned by:
-
-```text id="3x3h5q"
-classifier.predict_proba()
+```text
+H(X) = -Σ p(x) log p(x)
 ```
 
-should not automatically be called:
+This is a document-level feature.
 
-> "87% probability this was written by AI."
-
-If calibration is needed, candidate methods may include:
-
-* Platt scaling
-* isotonic regression
-
-Calibration must be evaluated on held-out validation data.
-
-If calibrated probabilities do not provide meaningful value, the UI may instead expose categorical evidence strength.
+It is not independently interpreted as an AI score.
 
 ---
 
-# 26. Feature Contribution and Evidence
+# 12. Production Feature Vector
 
-Evidence should be generated from measurable model inputs.
+The production feature order is fixed:
 
-For a linear classifier, contribution may be estimated from:
-
-[
-contribution_j = w_j x_j
-]
-
-after appropriate preprocessing.
-
-For nonlinear models, alternatives may include:
-
-* permutation-based feature importance
-* controlled feature perturbation
-* model-specific attribution methods
-
-The project should avoid introducing a complex explanation system unless necessary.
-
-The simplest explanation method that faithfully represents the model should be preferred.
-
----
-
-# 27. Dataset Relationship to Methodology
-
-The detector's methodology is only meaningful relative to its training distribution.
-
-Therefore, every evaluation must record:
-
-* dataset source
-* essay family
-* human/AI/hybrid category
-* generation model where applicable
-* topic
-* split
-* transformation type
-* word count
-
-This allows later investigation of unexpected behavior.
-
----
-
-# 28. Generalization Experiments
-
-The detector will be evaluated under controlled distribution shifts.
-
-## Topic Shift
-
-Train on one set of topic clusters and evaluate on a held-out topic cluster.
-
-Question:
-
-> Does the detector depend on topic-specific vocabulary?
-
----
-
-## Model Shift
-
-Train without examples from a particular generation model.
-
-Evaluate against that unseen model.
-
-Question:
-
-> Has the classifier learned machine-associated characteristics or simply learned the fingerprint of known models?
-
----
-
-## Hybrid Shift
-
-Train on pure human/AI data and evaluate on human-AI hybrid data.
-
-Question:
-
-> Can the detector identify partial machine assistance?
-
----
-
-# 29. Bias Evaluation
-
-ESL/non-native-English writing is treated as a specific audit condition.
-
-The experiment asks:
-
-> Do features used by the detector produce elevated false positives on the control group?
-
-Possible metrics include:
-
-* false-positive rate
-* evidence-strength distribution
-* average machine-association score
-* feature distributions
-
-The goal is not to assume bias exists.
-
-The goal is to measure whether it exists in this system.
-
----
-
-# 30. Failure Analysis
-
-The project must intentionally inspect confident errors.
-
-For each failure:
-
-```text id="p7v8c1"
-Input
-  ↓
-Prediction
-  ↓
-Feature values
-  ↓
-Global signal
-  ↓
-Local signal
-  ↓
-Evidence sufficiency
-  ↓
-Failure interpretation
+```text
+1. perplexity
+2. sentence_length_cv
+3. mattr
+4. pos_3gram_entropy
 ```
 
-Potential failure categories:
+This ordering is part of the persisted model contract.
 
-* polished human prose
-* ESL/non-native-English writing
-* unusual human style
-* human-edited AI
-* unseen generation model
-* topic shift
-* short passage
-* contradictory feature signals
+The production model will not accept an arbitrary feature ordering.
 
-The analysis should distinguish:
+---
 
-> **What the detector did**
+# 13. Feature Selection and Experimental Validation
+
+Feature selection was not based solely on theoretical plausibility.
+
+The project used controlled experiments to determine which candidate features were suitable for the final classifier.
+
+The resulting production vector contains four features validated through the project's feature-development pipeline:
+
+```text
+Perplexity
+Sentence-length CV
+MATTR
+POS 3-gram entropy
+```
+
+Other candidate ideas were not promoted simply because they sounded plausible.
+
+This is consistent with the project's broader experiment-first methodology.
+
+---
+
+# 14. Production Classifier
+
+The production classifier is:
+
+```text
+StandardScaler
+      ↓
+LogisticRegression
+```
+
+The model artifact is:
+
+```text
+backend/artifacts/authorship_detector.joblib
+```
+
+Its metadata is:
+
+```text
+backend/artifacts/authorship_detector.metadata.json
+```
+
+The artifact records:
+
+- feature order
+- model type
+- random seed
+- training and validation counts
+- source experiment
+- reference validation metrics
+- known validation-row verification
+- interpretation guardrail
+
+---
+
+# 15. Validation Result Used for Production Selection
+
+EXP-006 produced the following saved validation metrics for the production four-feature classifier:
+
+```text
+Accuracy   0.9746835443
+Precision  0.9523809524
+Recall     1.0000000000
+F1         0.9756097561
+ROC-AUC    0.9955128205
+```
+
+These numbers are tied to the project's bounded validation distribution.
+
+They must not be presented as universal admissions-domain accuracy.
+
+The final evaluation must be reported separately from the development/validation result.
+
+---
+
+# 16. Evidence Sufficiency and Abstention
+
+The production detector requires all four classifier inputs to be available.
+
+The decision flow is:
+
+```text
+Feature Extraction
+       │
+       ▼
+Are all four features available and finite?
+       │
+   ┌───┴────┐
+   │        │
+  NO       YES
+   │        │
+   ▼        ▼
+ABSTAIN   CLASSIFY
+```
+
+The API returns:
+
+```text
+state = insufficient_evidence
+```
+
+when required evidence is unavailable.
+
+This is preferable to fabricating a value, substituting an arbitrary default, or forcing every input into a binary classification.
+
+---
+
+# 17. EXP-010 — Evidence Sufficiency
+
+EXP-010 was specifically used to investigate whether a universal numeric evidence threshold could be justified.
+
+The experiment showed that short inputs can have unstable feature measurements and that evidence availability depends on the feature definitions.
+
+The production decision is therefore conservative:
+
+> classify only when the complete four-feature vector required by the trained model is available.
+
+No unsupported universal word-count threshold is embedded into the production classifier.
+
+---
+
+# 18. Local Attribution Experiments
+
+Several experiments investigated whether the system could reliably identify individual AI-written passages.
+
+These experiments are important because the original project requirement asks for evidence about "where".
+
+However, the experiments also established a boundary around what the system can honestly claim.
+
+---
+
+## 18.1 EXP-007 — Local Anomaly
+
+A local anomaly signal was investigated using essay-relative statistics.
+
+Result:
+
+- useful exploratory signal in some cases
+- insufficiently reliable localization for production use
+
+Decision:
+
+```text
+Rejected for production attribution
+```
+
+---
+
+## 18.2 EXP-008 — Window / Feature Sensitivity
+
+Different local windows and feature behavior were investigated.
+
+Result:
+
+- localization remained noisy
+- feature behavior was not stable enough to support a production sentence-level verdict
+
+Decision:
+
+```text
+Rejected for production attribution
+```
+
+---
+
+## 18.3 EXP-009 — Boundary Discontinuity
+
+Boundary discontinuity was tested on controlled hybrids.
+
+Result:
+
+- some local signal existed
+- separation was not strong enough to justify authoritative boundary detection
+
+Decision:
+
+```text
+Rejected for production attribution
+```
+
+---
+
+## 18.4 EXP-011 — Leave-One-Sentence-Out Attribution
+
+A final feasibility test reused the production four-feature classifier.
+
+For each sentence, the experiment removed that sentence, recomputed the document features, and measured the change in classifier signal.
+
+Results across 20 controlled hybrids:
+
+```text
+Top-10% AI-sentence capture: 22.5%
+Top-25% AI-sentence capture: 42.5%
+
+Median AI-sentence contribution:    -0.0001953670
+Median human-sentence contribution:  -0.0011773087
+Median difference:                    0.0009819416
+```
+
+The separation was too weak to support a reliable production sentence-level attribution claim.
+
+Decision:
+
+```text
+Rejected for production attribution
+```
+
+---
+
+# 19. Production Answer to "Where?"
+
+The production system therefore uses a narrower, evidence-first interpretation of "where".
+
+It does not claim:
+
+```text
+"This sentence is AI."
+```
+
+Instead, where a validated sentence-level measurement exists, the UI shows:
+
+```text
+Where:
+the sentence containing a strong local measurement
+
+Why:
+the measured property itself, such as low perplexity
+```
+
+The current production Evidence Inspector is therefore a **measurement inspector**, not a sentence-level authorship classifier.
+
+---
+
+# 20. Evidence Inspector
+
+The Evidence Inspector is the frontend manifestation of the evidence-first methodology.
+
+Current behavior:
+
+1. The document receives a document-level classification.
+2. The four document-level feature cards show the measured feature values.
+3. Sentence-level perplexity observations are exposed separately.
+4. The strongest valid perplexity exemplars can be highlighted.
+5. The UI explains that the highlighted sentence is a statistical exemplar, not a proof of authorship.
+
+This design satisfies the need to make evidence inspectable while remaining within what the experiments support.
+
+---
+
+# 21. Why Not an LLM Explainer?
+
+An LLM was considered as a possible natural-language explanation layer.
+
+It was intentionally not adopted.
+
+Reasons:
+
+- it would introduce a second model whose explanations would need validation
+- it could invent reasons not present in the detector
+- it could blur the boundary between instrumentation and judgment
+- it could make the system look like an LLM wrapper
+- the evidence is already available as structured measurements
+
+The final explanation layer therefore uses deterministic data already produced by the detector.
+
+---
+
+# 22. Hybrid Writing
+
+Hybrid writing remains a core research condition even though local attribution is not promoted to production.
+
+The dataset and experiments distinguish:
+
+### AI Polished
+
+A human essay with selected passages edited by a local model.
+
+### AI Spliced
+
+A human essay with selected passages replaced by independently generated text.
+
+These variants are useful for testing whether the document-level detector responds to partial machine assistance.
+
+However, the system does not claim that the exact inserted passage can always be recovered.
+
+That limitation is now explicit.
+
+---
+
+# 23. Dataset Relationship to Methodology
+
+The detector is distribution-dependent.
+
+The primary controlled development work used student-writing material as a proxy rather than assuming that it was equivalent to a representative admissions corpus.
+
+The main production result therefore must be described with its source distribution and evaluation protocol.
+
+The dataset documentation records:
+
+- source provenance
+- essay family relationships
+- human/AI/hybrid roles
+- generation model where applicable
+- split information
+- known domain limitations
+
+---
+
+# 24. Generalization
+
+The methodology recognizes several important distribution shifts:
+
+- topic shift
+- generation-model shift
+- hybrid writing
+- essay-length differences
+- ESL/non-native-English writing
+- admissions-domain shift
+
+The current production result does not imply universal generalization.
+
+Final reporting should separate:
+
+```text
+Development / validation performance
+```
 
 from:
 
-> **Why we believe it failed.**
-
-The latter is a hypothesis unless experimentally verified.
-
----
-
-# 31. Evaluation Metrics
-
-Primary metrics may include:
-
-* accuracy
-* precision
-* recall
-* F1
-
-However, accuracy alone is insufficient.
-
-Additional analysis should consider:
-
-* false-positive rate
-* false-negative rate
-* precision at high-confidence decisions
-* coverage under abstention
-* calibration if probabilities are exposed
-* hybrid detection performance
-* OOD performance
-* ESL false-positive behavior
-
----
-
-# 32. Coverage vs Accuracy
-
-If the system supports abstention, evaluation should measure the relationship between:
-
-> how often the system makes a strong claim
-
-and:
-
-> how often those claims are correct.
-
-For example:
-
-```text id="n8h2dy"
-All inputs
-    │
-    ├── Strong decision
-    ├── Uncertain
-    └── Insufficient evidence
+```text
+Final evaluation
 ```
 
-A useful evaluation question becomes:
+and from:
 
-> When the system chooses to make a strong claim, how reliable is that claim?
-
-This is preferable to forcing every input into a binary category.
+```text
+Bias / OOD audits
+```
 
 ---
 
-# 33. Experimental Reproducibility
+# 25. ESL / Non-Native-English Bias
 
-Every experiment should record:
+The project explicitly treats ESL/non-native-English writing as a risk condition.
 
-* experiment identifier
-* date
-* dataset version
-* feature configuration
-* model configuration
-* preprocessing configuration
-* random seed where applicable
-* metrics
-* output artifacts
-* interpretation
-* resulting decision
+Perplexity and other linguistic statistics can respond to writing regularity, lexical diversity, and grammatical structure.
 
-Example:
+Those properties may vary for reasons unrelated to AI use.
 
-```text id="zj4y6a"
+The required audit should therefore compare detector behavior on:
+
+```text
+general human writing
+vs.
+ELL/ESL control writing
+```
+
+The final submission should report the observed result rather than assuming either presence or absence of bias.
+
+---
+
+# 26. Failure Analysis
+
+The final evaluation must include at least three confident failures, as required by the Callus brief.
+
+For each failure, the project should record:
+
+```text
+Input type
+Prediction
+Model signal
+Feature values
+Evidence availability
+Likely failure mechanism
+Known limitation
+```
+
+The report must distinguish:
+
+```text
+Observed behavior
+```
+
+from:
+
+```text
+Hypothesized reason
+```
+
+This prevents post-hoc explanations from being presented as established facts.
+
+---
+
+# 27. Evaluation Metrics
+
+The evaluation methodology does not rely on one number.
+
+At minimum, report where applicable:
+
+- accuracy
+- precision
+- recall
+- F1
+- ROC-AUC
+- false-positive rate
+- false-negative rate
+- coverage / abstention behavior
+- hybrid performance
+- ESL false-positive behavior
+- confident failure cases
+
+The current EXP-006 validation values are reference development metrics, not final universal claims.
+
+---
+
+# 28. Coverage and Abstention
+
+A detector that refuses to classify weak evidence is not necessarily weaker.
+
+The important question is:
+
+> How often does the system make a strong classification, and how reliable are those classifications within the evaluated distribution?
+
+The production system therefore retains an explicit:
+
+```text
+insufficient_evidence
+```
+
+state rather than forcing a binary label onto incomplete feature vectors.
+
+---
+
+# 29. Interpretation Guardrails
+
+The following statements are valid:
+
+> The document exhibits characteristics associated with machine-generated writing within the evaluated distribution.
+
+> This sentence has a comparatively low perplexity measurement under the local language model.
+
+> The model returned a strong machine-association signal.
+
+The following statements are not supported:
+
+> This sentence was written by AI.
+
+> This is 95% certainly AI-generated.
+
+> The detector proves the author used ChatGPT.
+
+> The model can identify every AI-written passage.
+
+The UI and documentation must preserve this distinction.
+
+---
+
+# 30. Methodology Constraints
+
+The production system must not:
+
+- use a chat model as the final judge
+- call an LLM to invent explanations
+- present raw classifier probabilities as calibrated authorship certainty
+- fabricate missing features
+- silently truncate text to make unsupported perplexity measurements possible
+- use the failed local-attribution methods as authoritative sentence labels
+- claim universal detection
+- hide dataset or domain limitations
+- tune on the final evaluation set
+
+---
+
+# 31. Experiment-to-Production Traceability
+
+The main production decisions trace back to the experiments as follows:
+
+```text
+EXP-001
+Local perplexity feasibility
+        ↓
+Perplexity measurement accepted
+
+EXP-002
+Perplexity stability
+        ↓
+Short-text instability documented
+
+EXP-003
+Local generation feasibility
+        ↓
+Generation protocol established
+
 EXP-004
+Feature-definition validation
+        ↓
+Production feature mathematics fixed
 
-Question:
-Does adding MATTR improve the perplexity baseline?
+EXP-005
+Feature distributions
+        ↓
+Feature comparability / dataset checks
 
-Dataset:
-dataset-v1
+EXP-006
+Baseline classification
+        ↓
+Four-feature Logistic Regression selected
 
-Baseline:
-Perplexity threshold
+EXP-007
+Local anomaly
+        ↓
+Rejected for production attribution
 
-Variant:
-Perplexity + MATTR
+EXP-008
+Window / feature sensitivity
+        ↓
+Rejected for production attribution
 
-Result:
-TBD
+EXP-009
+Boundary discontinuity
+        ↓
+Rejected for production attribution
 
-Decision:
-TBD
+EXP-010
+Evidence sufficiency
+        ↓
+Abstention when required features are unavailable
+
+EXP-011
+Leave-one-out attribution
+        ↓
+Rejected for production sentence attribution
+        ↓
+Evidence Inspector uses direct measurements instead
 ```
+
+This traceability is a central part of the project's methodological story.
 
 ---
 
-# 34. Hypothesis → Experiment → Result → Decision
+# 32. Current Methodology Status
 
-This is the central experimental workflow.
-
-```text id="h6c3y8"
-HYPOTHESIS
-    ↓
-EXPERIMENT
-    ↓
-RESULT
-    ↓
-INTERPRETATION
-    ↓
-DECISION
-```
-
-A result should not be rewritten after the fact to match the desired conclusion.
-
-If an experiment contradicts the original hypothesis, the hypothesis is updated.
-
----
-
-# 35. Methodology Status Labels
-
-Methodology documentation should distinguish:
+**Status:** Production methodology established.
 
 ### Accepted
 
-Supported by project evidence or an explicit architectural decision.
-
-### Proposed
-
-Current preferred approach but not yet experimentally validated.
-
-### Experimental
-
-Being actively tested.
+- evidence-first framing
+- local causal model as a measurement instrument
+- document-level four-feature classifier
+- StandardScaler + Logistic Regression
+- sentence-level perplexity as inspectable evidence
+- abstention when required features are unavailable
+- model-signal terminology rather than authorship certainty
+- deterministic Evidence Inspector presentation
 
 ### Rejected
 
-Tested and intentionally not used.
+- LLM-as-judge
+- local anomaly as production authorship evidence
+- boundary discontinuity as production authorship evidence
+- leave-one-out sentence attribution as production authorship evidence
 
-### Deferred
+### Deferred / Final Evaluation
 
-Potentially useful but outside the current scope/time budget.
+- broader OOD evaluation
+- ESL bias audit
+- three confident failure cases
+- any future expansion of sentence-level evidence beyond currently validated measurements
 
-This prevents assumptions from being mistaken for established facts.
-
----
-
-# 36. Current Proposed Feature Matrix
-
-| Category             | Feature                        | Status                  |
-| -------------------- | ------------------------------ | ----------------------- |
-| Predictability       | Mean perplexity                | Proposed baseline       |
-| Predictability       | Perplexity variation           | Experimental            |
-| Rhythm               | Sentence length                | Experimental            |
-| Rhythm               | Sentence length CV             | Experimental            |
-| Rhythm               | Punctuation distribution       | Experimental            |
-| Lexical              | MATTR                          | Experimental            |
-| Lexical              | Rare-word proportion           | Experimental            |
-| Repetition           | Repeated n-grams               | Experimental            |
-| Syntax               | POS n-gram entropy             | Experimental            |
-| Syntax               | Dependency statistics          | Experimental            |
-| Local consistency    | Essay-relative deviation       | Proposed                |
-| Local consistency    | Local-window deviation         | Experimental            |
-| Local consistency    | Leave-one-out robust deviation | Proposed                |
-| Advanced probability | Perturbation curvature         | Deferred / Experimental |
-
-No row marked Experimental or Proposed is guaranteed to enter the final detector.
-
----
-
-# 37. Methodology Constraints
-
-The final implementation must not:
-
-* use a chat model as the final judge
-* generate an explanation through an LLM after classification
-* present uncalibrated classifier probabilities as factual authorship probabilities
-* use test data for feature/threshold tuning
-* split variants from the same essay family across train/test
-* silently discard failures
-* claim universal detection capability
-* hide dataset limitations
-
----
-
-# 38. Phase 1 Feasibility Questions
-
-Before production implementation, the following must be tested.
-
-### Perplexity
-
-* Which local model is practical?
-* How fast is inference?
-* Is sentence-level token probability extraction reliable?
-* How does performance change with sentence length?
-
-### Features
-
-* Are candidate features stable?
-* Are they computationally practical?
-* Do they contain useful signal?
-
-### Local anomaly
-
-* Does LOO Median/MAD remain stable?
-* What minimum number of observations is required?
-* Do local windows outperform whole-document baselines?
-* How should zero/near-zero MAD be handled?
-
-### Classifier
-
-* Does Logistic Regression beat the perplexity baseline?
-* Does Random Forest add meaningful nonlinear value?
-* Are probabilities calibrated enough to expose?
-
-### Evidence
-
-* How much text is required for a strong assessment?
-* When should the system abstain?
-* Which feature contributions can be explained faithfully?
-
----
-
-# 39. Current Methodology Status
-
-**Phase:** 0 — Project Foundation
-
-**Status:** Conceptually defined; experimental validation pending.
-
-### Locked principles
-
-* Evidence-first analysis
-* Machine association and stylistic anomaly remain separate
-* Perplexity serves as a baseline, not a final verdict
-* Candidate features require empirical validation
-* Robust local statistics are preferred over naive mean/std baselines
-* Leave-one-out analysis is preferred where sufficient context exists
-* Short or unstable inputs must be allowed to abstain
-* Hybrid writing is a first-class evaluation condition
-* Final test data remains untouched during model development
-* Failure and bias analysis are required deliverables
-
-### Pending
-
-* exact language model
-* final feature set
-* final classifier
-* anomaly formulation
-* minimum evidence thresholds
-* local window size
-* calibration strategy
-* decision thresholds
-* final evidence-attribution mechanism
-
-The next technical step is **Phase 1 feasibility experimentation**.
+The methodology is now considered stable for the submission prototype. Remaining work is primarily final evaluation, failure/bias analysis, documentation consistency, and demo preparation.

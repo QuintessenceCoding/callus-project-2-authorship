@@ -1,0 +1,36 @@
+{
+  "audit_name": "esl-non-native-english-audit-v1",
+  "manifest": "data\\esl_audit_manifest.json",
+  "seed": 20260815,
+  "total_essays": 1402,
+  "model_artifact_version": "production-four-feature-logreg-v1",
+  "source_experiment": "EXP-006",
+  "groups": {
+    "ELL": {
+      "sample_count": 701,
+      "classified": 701,
+      "abstained": 0,
+      "coverage": 1.0,
+      "flagged_ai_count": 15,
+      "classified_human_count": 686,
+      "false_positive_rate": 0.021398002853067047,
+      "model_signal_mean": 0.03700330995408094,
+      "model_signal_median": 0.001513663277986242,
+      "model_signal_p10": 1.3515482087991961e-07,
+      "model_signal_p90": 0.08753520583238204
+    },
+    "non_ELL": {
+      "sample_count": 701,
+      "classified": 700,
+      "abstained": 1,
+      "coverage": 0.9985734664764622,
+      "flagged_ai_count": 17,
+      "classified_human_count": 683,
+      "false_positive_rate": 0.024285714285714285,
+      "model_signal_mean": 0.059552884498360645,
+      "model_signal_median": 0.006212134526408826,
+      "model_signal_p10": 4.249789684788403e-05,
+      "model_signal_p90": 0.1817610620070064
+    }
+  }
+}
